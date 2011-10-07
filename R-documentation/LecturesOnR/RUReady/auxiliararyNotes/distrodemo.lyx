@@ -1,0 +1,438 @@
+#LyX 1.6.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass rliterate-article
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+%suggested by Ihaka's note on Improving Sweave 
+\end_layout
+
+\begin_layout Plain Layout
+
+%http://www.stat.auckland.ac.nz/~stat782/downloads/Sweave-customisation.pdf
+\end_layout
+
+\begin_layout Plain Layout
+
+%%%tighten up text output from R
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+DefineVerbatimEnvironment{Sinput}{Verbatim}{xleftmargin=2em} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+fvset{listparameters={
+\backslash
+setlength{
+\backslash
+topsep}{0pt}}} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+renewenvironment{Schunk}{
+\backslash
+vspace{
+\backslash
+topsep}}{
+\backslash
+vspace{
+\backslash
+topsep}}
+\end_layout
+
+\begin_layout Plain Layout
+
+%shorten line length
+\end_layout
+
+\begin_layout Plain Layout
+
+<<echo=false>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+system("rm -rf foo; mkdir foo")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{prefix.string=foo/demo,split=T, ae=F,height=4,width=6}
+\end_layout
+
+\begin_layout Plain Layout
+
+<<Roptions, echo=F>>= 
+\end_layout
+
+\begin_layout Plain Layout
+
+options(width=60, continue="  ") 
+\end_layout
+
+\begin_layout Plain Layout
+
+###Leave less white space at top
+\end_layout
+
+\begin_layout Plain Layout
+
+options(SweaveHooks=list(fig=function() par(mar=c(5.1, 4.1, 0.5, 2.1))))
+\end_layout
+
+\begin_layout Plain Layout
+
+###Sweave appears to ignore following settings 2010-03-20
+\end_layout
+
+\begin_layout Plain Layout
+
+ps.options(horizontal=F, onefile=F, family="Times",    paper="special", height=4,
+ width=6 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+pdf.options(onefile=F,family="Times",paper="special",height=4,width=6)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(papersize="special")
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fig1,echo=T,fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+var1 <- rnorm(n=1500, mean=50, sd=20)
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(x=var1, prob=T, breaks= 20, xlim=c(-10,110), ylim=c(0,0.03), xlab="A
+ Random Sample from N(10,400)", ylab="Proportion of Observations", main="")
+\end_layout
+
+\begin_layout Plain Layout
+
+den1 <- density(var1)
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(den1, lty=2, col="red")
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topleft",legend=c(paste("mean=",round(mean(var1),3)),paste("sd=",round(s
+d(var1),3))))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fig2,echo=T,fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(den1, xlim=c(-10,110), ylim=c(0,0.03), xlab="Possible Values", type="l",
+ lty=2, col="red",main="")
+\end_layout
+
+\begin_layout Plain Layout
+
+possValues <- seq(-10,110)
+\end_layout
+
+\begin_layout Plain Layout
+
+trueProbs <- dnorm(possValues, mean=50, sd=20)
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(possValues, trueProbs, lty=1, col="black")
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topright", legend=c("true under N(50,400)","observed in sample"),lty=c(1
+,2),col=c("black","red"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fig3,echo=T,fig=T,height=4,width=6>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+samp <- replicate(1000, mean(rnorm(n=1500, mean=50, sd=20)))
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(samp, prob=T, breaks=20, ylim=c(0,1), xlab="Normal Sample Means", main="")
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topleft",legend=c(paste("mean of means=",round(mean(samp),3)),paste("sd
+ of means=",round(sd(samp),3))))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fig4,echo=T,fig=T,height=4,width=6>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(samp, prob=T, breaks=20, xlab="Normal Sample Means", xlim=c(-10,110),
+ ylim=c(0,1), main="")
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topleft",legend=c(paste("mean of means=",round(mean(samp),3)), paste("sd
+ of means=",round(sd(samp),3))))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fig5,echo=T,fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+var1 <- rexp(n=1500, rate=1/50)
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(x=var1, prob=T, breaks= 20, xlim=c(-10,300), ylim=c(0,0.03), xlab="An
+ Exponential Random Sample", ylab="Proportion of Observations", main="")
+\end_layout
+
+\begin_layout Plain Layout
+
+den1 <- density(var1)
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(den1, lty=2, col="red")
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topleft",legend=c(paste("mean=",round(mean(var1),3)),paste("sd=",round(s
+d(var1),3))))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<fig6,echo=T,fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+samp <- replicate(1000, mean(rexp(n=1500, rate=1/50)))
+\end_layout
+
+\begin_layout Plain Layout
+
+hist(samp, prob=T, breaks=20, ylim=c(0,0.5), xlab="Sample Means from Exponentials
+", main="")
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topleft",legend=c(paste("mean of means=",round(mean(samp),3)),paste("sd
+ of means=",round(sd(samp),3))))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

@@ -1,0 +1,4417 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass beamer
+\begin_preamble
+\usepackage{dcolumn}
+\usepackage{booktabs}
+
+% use 'handout' to produce handouts
+%\documentclass[handout]{beamer}
+\usepackage{wasysym}\usepackage{pgfpages}\usepackage{Sweave}\newcommand{\vn}[1]{\mbox{{\it #1}}}\newcommand{\vb}{\vspace{\baselineskip}}\newcommand{\vh}{\vspace{.5\baselineskip}}\newcommand{\vf}{\vspace{\fill}}\newcommand{\splus}{\textsf{S-PLUS}}\newcommand{\R}{\textsf{R}}
+
+
+
+%% Adapted from style of S. Weisberg(U Minnesota) and
+%% Deepayar 
+%I define 'mypause to be either \pause or null so I can decide
+% later if I want to use overlays
+\newcommand{\mypause}{}%\newcommand{\mypause}{\pause}
+%  uncomment the next line for handouts
+%\pgfpagesuselayout{4 on 1}[letterpaper, border shrink=5mm,landscape]
+%  Boadilla has page numbers, but no navigation bar
+%  Frankfurt has no page numbers but does have a navigation bar
+\usetheme{Boadilla}%\usetheme{Frankfurt}
+%\usepackage{beamerthemesplit}
+%  I like to use Maroon and Gold rather than White and Blue, and
+%  sienna for some highlighting.  I define the colors myself
+\definecolor{maroon}{rgb}{.6902,.1882,.3765}\definecolor{sienna}{rgb}{.53,.31,.16}\definecolor{gold}{rgb}{1,.84314,.0000}\setbeamercolor{frametitle}{fg=maroon,bg=gold}\usecolortheme[named=maroon]{structure}
+
+\title{R You Ready?}
+
+\author[PJ]{Paul E. Johnson, \\ Prof., Political Science \\ Assoc. Dir, Center for Research Methods and Data Analysis}
+
+\institute[KU]{University of Kansas}
+
+\date[March 19, 2010]{Acknowledgment: Thanks to the r-help crowd, especially Pat Burns, Deepayan Sarkar, John Fox, and Sandy Weisberg, for their useful examples}
+\end_preamble
+\use_default_options false
+\begin_modules
+sweave
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 11
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\branch R
+\selected 0
+\filename_suffix 0
+\color #faf0e6
+\end_branch
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+makebeamertitle
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch R
+status collapsed
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<Roptions, echo=F>>= 
+\end_layout
+
+\begin_layout Plain Layout
+
+options(width=60, continue="  ") 
+\end_layout
+
+\begin_layout Plain Layout
+
+ps.options(horizontal=F, onefile=F, family="Times",    paper="special", height=4,
+ width=5 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+pdf.options(onefile=F,family="Times",paper="special",height=4,width=5)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(papersize="special")
+\end_layout
+
+\begin_layout Plain Layout
+
+system("mkdir figs")
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{prefix.string=figs/intro,split=T, ae=F}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Mission for this talk
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Describe 
+\begin_inset Quotes eld
+\end_inset
+
+R
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+Illustrate some of its uses
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Future 
+\begin_inset Quotes eld
+\end_inset
+
+hands-on
+\begin_inset Quotes erd
+\end_inset
+
+ computing sessions can be scheduled.
+\end_layout
+
+\begin_layout Itemize
+Alert: KU Summer Stats Camp will offer 1 week-long session on R taught by
+ some well qualified folks :) 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.quant.ku.edu
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Outline}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+% If you don't like section header slides, comment out the following
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+AtBeginSection[]{%
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Outline}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+tableofcontents[currentsection]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+% End for section header slides
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{What is R?}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{"R is a little bit like an elephant"}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/blind-men-elephant-web.jpg
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Ouch! That's not my Trunk!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\size large
+R is
+\end_layout
+
+\begin_layout Description
+a
+\begin_inset space ~
+\end_inset
+
+free/open
+\begin_inset space ~
+\end_inset
+
+implementation
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+S.
+\begin_inset space ~
+\end_inset
+
+
+\end_layout
+
+\begin_layout Description
+a
+\begin_inset space ~
+\end_inset
+
+SAS/SPSS
+\begin_inset space ~
+\end_inset
+
+replacement for stats and graphs (salvation from Excel)
+\end_layout
+
+\begin_layout Description
+the
+\begin_inset space ~
+\end_inset
+
+embodiment
+\begin_inset space ~
+\end_inset
+
+of
+\begin_inset space ~
+\end_inset
+
+a
+\begin_inset space ~
+\end_inset
+
+new
+\begin_inset space ~
+\end_inset
+
+philosophy
+\begin_inset space ~
+\end_inset
+
+about
+\begin_inset space ~
+\end_inset
+
+data
+\begin_inset space ~
+\end_inset
+
+analysis, perhaps best exemplified by William Venables and Brian Ripley,
+ 
+\emph on
+Modern Applied Statistics with S/R
+\emph default
+, now in its 4th edition.
+ 
+\end_layout
+
+\begin_layout Description
+a
+\begin_inset space ~
+\end_inset
+
+statistical
+\begin_inset space ~
+\end_inset
+
+toobench for rapid model development by statisticians.
+\end_layout
+
+\begin_layout Description
+an
+\begin_inset space ~
+\end_inset
+
+open
+\begin_inset space ~
+\end_inset
+
+community of scholars who cooperate, exchange, and enhance each other's
+ work product
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{If You Knew S, you'd Feel Right At Home!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{What does R Taste Like? Everybody Says "Tastes like S"}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+The S Language was developed at Bell Labs (mid 1970s).
+ See Richard Becker's 
+\begin_inset Quotes eld
+\end_inset
+
+Brief History of S
+\begin_inset Quotes erd
+\end_inset
+
+ about the AT&T years
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+S-plus
+\emph default
+ is a commercial product that answers to S syntax commands (from the Insightful
+ Corporation).
+\end_layout
+
+\begin_layout Itemize
+There have been 4 generations of the S language.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Currently, S3 and S4 are in use
+\end_layout
+
+\begin_layout Itemize
+In perfect world, transition would not affect users because changes are
+ 
+\begin_inset Quotes eld
+\end_inset
+
+under the hood
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{What does R Taste Like? Everybody Says "Tastes like S"}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+R is a computer language 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+similar to S, but possibly better from a 
+\begin_inset Quotes eld
+\end_inset
+
+computer science point of view.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Ross Ihaka and Robert Gentleman.
+ 1996.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+R: A language for data analysis and graphics.
+\begin_inset Quotes erd
+\end_inset
+
+
+\emph on
+ Journal of Computational and Graphical Statistics
+\emph default
+, 5(3):299-314.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+R is a program that interprets scripts written in the R language
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+R also can 
+\begin_inset Quotes eld
+\end_inset
+
+inter-connect
+\begin_inset Quotes erd
+\end_inset
+
+ with other programs.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+R is now the 
+\begin_inset Quotes eld
+\end_inset
+
+lingua franca
+\begin_inset Quotes erd
+\end_inset
+
+ of research methods development.
+ You Snooze, You Lose.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Does it matter that it is "Open Source"? YES!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+We can inspect, verify, copy, change, fix, and extend R.
+\end_layout
+
+\begin_layout Itemize
+R team also elected to make R available for FREE, without charge.
+\end_layout
+
+\begin_layout Itemize
+R evolves.
+ It is an open, world-wide community of scholars.
+ 
+\end_layout
+
+\begin_layout Itemize
+In R-space, nobody can hear (has to listen to) you scream (apologies to
+ 
+\emph on
+Alien
+\emph default
+)
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{OK, What Does It DO?}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{I Don't Give a Hoot about S.
+ What is R?}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A set of ways to organize data 
+\end_layout
+
+\begin_layout Itemize
+All the usual statistical models 
+\end_layout
+
+\begin_layout Itemize
+Handy graphs 
+\end_layout
+
+\begin_layout Itemize
+Highly 
+\begin_inset Quotes eld
+\end_inset
+
+extensible
+\begin_inset Quotes erd
+\end_inset
+
+--open to modular 
+\begin_inset Quotes eld
+\end_inset
+
+packages
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+Framework for cooperation with other programs and languages 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Its interactive, but not "pointy clicky"}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+An interactive session in R looks like this
+\end_layout
+
+\begin_layout Standard
+\align right
+\begin_inset Graphics
+	filename figs/terminal-snap.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+> is the 
+\begin_inset Quotes eld
+\end_inset
+
+prompt
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Type stuff there!
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{There might be some excitement}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+A graph pop ups when you type 
+\begin_inset Quotes eld
+\end_inset
+
+hist(x)
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/hist-snap.png
+	width 5cm
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+But clicking on the graph doesn't do anything.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{But you do interact with R}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Type more commands to re-draw and beautify the graph.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/terminal-snap-2.png
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{And a nicer looking histogram pops up}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/hist-snap-2.png
+	width 6cm
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Some GUI do exist (Rcmdr, jagr, rattle, rkward), but....
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{Graphics is a Major Selling Point for R}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{I Use R to Make Line Art}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+R can create a 
+\begin_inset Quotes eld
+\end_inset
+
+blank canvas
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+Which can then be decorated with subsidiary plotting commands like
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+lines
+\end_layout
+
+\begin_layout Itemize
+points
+\end_layout
+
+\begin_layout Itemize
+text
+\end_layout
+
+\begin_layout Itemize
+polygon
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Hold your Seats! Prepare for the Graphic of the Century}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Recall the old crowd favorite, the Normal Distribution, 
+\begin_inset Formula 
+\[
+x\sim N(\mu,\sigma^{2})
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\mu$
+\end_inset
+
+ is the center point of 
+\begin_inset Formula $x$
+\end_inset
+
+'s range, the expected value, or mean
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $\sigma$
+\end_inset
+
+ is a dispersion parameter, often called the standard deviation
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/Normal-2009.pdf
+	height 3.2in
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+I warned you.
+ This is one awesome figure!
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Getting all Computer-science-ey now: }
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+plot() is magic!
+\end_layout
+
+\begin_layout Standard
+It tries to guess what you need, and it gives it to you.
+\end_layout
+
+\begin_layout Standard
+R has separate methods to create
+\end_layout
+
+\begin_layout Itemize
+scatterplots
+\end_layout
+
+\begin_layout Itemize
+barplots
+\end_layout
+
+\begin_layout Itemize
+boxplots
+\end_layout
+
+\begin_layout Itemize
+spinograms
+\end_layout
+
+\begin_layout Itemize
+and so forth
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{plot of 2 numeric variables $
+\backslash
+rightarrow$ get a scatterplot }
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/plot-scatter1.eps
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{plot 1 numeric by a categorical variable, get boxplot}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/plot-boxplot.eps
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{plot 2 categorical variables $
+\backslash
+rightarrow$ spineplot }
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/plot-spineplot.eps
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Gender Gap Prettier as a Barplot, IMHO}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/plot-bar2009-genderGap.eps
+	height 3in
+	BoundingBox 0bp 0bp 432bp 400bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Best Bar Plot from POLS706 Midterm 2010}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/pjmidterm2010-barplot.eps
+	height 3.5in
+	BoundingBox 0bp 0bp 468bp 420bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{My Best Barplot from the POLS706 Midterm, 2009}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/plot-barplot.eps
+	height 3in
+	BoundingBox 0bp 0bp 396bp 430bp
+	clip
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{R Handy for Teaching Statistics}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{R has random variables}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Types of random variable generators (not just Normal, but also many others)
+\end_layout
+
+\begin_layout Itemize
+Calculate theoretical quantities
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+probability density curves
+\end_layout
+
+\begin_layout Itemize
+cumulative distribution functions
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Draw samples from these distributions
+\end_layout
+
+\begin_layout Itemize
+Conduct simulations (Monte Carlo experiments) easily
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+R has functions to streamline this work.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{One Normal Variable, $
+\backslash
+mu$=50, $
+\backslash
+sigma$=20}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/demo-fig1.pdf
+	BoundingBox 0bp 0bp 432bp 288bp
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Observed and "True" Probabilties}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/demo-fig2.pdf
+	BoundingBox 0bp 0bp 432bp 288bp
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{The Sampling Distribution of the Mean}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/demo-fig3.pdf
+	BoundingBox 0bp 0bp 432bp 288bp
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+ Consistent with theory, means should be Normal($
+\backslash
+mu$=50, $
+\backslash
+sigma$ =20/$
+\backslash
+sqrt 1500$
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Put On Original Scale!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/demo-fig4.pdf
+	BoundingBox 0bp 0bp 432bp 288bp
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Sample from Exponential is not Normal}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/demo-fig5.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{The Means Look Very Normal to ME!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/demo-fig6.pdf
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Recall that this is the Central Limit Theorem
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{Packages: Addon Components for R}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{CRAN: a service from the R Core Team}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+R Package Writers follow a set of guidelines
+\end_layout
+
+\begin_layout Itemize
+Upload packages to CRAN
+\end_layout
+
+\begin_layout Itemize
+Available after passing checks & tests
+\end_layout
+
+\begin_layout Itemize
+R users can download & install from within R.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> install.packages(c("lmtest","car"), dep=T)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{A Little Introspection, Please}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+What packages do you have already?
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> rownames(installed.packages())
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+R provides a set of 
+\begin_inset Quotes eld
+\end_inset
+
+recommended
+\begin_inset Quotes erd
+\end_inset
+
+ packages, every install will have them.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Wonder what you are missing out on?
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> rownames(available.packages())
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+On 2010-03-19, that command returned a list of 2260 packages.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+I want it ALL!
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+I wrote a script that installed them all on a Windows system.
+ Download and Install took
+\end_layout
+
+\begin_layout Itemize
+3 hours
+\end_layout
+
+\begin_layout Itemize
+2.7 Gigabytes of storage
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Check for updates periodically
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> update.packages( ask=F, checkBuilt=T)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim] 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle {A Vignette on Sudoku }
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+I recently learned there is an R package for making and playing SudoKu puzzles.
+ 
+\end_layout
+
+\begin_layout Itemize
+At first, I turned my nose up at the frivolity of it, but then 
+\end_layout
+
+\begin_layout Itemize
+I installed it 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> install.packages("sudoku") 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+After it is installed, run 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> library(sudoku)
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch R
+status collapsed
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<loadsudo,echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(sudoku)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim] 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{What is that Sudoku thing?}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The first thing I always do after loading a package is find out what is
+ inside it: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> library(help=sudoku)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Documentation Included! No Extra Charge!}
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\footnotesize},breaklines=true"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Information on package 'sudoku'
+\end_layout
+
+\begin_layout Plain Layout
+
+Description:
+\end_layout
+
+\begin_layout Plain Layout
+
+Package: sudoku
+\end_layout
+
+\begin_layout Plain Layout
+
+Version: 2.2
+\end_layout
+
+\begin_layout Plain Layout
+
+Date: 2009-02-02
+\end_layout
+
+\begin_layout Plain Layout
+
+Title: Sudoku Puzzle Generator and Solver
+\end_layout
+
+\begin_layout Plain Layout
+
+Author: David Brahm <brahm@alum.mit.edu> and Greg Snow <Greg.Snow@intermountainmail.
+org>, with contributions from Curt Seeliger <Seeliger.Curt@epamail.epa.gov>
+ and Henrik Bengtsson <hb@maths.lth.se>.
+\end_layout
+
+\begin_layout Plain Layout
+
+Maintainer: David Brahm <brahm@alum.mit.edu>
+\end_layout
+
+\begin_layout Plain Layout
+
+Suggests: tkrplot
+\end_layout
+
+\begin_layout Plain Layout
+
+Description: Generates, plays, and solves Sudoku puzzles.
+ The GUI playSudoku() needs package "tkrplot" if you are not on Windows.
+\end_layout
+
+\begin_layout Plain Layout
+
+License: GPL
+\end_layout
+
+\begin_layout Plain Layout
+
+Packaged: Mon Feb 2 16:28:15 2009; a215020
+\end_layout
+
+\begin_layout Plain Layout
+
+Built: R 2.10.1; ; 2010-03-19 06:50:35 UTC; unix
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\footnotesize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+Index:
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+fetchSudokuUK       Fetch the daily sudoku puzzle from
+\end_layout
+
+\begin_layout Plain Layout
+
+                    http://www.sudoku.org.uk/
+\end_layout
+
+\begin_layout Plain Layout
+
+generateSudoku      Randomly Generate a Sudoku Puzzle Grid
+\end_layout
+
+\begin_layout Plain Layout
+
+hintSudoku          Give a Hint for a Sudoku Cell
+\end_layout
+
+\begin_layout Plain Layout
+
+playSudoku          Interactively play a game of Sudoku
+\end_layout
+
+\begin_layout Plain Layout
+
+printSudoku         Print a Sudoku Grid to the Terminal.
+\end_layout
+
+\begin_layout Plain Layout
+
+readSudoku          Read a File Containing a Sudoku Grid
+\end_layout
+
+\begin_layout Plain Layout
+
+solveSudoku         Solve a Sudoku Puzzle
+\end_layout
+
+\begin_layout Plain Layout
+
+writeSudoku         Write a Sudoku Grid to a File
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Documentation Included! No Extra Charge!}
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+Then I use the help feature to find out more on the interesting-looking
+ ones: 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> ?generateSudoku
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+That's the same as: 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> help(generateSudoku) 
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Perhaps I run the example that is displayed on the help page: 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> example(generateSudoku)
+\end_layout
+
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+When you run a function, the parentheses are required, even if you don't
+ add any specific arguments.
+ This tells generateSudoku to use the default settings.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch R
+status collapsed
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+generateSudoku()
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "figs/Rintro-003.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{A Nicer Looking Sudoku Puzzle}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch R
+status collapsed
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<printmypuzzle,echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+myPuzzle <- generateSudoku(Nblank = 20, print.it =F)
+\end_layout
+
+\begin_layout Plain Layout
+
+printSudoku(myPuzzle)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset include
+LatexCommand input
+filename "figs/Rintro-004.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Torture Yourself with British Sudoku}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Branch R
+status collapsed
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<printUK,echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+printSudoku(fetchSudokuUK())
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand include
+filename "figs/Rintro-005.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Play Sudoku interactively against R}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout ColumnsTopAligned
+
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+4cm
+\end_layout
+
+\end_deeper
+\begin_layout ColumnsTopAligned
+There is even an interactive on-screen game to be played (with hints for
+ cheaters)
+\end_layout
+
+\begin_deeper
+\begin_layout Column
+6cm
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/sudoku-play.png
+
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim] 
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{In Some Ways, R is very forgiving}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+R interprets all of these commands in the same way: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> generateSudoku(Nblank=20, print.it = TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+> generateSudoku(20,T)
+\end_layout
+
+\begin_layout Plain Layout
+
+> generateSudoku(N=20, p=T)
+\end_layout
+
+\begin_layout Plain Layout
+
+> generateSudoku(p=T, N=20) 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+R will try to match up the options with your arguments, but I try to avoid
+ gambling by explicitly naming options.
+\end_layout
+
+\begin_layout Standard
+This does not give what you want because the arguments are out of order
+ and unnamed
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> generateSudoku(T, 20) 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{Data Importation Anecdote}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{How do you get that GSS data?}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-import.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{R table() output: boring}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-rtable.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{gmodels package: Tastes Like SPSS in here!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-gmodel1.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-gmodel1-2.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{gmodels package: Tastes Like SPSS in here!}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-gtabl2.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-gtabl2-2.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{I like memisc's way}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "gss/t-mtable1.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}[containsverbatim]
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{mainly because it easily goes to LaTeX}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{tabular}{lD{.}{.}{0}D{.}{.}{0}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+toprule
+\end_layout
+
+\begin_layout Plain Layout
+
+& 
+\backslash
+multicolumn{1}{c}{MALE} & 
+\backslash
+multicolumn{1}{c}{FEMALE} 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+midrule
+\end_layout
+
+\begin_layout Plain Layout
+
+VOTED & 61
+\backslash
+% & 63
+\backslash
+% 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+DID NOT VOTE & 25 & 24 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+INELIGIBLE & 14 & 13 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+REFUSED TO ANSWER & 0 & 0 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+N & 1273 & 1657 
+\backslash
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bottomrule
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{tabular}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{If You Want To Get Started}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{R usage for Dummies}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+My new policy.
+ I won't help students unless they follow my 
+\begin_inset Quotes eld
+\end_inset
+
+Workspace Advice
+\begin_inset Quotes erd
+\end_inset
+
+ for R.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+I put it in the Emacs wiki, it must be right! 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://www.emacswiki.org/emacs/CategoryESS
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ In essence,
+\end_layout
+
+\begin_layout Enumerate
+Create a 
+\begin_inset Quotes eld
+\end_inset
+
+folder
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Copy a template R file into that folder
+\end_layout
+
+\begin_layout Enumerate
+Open that R file with the Emacs text editor
+\end_layout
+
+\begin_layout Enumerate
+Launch an R session inside an Emacs window
+\end_layout
+
+\begin_layout Enumerate
+Develop the R code by going back-and-forth between the 
+\begin_inset Quotes eld
+\end_inset
+
+program buffer
+\begin_inset Quotes erd
+\end_inset
+
+ and the 
+\begin_inset Quotes eld
+\end_inset
+
+R buffer
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Commands on left, R session on Right}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Graphics
+	filename figs/Emacs-ESS-snap-01.png
+	width 90page%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Emacs is like Democracy.
+ Its the worst, except for all of the others that have been tried...}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Emacs 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Free
+\end_layout
+
+\begin_layout Itemize
+Available on all platforms
+\end_layout
+
+\begin_layout Itemize
+Highly configurable
+\end_layout
+
+\begin_layout Itemize
+Useful for many other kinds of projects.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+section{Appendix 1: Code for Simulation Examples}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Draw a Sample from the Normal, Create a Histogram}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "figs/demo-fig1.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Compare Theoretical Probabilities and Observed Sample}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "figs/demo-fig2.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Draw Lots of Samples, Calculate their Means, and Plot}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "figs/demo-fig3.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Re-scale the Previous Histogram}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "figs/demo-fig4.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{Create and Plot an Exponential Variate}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "figs/demo-fig5.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{frame}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+frametitle{The Central Limit Theorem is Correct}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+preview true
+filename "figs/demo-fig6.tex"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{frame}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

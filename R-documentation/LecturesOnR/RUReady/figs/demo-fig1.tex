@@ -1,0 +1,12 @@
+\begin{Schunk}
+\begin{Sinput}
+> var1 <- rnorm(n = 1500, mean = 50, sd = 20)
+> hist(x = var1, prob = T, breaks = 20, xlim = c(-10, 
+      110), ylim = c(0, 0.03), xlab = "A Random Sample from N(10,400)", 
+      ylab = "Proportion of Observations", main = "")
+> den1 <- density(var1)
+> lines(den1, lty = 2, col = "red")
+> legend("topleft", legend = c(paste("mean=", round(mean(var1), 
+      3)), paste("sd=", round(sd(var1), 3))))
+\end{Sinput}
+\end{Schunk}

@@ -1,0 +1,11 @@
+\begin{Schunk}
+\begin{Sinput}
+> samp <- replicate(1000, mean(rexp(n = 1500, rate = 1/50)))
+> hist(samp, prob = T, breaks = 20, ylim = c(0, 
+      0.5), xlab = "Sample Means from Exponentials", 
+      main = "")
+> legend("topleft", legend = c(paste("mean of means=", 
+      round(mean(samp), 3)), paste("sd of means=", 
+      round(sd(samp), 3))))
+\end{Sinput}
+\end{Schunk}

@@ -1,0 +1,11 @@
+\begin{Schunk}
+\begin{Sinput}
+> samp <- replicate(1000, mean(rnorm(n = 1500, mean = 50, 
+      sd = 20)))
+> hist(samp, prob = T, breaks = 20, ylim = c(0, 
+      1), xlab = "Normal Sample Means", main = "")
+> legend("topleft", legend = c(paste("mean of means=", 
+      round(mean(samp), 3)), paste("sd of means=", 
+      round(sd(samp), 3))))
+\end{Sinput}
+\end{Schunk}

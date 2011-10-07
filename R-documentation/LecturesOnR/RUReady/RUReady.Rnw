@@ -1,0 +1,808 @@
+\batchmode
+\documentclass[11pt,english]{beamer}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{listings}
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+\usepackage{url}
+\usepackage{graphicx}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+ % this default might be overridden by plain title style
+ \newcommand\makebeamertitle{\frame{\maketitle}}%
+ \AtBeginDocument{
+   \let\origtableofcontents=\tableofcontents
+   \def\tableofcontents{\@ifnextchar[{\origtableofcontents}{\gobbletableofcontents}}
+   \def\gobbletableofcontents#1{\origtableofcontents}
+ }
+<<echo=F>>=
+  if(exists(".orig.enc")) options(encoding = .orig.enc)
+@
+ \newenvironment{topcolumns}{\begin{columns}[t]}{\end{columns}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+\usepackage{dcolumn}
+\usepackage{booktabs}
+
+% use 'handout' to produce handouts
+%\documentclass[handout]{beamer}
+\usepackage{wasysym}\usepackage{pgfpages}\usepackage{Sweave}\newcommand{\vn}[1]{\mbox{{\it #1}}}\newcommand{\vb}{\vspace{\baselineskip}}\newcommand{\vh}{\vspace{.5\baselineskip}}\newcommand{\vf}{\vspace{\fill}}\newcommand{\splus}{\textsf{S-PLUS}}\newcommand{\R}{\textsf{R}}
+
+
+
+%% Adapted from style of S. Weisberg(U Minnesota) and
+%% Deepayar 
+%I define 'mypause to be either \pause or null so I can decide
+% later if I want to use overlays
+\newcommand{\mypause}{}%\newcommand{\mypause}{\pause}
+%  uncomment the next line for handouts
+%\pgfpagesuselayout{4 on 1}[letterpaper, border shrink=5mm,landscape]
+%  Boadilla has page numbers, but no navigation bar
+%  Frankfurt has no page numbers but does have a navigation bar
+\usetheme{Boadilla}%\usetheme{Frankfurt}
+%\usepackage{beamerthemesplit}
+%  I like to use Maroon and Gold rather than White and Blue, and
+%  sienna for some highlighting.  I define the colors myself
+\definecolor{maroon}{rgb}{.6902,.1882,.3765}\definecolor{sienna}{rgb}{.53,.31,.16}\definecolor{gold}{rgb}{1,.84314,.0000}\setbeamercolor{frametitle}{fg=maroon,bg=gold}\usecolortheme[named=maroon]{structure}
+
+\title{R You Ready?}
+
+\author[PJ]{Paul E. Johnson, \\ Prof., Political Science \\ Assoc. Dir, Center for Research Methods and Data Analysis}
+
+\institute[KU]{University of Kansas}
+
+\date[March 19, 2010]{Acknowledgment: Thanks to the r-help crowd, especially Pat Burns, Deepayan Sarkar, John Fox, and Sandy Weisberg, for their useful examples}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+\makebeamertitle
+
+
+
+\begin{frame}
+\begin{itemize}
+\item Mission for this talk
+
+\begin{itemize}
+\item Describe ``R'' 
+\item Illustrate some of its uses
+\end{itemize}
+\item Future ``hands-on'' computing sessions can be scheduled.
+\item Alert: KU Summer Stats Camp will offer 1 week-long session on R taught
+by some well qualified folks :) \url{http://www.quant.ku.edu}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Outline}
+
+\tableofcontents{}
+
+\end{frame}
+
+
+% If you don't like section header slides, comment out the following
+\AtBeginSection[]{%
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents[currentsection]
+\end{frame}
+}
+% End for section header slides
+
+\section{What is R?}
+
+\begin{frame}
+
+\frametitle{"R is a little bit like an elephant"}
+
+\includegraphics{16_home_pauljohn_SVN_rgroup_trunk_R-documentati___ectures_RUReady_figs_blind-men-elephant-web.jpg}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Ouch! That's not my Trunk!}
+
+{\large R is}{\large \par}
+\begin{description}
+\item [{a~free/open~implementation~of~S.~}]~
+\item [{a~SAS/SPSS~replacement}] for stats and graphs (salvation from
+Excel)
+\item [{the~embodiment~of~a~new~philosophy~about~data~analysis,}] perhaps
+best exemplified by William Venables and Brian Ripley, \emph{Modern
+Applied Statistics with S/R}, now in its 4th edition. 
+\item [{a~statistical~toobench}] for rapid model development by statisticians.
+\item [{an~open~community}] of scholars who cooperate, exchange, and
+enhance each other's work product
+\end{description}
+\end{frame}
+
+\section{If You Knew S, you'd Feel Right At Home!}
+
+\begin{frame}
+\frametitle{What does R Taste Like? Everybody Says "Tastes like S"}
+\begin{itemize}
+\item The S Language was developed at Bell Labs (mid 1970s). See Richard
+Becker's ``Brief History of S'' about the AT\&T years
+\item \emph{S-plus} is a commercial product that answers to S syntax commands
+(from the Insightful Corporation).
+\item There have been 4 generations of the S language. 
+
+\begin{itemize}
+\item Currently, S3 and S4 are in use
+\item In perfect world, transition would not affect users because changes
+are ``under the hood''
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{What does R Taste Like? Everybody Says "Tastes like S"}
+\begin{itemize}
+\item R is a computer language 
+
+\begin{itemize}
+\item similar to S, but possibly better from a ``computer science point
+of view.''
+\end{itemize}
+
+Ross Ihaka and Robert Gentleman. 1996. ``R: A language for data analysis
+and graphics.''\emph{ Journal of Computational and Graphical Statistics},
+5(3):299-314.
+
+\item R is a program that interprets scripts written in the R language
+
+\begin{itemize}
+\item R also can ``inter-connect'' with other programs.
+\end{itemize}
+\item R is now the ``lingua franca'' of research methods development.
+You Snooze, You Lose.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Does it matter that it is "Open Source"? YES!}
+\begin{itemize}
+\item We can inspect, verify, copy, change, fix, and extend R.
+\item R team also elected to make R available for FREE, without charge.
+\item R evolves. It is an open, world-wide community of scholars. 
+\item In R-space, nobody can hear (has to listen to) you scream (apologies
+to \emph{Alien})
+\end{itemize}
+\end{frame}
+
+\section{OK, What Does It DO?}
+
+\begin{frame}
+\frametitle{I Don't Give a Hoot about S. What is R?}
+\begin{itemize}
+\item A set of ways to organize data 
+\item All the usual statistical models 
+\item Handy graphs 
+\item Highly ``extensible''--open to modular ``packages'' 
+\item Framework for cooperation with other programs and languages 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Its interactive, but not "pointy clicky"}
+\begin{itemize}
+\item An interactive session in R looks like this
+\end{itemize}
+\begin{flushright}
+\includegraphics{17_home_pauljohn_SVN_rgroup_trunk_R-documentati___oductoryLectures_RUReady_figs_terminal-snap.png}
+\par\end{flushright}
+\begin{itemize}
+\item > is the ``prompt''. Type stuff there!
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{There might be some excitement}
+\begin{itemize}
+\item A graph pop ups when you type ``hist(x)''
+
+
+\includegraphics[width=5cm]{18_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_hist-snap.png}
+
+\item But clicking on the graph doesn't do anything. 
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{But you do interact with R}
+\begin{itemize}
+\item Type more commands to re-draw and beautify the graph.
+
+
+\includegraphics{19_home_pauljohn_SVN_rgroup_trunk_R-documentati___uctoryLectures_RUReady_figs_terminal-snap-2.png}
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{And a nicer looking histogram pops up}
+
+\includegraphics[width=6cm]{20_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_hist-snap-2.png}
+\begin{itemize}
+\item Some GUI do exist (Rcmdr, jagr, rattle, rkward), but....
+\end{itemize}
+\end{frame}
+
+\section{Graphics is a Major Selling Point for R}
+
+\begin{frame}
+\frametitle{I Use R to Make Line Art}
+\begin{itemize}
+\item R can create a ``blank canvas'' 
+\item Which can then be decorated with subsidiary plotting commands like
+
+\begin{itemize}
+\item lines
+\item points
+\item text
+\item polygon
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Hold your Seats! Prepare for the Graphic of the Century}
+
+Recall the old crowd favorite, the Normal Distribution, 
+\[
+x\sim N(\mu,\sigma^{2})
+\]
+
+
+$\mu$ is the center point of $x$'s range, the expected value, or
+mean
+
+$\sigma$ is a dispersion parameter, often called the standard deviation
+
+\end{frame}
+
+\begin{frame}
+
+\includegraphics[height=3.2in]{21_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_Normal-2009.pdf}
+
+I warned you. This is one awesome figure!
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Getting all Computer-science-ey now: }
+
+plot() is magic!
+
+It tries to guess what you need, and it gives it to you.
+
+R has separate methods to create
+\begin{itemize}
+\item scatterplots
+\item barplots
+\item boxplots
+\item spinograms
+\item and so forth
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{plot of 2 numeric variables $\rightarrow$ get a scatterplot }
+
+\includegraphics{22_home_pauljohn_SVN_rgroup_trunk_R-documentati___oductoryLectures_RUReady_figs_plot-scatter1.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{plot 1 numeric by a categorical variable, get boxplot}
+
+\includegraphics{23_home_pauljohn_SVN_rgroup_trunk_R-documentati___roductoryLectures_RUReady_figs_plot-boxplot.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{plot 2 categorical variables $\rightarrow$ spineplot }
+
+\includegraphics{24_home_pauljohn_SVN_rgroup_trunk_R-documentati___ductoryLectures_RUReady_figs_plot-spineplot.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Gender Gap Prettier as a Barplot, IMHO}
+
+\includegraphics[bb=0bp 0bp 432bp 400bp,clip,height=3in]{25_home_pauljohn_SVN_rgroup_trunk_R-documentati___ectures_RUReady_figs_plot-bar2009-genderGap.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Best Bar Plot from POLS706 Midterm 2010}
+
+\includegraphics[bb=0bp 0bp 468bp 420bp,clip,height=3.5in]{26_home_pauljohn_SVN_rgroup_trunk_R-documentati___Lectures_RUReady_figs_pjmidterm2010-barplot.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{My Best Barplot from the POLS706 Midterm, 2009}
+
+\includegraphics[bb=0bp 0bp 396bp 430bp,clip,height=3in]{27_home_pauljohn_SVN_rgroup_trunk_R-documentati___roductoryLectures_RUReady_figs_plot-barplot.pdf}
+
+\end{frame}
+
+\section{R Handy for Teaching Statistics}
+
+\begin{frame}
+\frametitle{R has random variables}
+\begin{itemize}
+\item Types of random variable generators (not just Normal, but also many
+others)
+\item Calculate theoretical quantities
+
+\begin{itemize}
+\item probability density curves
+\item cumulative distribution functions
+\end{itemize}
+\item Draw samples from these distributions
+\item Conduct simulations (Monte Carlo experiments) easily
+
+\begin{itemize}
+\item R has functions to streamline this work.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{One Normal Variable, $\mu$=50, $\sigma$=20}
+
+
+\includegraphics[bb=0bp 0bp 432bp 288bp]{28_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig1.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Observed and "True" Probabilties}
+
+
+\includegraphics[bb=0bp 0bp 432bp 288bp]{29_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig2.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{The Sampling Distribution of the Mean}
+
+\includegraphics[bb=0bp 0bp 432bp 288bp]{30_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig3.pdf}
+
+ Consistent with theory, means should be Normal($\mu$=50, $\sigma$ =20/$\sqrt 1500$
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Put On Original Scale!}
+
+\includegraphics[bb=0bp 0bp 432bp 288bp]{31_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig4.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Sample from Exponential is not Normal}
+
+\includegraphics{32_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig5.pdf}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{The Means Look Very Normal to ME!}
+
+\includegraphics{33_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig6.pdf}
+
+Recall that this is the Central Limit Theorem
+
+\end{frame}
+
+\section{Packages: Addon Components for R}
+
+\begin{frame}[containsverbatim]
+\frametitle{CRAN: a service from the R Core Team}
+\begin{itemize}
+\item R Package Writers follow a set of guidelines
+\item Upload packages to CRAN
+\item Available after passing checks \& tests
+\item R users can download \& install from within R.
+
+
+\begin{lstlisting}
+> install.packages(c("lmtest","car"), dep=T)
+\end{lstlisting}
+
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{A Little Introspection, Please}
+\begin{itemize}
+\item What packages do you have already?
+
+
+\begin{lstlisting}
+> rownames(installed.packages())
+\end{lstlisting}
+
+
+
+R provides a set of ``recommended'' packages, every install will
+have them.
+
+\item Wonder what you are missing out on?
+
+
+\begin{lstlisting}
+> rownames(available.packages())
+\end{lstlisting}
+
+
+
+On 2010-03-19, that command returned a list of 2260 packages.
+
+\item I want it ALL!
+
+
+I wrote a script that installed them all on a Windows system. Download
+and Install took
+\begin{itemize}
+\item 3 hours
+\item 2.7 Gigabytes of storage
+\end{itemize}
+\item Check for updates periodically
+
+
+\begin{lstlisting}
+> update.packages( ask=F, checkBuilt=T)
+\end{lstlisting}
+
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[containsverbatim] 
+
+\frametitle {A Vignette on Sudoku }
+\begin{itemize}
+\item I recently learned there is an R package for making and playing SudoKu
+puzzles. 
+\item At first, I turned my nose up at the frivolity of it, but then 
+\item I installed it 
+
+
+\begin{lstlisting}
+> install.packages("sudoku") 
+\end{lstlisting}
+
+
+\item After it is installed, run 
+
+
+\begin{lstlisting}
+> library(sudoku)
+\end{lstlisting}
+ 
+
+
+
+
+\end{itemize}
+\end{frame}
+\begin{frame}[containsverbatim] 
+
+\frametitle{What is that Sudoku thing?}
+
+The first thing I always do after loading a package is find out what
+is inside it: 
+
+\begin{lstlisting}
+> library(help=sudoku)
+\end{lstlisting}
+
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+
+\frametitle{Documentation Included! No Extra Charge!} 
+
+\begin{lstlisting}[basicstyle={\footnotesize},breaklines=true]
+Information on package 'sudoku'
+Description:
+Package: sudoku
+Version: 2.2
+Date: 2009-02-02
+Title: Sudoku Puzzle Generator and Solver
+Author: David Brahm <brahm@alum.mit.edu> and Greg Snow <Greg.Snow@intermountainmail.org>, with contributions from Curt Seeliger <Seeliger.Curt@epamail.epa.gov> and Henrik Bengtsson <hb@maths.lth.se>.
+Maintainer: David Brahm <brahm@alum.mit.edu>
+Suggests: tkrplot
+Description: Generates, plays, and solves Sudoku puzzles. The GUI playSudoku() needs package "tkrplot" if you are not on Windows.
+License: GPL
+Packaged: Mon Feb 2 16:28:15 2009; a215020
+Built: R 2.10.1; ; 2010-03-19 06:50:35 UTC; unix
+\end{lstlisting}
+
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+
+\begin{lstlisting}[basicstyle={\footnotesize}]
+Index:
+
+fetchSudokuUK       Fetch the daily sudoku puzzle from
+                    http://www.sudoku.org.uk/
+generateSudoku      Randomly Generate a Sudoku Puzzle Grid
+hintSudoku          Give a Hint for a Sudoku Cell
+playSudoku          Interactively play a game of Sudoku
+printSudoku         Print a Sudoku Grid to the Terminal.
+readSudoku          Read a File Containing a Sudoku Grid
+solveSudoku         Solve a Sudoku Puzzle
+writeSudoku         Write a Sudoku Grid to a File
+\end{lstlisting}
+
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+
+\frametitle{Documentation Included! No Extra Charge!} 
+\begin{itemize}
+\item Then I use the help feature to find out more on the interesting-looking
+ones: 
+
+
+\begin{lstlisting}
+> ?generateSudoku
+\end{lstlisting}
+ 
+
+\item That's the same as: 
+
+
+\begin{lstlisting}
+> help(generateSudoku) 
+\end{lstlisting}
+ 
+
+\item Perhaps I run the example that is displayed on the help page: 
+
+
+\begin{lstlisting}
+> example(generateSudoku)
+\end{lstlisting}
+ 
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}[containsverbatim]
+
+When you run a function, the parentheses are required, even if you
+don't add any specific arguments. This tells generateSudoku to use
+the default settings. 
+
+
+
+\include{0_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_Rintro-003}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{A Nicer Looking Sudoku Puzzle}
+
+\input{1_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_Rintro-004.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{Torture Yourself with British Sudoku}
+
+
+
+\include{2_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_Rintro-005}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Play Sudoku interactively against R}
+\begin{topcolumns}%{}
+
+
+\column{4cm}
+
+There is even an interactive on-screen game to be played (with hints
+for cheaters)
+
+\column{6cm}
+
+
+\includegraphics{34_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_sudoku-play.png} 
+
+\end{topcolumns}%{}
+\end{frame}
+
+\begin{frame}[containsverbatim] \frametitle{In Some Ways, R is very forgiving}
+
+R interprets all of these commands in the same way: 
+
+\begin{lstlisting}
+> generateSudoku(Nblank=20, print.it = TRUE)
+> generateSudoku(20,T)
+> generateSudoku(N=20, p=T)
+> generateSudoku(p=T, N=20) 
+\end{lstlisting}
+
+
+R will try to match up the options with your arguments, but I try
+to avoid gambling by explicitly naming options.
+
+This does not give what you want because the arguments are out of
+order and unnamed
+
+\begin{lstlisting}
+> generateSudoku(T, 20) 
+\end{lstlisting}
+
+
+\end{frame}
+
+\section{Data Importation Anecdote}
+
+\begin{frame}[containsverbatim]
+\frametitle{How do you get that GSS data?}
+
+\input{3_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-import.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{R table() output: boring}
+
+\input{4_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-rtable.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{gmodels package: Tastes Like SPSS in here!}
+
+\input{5_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-gmodel1.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+
+\input{6_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-gmodel1-2.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{gmodels package: Tastes Like SPSS in here!}
+
+\input{7_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-gtabl2.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+
+\input{8_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-gtabl2-2.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{I like memisc's way}
+
+\input{9_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_gss_t-mtable1.tex}
+
+\end{frame}
+
+\begin{frame}[containsverbatim]
+\frametitle{mainly because it easily goes to LaTeX}
+
+\begin{tabular}{lD{.}{.}{0}D{.}{.}{0}}
+\toprule
+& \multicolumn{1}{c}{MALE} & \multicolumn{1}{c}{FEMALE} \\
+\midrule
+VOTED & 61\% & 63\% \\
+DID NOT VOTE & 25 & 24 \\
+INELIGIBLE & 14 & 13 \\
+REFUSED TO ANSWER & 0 & 0 \\
+N & 1273 & 1657 \\
+\bottomrule
+\end{tabular}
+
+\end{frame}
+
+
+\section{If You Want To Get Started}
+
+\begin{frame}
+\frametitle{R usage for Dummies}
+
+My new policy. I won't help students unless they follow my ``Workspace
+Advice'' for R.%
+\footnote{I put it in the Emacs wiki, it must be right! \url{http://www.emacswiki.org/emacs/CategoryESS}%
+} In essence,
+\begin{enumerate}
+\item Create a ``folder''
+\item Copy a template R file into that folder
+\item Open that R file with the Emacs text editor
+\item Launch an R session inside an Emacs window
+\item Develop the R code by going back-and-forth between the ``program
+buffer'' and the ``R buffer''
+\end{enumerate}
+\end{frame}
+
+\begin{frame}
+\frametitle{Commands on left, R session on Right}
+
+\includegraphics[width=0.9\paperwidth]{35_home_pauljohn_SVN_rgroup_trunk_R-documentati___toryLectures_RUReady_figs_Emacs-ESS-snap-01.png}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Emacs is like Democracy. Its the worst, except for all of the others that have been tried...}
+\begin{itemize}
+\item Emacs 
+
+\begin{itemize}
+\item Free
+\item Available on all platforms
+\item Highly configurable
+\item Useful for many other kinds of projects.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\section{Appendix 1: Code for Simulation Examples}
+
+\begin{frame}
+\frametitle{Draw a Sample from the Normal, Create a Histogram}
+
+\input{10_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig1.tex}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Compare Theoretical Probabilities and Observed Sample}
+
+\input{11_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig2.tex}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Draw Lots of Samples, Calculate their Means, and Plot}
+
+\input{12_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig3.tex}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Re-scale the Previous Histogram}
+
+\input{13_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig4.tex}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Create and Plot an Exponential Variate}
+
+\input{14_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig5.tex}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{The Central Limit Theorem is Correct}
+
+\input{15_home_pauljohn_SVN_rgroup_trunk_R-documentation_IntroductoryLectures_RUReady_figs_demo-fig6.tex}
+
+\end{frame}
+\end{document}

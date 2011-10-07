@@ -1,0 +1,424 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass rliterate-article
+\begin_preamble
+\usepackage{booktabs}
+\usepackage{dcolumn}
+\end_preamble
+\use_default_options true
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+%suggested by Ihaka's note on Improving Sweave 
+\end_layout
+
+\begin_layout Plain Layout
+
+%http://www.stat.auckland.ac.nz/~stat782/downloads/Sweave-customisation.pdf
+\end_layout
+
+\begin_layout Plain Layout
+
+%%%tighten up text output from R
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+DefineVerbatimEnvironment{Sinput}{Verbatim}{xleftmargin=2em} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+DefineVerbatimEnvironment{Soutput}{Verbatim}{xleftmargin=2em} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+DefineVerbatimEnvironment{Scode}{Verbatim}{xleftmargin=2em} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+fvset{listparameters={
+\backslash
+setlength{
+\backslash
+topsep}{0pt}}} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+renewenvironment{Schunk}{
+\backslash
+vspace{
+\backslash
+topsep}}{
+\backslash
+vspace{
+\backslash
+topsep}}
+\end_layout
+
+\begin_layout Plain Layout
+
+%shorten line length
+\end_layout
+
+\begin_layout Plain Layout
+
+<<echo=false>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+system("rm -rf gss; mkdir gss")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{prefix.string=gss/t,split=T, ae=F,height=4,width=6}
+\end_layout
+
+\begin_layout Plain Layout
+
+<<Roptions, echo=F>>= 
+\end_layout
+
+\begin_layout Plain Layout
+
+options(width=60, continue="  ") 
+\end_layout
+
+\begin_layout Plain Layout
+
+###Leave less white space at top
+\end_layout
+
+\begin_layout Plain Layout
+
+options(SweaveHooks=list(fig=function() par(mar=c(5.1, 4.1, 0.5, 2.1))))
+\end_layout
+
+\begin_layout Plain Layout
+
+###Sweave appears to ignore following settings 2010-03-20
+\end_layout
+
+\begin_layout Plain Layout
+
+ps.options(horizontal=F, onefile=F, family="Times",    paper="special", height=4,
+ width=6 ) 
+\end_layout
+
+\begin_layout Plain Layout
+
+pdf.options(onefile=F,family="Times",paper="special",height=4,width=6)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(papersize="special")
+\end_layout
+
+\begin_layout Plain Layout
+
+@ 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<import,echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+library(memisc)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+### reads SPSS varnames and labels 
+\end_layout
+
+\begin_layout Plain Layout
+
+idat <- spss.system.file("/home/pauljohn/ps/ps706/DataExample-GSS2006/gss2006.sav")
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+### Caution: Following is huge output! # codebook(idat)
+\end_layout
+
+\begin_layout Plain Layout
+
+### Forces T to read whole numbers 
+\end_layout
+
+\begin_layout Plain Layout
+
+idat2 <- as.data.set(idat)
+\end_layout
+
+\begin_layout Plain Layout
+
+### Watch out: # names(idat2) ### will show 5137 variables
+\end_layout
+
+\begin_layout Plain Layout
+
+### Can push that into a standard R data frame ### 
+\end_layout
+
+\begin_layout Plain Layout
+
+dat <- as.data.frame(idat2)
+\end_layout
+
+\begin_layout Plain Layout
+
+### free up memory used by idat objects 
+\end_layout
+
+\begin_layout Plain Layout
+
+rm(idat2) 
+\end_layout
+
+\begin_layout Plain Layout
+
+rm(idat)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<rtable,echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+table( dat$vote00)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<gmodel1, echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(gmodels)
+\end_layout
+
+\begin_layout Plain Layout
+
+CrossTable(dat$vote00) 
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<gtabl2, echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+ CrossTable(dat$vote00 ,dat$sex) 
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<mtable1, echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+gt <- genTable( percent(vote00) ~ sex, data=dat )
+\end_layout
+
+\begin_layout Plain Layout
+
+gt
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<mtable2,echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+toLatex(gt)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

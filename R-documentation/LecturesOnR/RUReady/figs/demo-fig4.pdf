@@ -1,0 +1,190 @@
+%PDF-1.4
+%Å‚Å„ÅœÅ”\r
+1 0 obj
+<<
+/CreationDate (D:20100320134636)
+/ModDate (D:20100320134636)
+/Title (R Graphics Output)
+/Producer (R 2.10.1)
+/Creator (R)
+>>
+endobj
+2 0 obj
+<<
+/Type /Catalog
+/Pages 3 0 R
+>>
+endobj
+5 0 obj
+<<
+/Type /Page
+/Parent 3 0 R
+/Contents 6 0 R
+/Resources 4 0 R
+>>
+endobj
+6 0 obj
+<<
+/Length 7 0 R
+>>
+stream
+q
+Q q
+BT
+0.000 0.000 0.000 rg
+/F2 1 Tf 12.00 0.00 -0.00 12.00 175.07 18.72 Tm (Normal Sample Means) Tj
+ET
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 12.96 158.45 Tm (Density) Tj
+ET
+Q q
+0.000 0.000 0.000 RG
+0.75 w
+[] 0 d
+1 J
+1 j
+10.00 M
+98.18 73.44 m 362.62 73.44 l S
+98.18 73.44 m 98.18 66.24 l S
+151.07 73.44 m 151.07 66.24 l S
+203.96 73.44 m 203.96 66.24 l S
+256.84 73.44 m 256.84 66.24 l S
+309.73 73.44 m 309.73 66.24 l S
+362.62 73.44 m 362.62 66.24 l S
+BT
+0.000 0.000 0.000 rg
+/F2 1 Tf 12.00 0.00 -0.00 12.00 95.18 47.52 Tm (0) Tj
+ET
+BT
+/F2 1 Tf 12.00 0.00 -0.00 12.00 145.07 47.52 Tm (20) Tj
+ET
+BT
+/F2 1 Tf 12.00 0.00 -0.00 12.00 197.96 47.52 Tm (40) Tj
+ET
+BT
+/F2 1 Tf 12.00 0.00 -0.00 12.00 250.84 47.52 Tm (60) Tj
+ET
+BT
+/F2 1 Tf 12.00 0.00 -0.00 12.00 303.73 47.52 Tm (80) Tj
+ET
+BT
+/F2 1 Tf 12.00 0.00 -0.00 12.00 353.62 47.52 Tm (100) Tj
+ET
+59.04 81.12 m 59.04 273.12 l S
+59.04 81.12 m 51.84 81.12 l S
+59.04 119.52 m 51.84 119.52 l S
+59.04 157.92 m 51.84 157.92 l S
+59.04 196.32 m 51.84 196.32 l S
+59.04 234.72 m 51.84 234.72 l S
+59.04 273.12 m 51.84 273.12 l S
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 41.76 73.62 Tm (0.0) Tj
+ET
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 41.76 112.02 Tm (0.2) Tj
+ET
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 41.76 150.42 Tm (0.4) Tj
+ET
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 41.76 188.82 Tm (0.6) Tj
+ET
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 41.76 227.22 Tm (0.8) Tj
+ET
+BT
+/F2 1 Tf 0.00 12.00 -12.00 0.00 41.76 265.62 Tm (1.0) Tj
+ET
+Q q 59.04 73.44 342.72 207.36 re W n
+0.000 0.000 0.000 RG
+0.75 w
+[] 0 d
+1 J
+1 j
+10.00 M
+225.64 81.12 0.53 1.92 re S
+226.17 81.12 0.53 1.92 re S
+226.70 81.12 0.53 6.72 re S
+227.23 81.12 0.53 10.56 re S
+227.76 81.12 0.53 25.92 re S
+228.28 81.12 0.53 58.56 re S
+228.81 81.12 0.53 92.16 re S
+229.34 81.12 0.53 111.36 re S
+229.87 81.12 0.53 140.16 re S
+230.40 81.12 0.53 141.12 re S
+230.93 81.12 0.53 113.28 re S
+231.46 81.12 0.53 103.68 re S
+231.99 81.12 0.53 71.04 re S
+232.52 81.12 0.53 49.92 re S
+233.04 81.12 0.53 18.24 re S
+233.57 81.12 0.53 6.72 re S
+234.10 81.12 0.53 5.76 re S
+234.63 81.12 0.53 0.96 re S
+59.04 280.80 142.42 -43.20 re S
+BT
+0.000 0.000 0.000 rg
+/F2 1 Tf 12.00 0.00 -0.00 12.00 80.64 262.43 Tm (mean of means= 50.049) Tj
+ET
+BT
+/F2 1 Tf 12.00 0.00 -0.00 12.00 80.64 248.03 Tm (sd of means= 0.535) Tj
+ET
+Q
+endstream
+endobj
+7 0 obj
+2262
+endobj
+3 0 obj
+<<
+/Type /Pages
+/Kids [
+5 0 R
+]
+/Count 1
+/MediaBox [0 0 432 288]
+>>
+endobj
+4 0 obj
+<<
+/ProcSet [/PDF /Text]
+/Font <</F2 9 0 R >>
+/ExtGState << >>
+>>
+endobj
+8 0 obj
+<<
+/Type /Encoding
+/BaseEncoding /WinAnsiEncoding
+/Differences [ 45/minus 96/quoteleft
+144/dotlessi /grave /acute /circumflex /tilde /macron /breve /dotaccent
+/dieresis /.notdef /ring /cedilla /.notdef /hungarumlaut /ogonek /caron /space]
+>>
+endobj
+9 0 obj <<
+/Type /Font
+/Subtype /Type1
+/Name /F2
+/BaseFont /Times-Roman
+/Encoding 8 0 R
+>> endobj
+xref
+0 10
+0000000000 65535 f 
+0000000021 00000 n 
+0000000164 00000 n 
+0000002628 00000 n 
+0000002711 00000 n 
+0000000213 00000 n 
+0000000293 00000 n 
+0000002608 00000 n 
+0000002792 00000 n 
+0000003049 00000 n 
+trailer
+<<
+/Size 10
+/Info 1 0 R
+/Root 2 0 R
+>>
+startxref
+3147
+%%EOF

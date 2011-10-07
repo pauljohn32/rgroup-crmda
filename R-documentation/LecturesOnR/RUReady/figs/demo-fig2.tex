@@ -1,0 +1,13 @@
+\begin{Schunk}
+\begin{Sinput}
+> plot(den1, xlim = c(-10, 110), ylim = c(0, 0.03), 
+      xlab = "Possible Values", type = "l", lty = 2, 
+      col = "red", main = "")
+> possValues <- seq(-10, 110)
+> trueProbs <- dnorm(possValues, mean = 50, sd = 20)
+> lines(possValues, trueProbs, lty = 1, col = "black")
+> legend("topright", legend = c("true under N(50,400)", 
+      "observed in sample"), lty = c(1, 2), col = c("black", 
+      "red"))
+\end{Sinput}
+\end{Schunk}
