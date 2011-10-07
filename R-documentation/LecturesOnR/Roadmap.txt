@@ -1,0 +1,6 @@
+If you add a folder, please append its name to this file
+with a brief description.
+
+RUReady: An R Survey intended for non-users who might be
+         interested in R.
+Paul Johnson, 2010. 
