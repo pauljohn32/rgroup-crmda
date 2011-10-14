@@ -10,6 +10,7 @@
 ## lavaan's standard error calculations.  I'm also going
 ## to see if an MPlus user will fit that model for me.
 
+set.seed(12345)
 
 ## First, set the sample size.
 Nsample <- 500
@@ -71,7 +72,7 @@ mydata <- as.data.frame(sim2$observed)
 omega(sim2$model)
 
 ##I can't understand this at all.
-omega(sim2$model, sl=F)
+##omega(sim2$model, sl=F)
 
 
 ## Analyze the data with CFA to see if we are getting what
@@ -84,9 +85,6 @@ mymod  <- '
              f1 =~ V1 + V2 + V3 + V4 + V5 + V6 + V7 + V8
              f2 =~ V1 + V2 + V3 + V4 
              f3 =~ V5 + V6 + V7 + V8
-             f1 ~ 1
-             f2 ~ 1
-             f3 ~ 1
              f1 ~~ 0*f2
              f1 ~~ 0*f3
              f2 ~~ 0*f3
@@ -108,49 +106,23 @@ fit <- cfa(model.syntax=mymod,
            sample.nobs= Nsample,
            mimic="Mplus",
            missing="listwise",
-           data=as.data.frame(sim2$observed), orthogonal=T,
+           data=mydata, orthogonal=T,
            std.lv=T)
 
-##Error in solve.default(E) : 
-##  system is computationally singular: reciprocal condition number = 3.69636e-18
 
 summary(fit, fit.measures=TRUE)
 
-## Results convince me the correlation matrix sim2$model is exactly
-## what I asked for.  I mean, the parameter estimates match the
-## truth. I don't know what the sigularity problem is with the SE's
 
-## debug(lavaan)
-##  debug(lavaan:::estimateVCOV)
-## debug(lavaan:::Nvcov.standard)
-
-## Start in in "lavaan" function,
-## Which points to estimateVCOV
-##  VCOV <- estimateVCOV(lavaanModel, sample = lavaanSample, options = lavaanOptions, 
-##     data = data)
-
-## Which points to:
-## Nvcov.standard with
-##  NVarCov <- try(Nvcov.standard(object = object, sample = sample, 
-##     estimator = estimator, information = information))
-
-## Which points to:
-##  E <- computeExpectedInformation(object, sample = sample, 
-##         estimator = estimator)
-##  E.inv <- solve(E)
-
-
-
-##lets fiddle around trying to make alternative
-## standard errors work
-fit2 <- cfa(model.syntax=mymod,
+fit <- cfa(model.syntax=mymod,
            sample.cov= sim2cov,
            sample.nobs= Nsample,
            mimic="Mplus",
            missing="listwise",
-           data=mydata, orthogonal=T, 
-           std.lv=T, se="boot")
+           sample.mean=mean(sim2$observed),
+           meanstructure=T,
+           control=list(optim.method="BFGS"),
+           data=mydata, orthogonal=T,
+           std.lv=T)
 
-summary(fit2)
 
-write.table(mydata, file="psych-bifactor.txt", row.names=FALSE)
+summary(fit, fit.measures=TRUE)
