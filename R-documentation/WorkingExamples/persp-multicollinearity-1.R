@@ -44,7 +44,7 @@ mcGraph1 <- function (x1, x2, y, theta=0, phi=15){
   
   res <- persp(x=plotSeq(x1range, l=5), y= plotSeq(x2range, l=5), z=zZero, zlim=yrange, lwd=1, xlab="x1",ylab="x2",zlab="y", theta=theta, phi=phi)
   
-  yMinimum <- rep(yrange[1] , length(dx1))
+  yMinimum <- rep(yrange[1] , length(x1))
   mypoints1 <- trans3d ( x1, x2, yMinimum, pmat = res )
   points( mypoints1, pch = 16, col= "blue")
 }
@@ -109,10 +109,11 @@ mcGraph3 <- function(x1, x2, y, theta = 0, phi = 15){
   
   mypoints4 <- trans3d (x1 , x2 , fitted(m1) , pmat =res )
 ##  points(mypoints4)
-  
-  mypoints2s <- trans3d ( x1, x2, y, pmat =res )
-  
-  arrows ( mypoints4$x , mypoints4$y , mypoints2s$x , mypoints2s$y , col = "red" , lty = 2, lwd = 0.3, length = 0.1)
+  newy <- ifelse(fitted(m1) < y, fitted(m1)+ 0.8*(y-fitted(m1)),
+                 fitted(m1) + 0.8 * (y-fitted(m1)))
+  mypoints2s <- trans3d ( x1, x2, newy, pmat =res )
+   
+  arrows ( mypoints4$x , mypoints4$y , mypoints2s$x , mypoints2s$y , col = "red" , lty = 4, lwd = 0.3, length = 0.1)
   summary(m1)
 }
 
@@ -157,7 +158,24 @@ mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 0.7, theta = 0)
 mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 0.8, theta = 0)
 mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 0.9, theta = 0) 
 mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 0)
- 
+
+##rotate this
+
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 20)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 40)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 60)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 80)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 100)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 120)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 140)
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = 1, theta = 160)
+
+## once they reach the top, make them glitter a while
+par(ask=TRUE)
+for(i in 1:20){
+mcGraph2(dat$x1, dat$x2, dat$y, shrinky = runif(length(dat$x1), .9,1.1), theta = 0)
+}
+par(ask=FALSE)
 
 mcGraph3(dat$x1, dat$x2, dat$y, theta = 0)
 
@@ -175,27 +193,29 @@ mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = -15)
 
 
 
-## Now, back to work. Run 10 regressions with not-strongly
+## Now, back to work. Run regressions with not-strongly
 ## correlated data
 par(ask = T)
 
 modset1 <- list()
-for(i in 1:10){
-  dat2 <- genCorrelatedData(rho = .1, stde = 10)
+for(i in 1:20){
+  dat2 <- genCorrelatedData(rho = .1, stde = 7)
   summary(lm( y ~ x1 + x2 , data = dat2))
-  modset1[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 0)
+  modset1[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30)
 }
 
 
-## Fit 10 regressions with strongly correlated data
+## Fit regressions with strongly correlated data
 par(ask = T)
 
 modset2 <- list()
-for(i in 1:10){
-  dat2 <- genCorrelatedData(rho = .981, stde = 10)
+for(i in 1:20){
+  dat2 <- genCorrelatedData(rho = .981, stde = 7)
   summary(lm( y ~ x1 + x2 , data = dat2))
-  modset2[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 0)
+  modset2[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30)
 }
+
+par(ask = F)
 
 ##Compare the estimated coefficients for model sets 1 and 2
  lapply(modset1, coef)
@@ -203,6 +223,5 @@ for(i in 1:10){
  lapply(modset2, coef)
 
 ## Turn off the ask permission on plots
-par(ask = F)
 
 ##dev.off()
