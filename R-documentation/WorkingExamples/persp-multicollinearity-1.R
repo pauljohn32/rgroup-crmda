@@ -2,6 +2,7 @@
 ## 3-dimensional demonstration of multicollinearity using persp
 ## Author: Paul Johnson
 ## Date: 2011-10-22
+## Revised: 2011-10-24: Introduce elipsis argument.
 
 ## This is a set of functions that faciliates the examination
 ## of multicollinearity. The "true" relationship is
@@ -34,15 +35,22 @@ plotSeq <- function(x, length.out=length(x)){
 }
 
 
-
-mcGraph1 <- function (x1, x2, y, theta=0, phi=15){
+## Allow ... to pass any options into perp that user specifies, overiding
+## my preferred settings.
+mcGraph1 <- function (x1, x2, y, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
-  
+ 
   zZero <- outer( plotSeq(x1range, l=5), plotSeq(x2range, l=5), function( a,b) { a*b*0 + yrange[1] } )
-  
-  res <- persp(x=plotSeq(x1range, l=5), y= plotSeq(x2range, l=5), z=zZero, zlim=yrange, lwd=1, xlab="x1",ylab="x2",zlab="y", theta=theta, phi=phi)
+
+  dotargs <- list(...)
+  myDefaults <- list(x=plotSeq(x1range, l=5), y= plotSeq(x2range, l=5), z=zZero, zlim=yrange, lwd=1, xlab="x1",ylab="x2",zlab="y", theta=0, phi=15)
+
+  myargs <- modifyList(myDefaults, dotargs)
+ # res <- persp(x=plotSeq(x1range, l=5), y= plotSeq(x2range, l=5), z=zZero, zlim=yrange, lwd=1, xlab="x1",ylab="x2",zlab="y", theta=theta, phi=phi)
+
+  res <- do.call("persp", myargs)
   
   yMinimum <- rep(yrange[1] , length(x1))
   mypoints1 <- trans3d ( x1, x2, yMinimum, pmat = res )
@@ -50,8 +58,7 @@ mcGraph1 <- function (x1, x2, y, theta=0, phi=15){
 }
 
 
-
-mcGraph2 <- function(x1,x2,y, shrinky=1, theta=0, phi=15){
+mcGraph2 <- function(x1,x2,y, shrinky=1, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
@@ -59,7 +66,12 @@ mcGraph2 <- function(x1,x2,y, shrinky=1, theta=0, phi=15){
 ##
   zZero <- outer( plotSeq(x1range, l = 5), plotSeq(x2range, l = 5), function( a,b) { a*b*0 + yrange[1] } )
 
-  res <- persp(x = plotSeq(x1range, l = 5), y = plotSeq(x2range, l = 5), z = zZero, zlim = yrange, lwd = 1, xlab = "x1", ylab = "x2", zlab = "y", theta = theta, phi=phi)
+  dotargs <- list(...)
+  myDefaults <- list(x = plotSeq(x1range, l = 5), y = plotSeq(x2range, l = 5), z = zZero, zlim = yrange, lwd = 1, xlab = "x1", ylab = "x2", zlab = "y", theta = 0, phi=15)
+  myargs <- modifyList(myDefaults, dotargs)
+
+  res <-do.call("persp", myargs)
+#  res <- persp(x = plotSeq(x1range, l = 5), y = plotSeq(x2range, l = 5), z = zZero, zlim = yrange, lwd = 1, xlab = "x1", ylab = "x2", zlab = "y", theta = theta, phi=phi)
   
   mypoints1 <- trans3d ( x1, x2 ,yrange[1], pmat = res )
   newy <- shrinky * (y - yrange[1]) + yrange[1]
@@ -74,17 +86,20 @@ mcGraph2 <- function(x1,x2,y, shrinky=1, theta=0, phi=15){
 
 
 
-mcGraph3 <- function(x1, x2, y, theta = 0, phi = 15){
+mcGraph3 <- function(x1, x2, y, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
   
-  
   zZero <- outer( plotSeq(x1range, l = 5), plotSeq(x2range, l = 5), function( a, b) { a*b*0 + yrange[1] } )
   
+  dotargs <- list(...)
   
-  res <- persp(x = plotSeq(x1range, l = 5), y = plotSeq(x2range, l = 5), z = zZero, zlim = yrange, lwd = 1, xlab = "x1", ylab = "x2", zlab = "y", theta = theta, phi = phi)
+  myDefaults <- list(x = plotSeq(x1range, l = 5), y = plotSeq(x2range, l = 5), z = zZero, zlim = yrange, lwd = 1, xlab = "x1", ylab = "x2", zlab = "y", theta = 0, phi=15)
   
+  myargs <- modifyList(myDefaults, dotargs)
+
+  res <-do.call("persp", myargs)
   mypoints1 <- trans3d( x1, x2, yrange[1], pmat = res )
   
   mypoints2 <- trans3d( x1, x2, y, pmat = res )
@@ -92,8 +107,6 @@ mcGraph3 <- function(x1, x2, y, theta = 0, phi = 15){
   points( mypoints1, pch = 16, col = gray(0.8))
  
   m1 <- lm( y ~ x1 + x2)
-  # summary (m1)
- 
   x1seq <- plotSeq (x1range, length = 20)
   x2seq <- plotSeq (x2range , length = 20)
   
