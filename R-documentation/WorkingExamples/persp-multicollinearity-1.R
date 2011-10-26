@@ -1,8 +1,12 @@
 ## multicollinearity-plots.R
 ## 3-dimensional demonstration of multicollinearity using persp
+
 ## Author: Paul Johnson
 ## Date: 2011-10-22
 ## Revised: 2011-10-24: Introduce elipsis argument.
+
+## Demonstrates use of the ... argument and modifyList to merge
+## user choices with default settings.
 
 ## This is a set of functions that faciliates the examination
 ## of multicollinearity. The "true" relationship is
@@ -145,15 +149,15 @@ genCorrelatedData <- function(N = 100, means = c(50,50), sds = c(10,10), rho = 0
 }
   
 
-##
+##If you want to turn on pdf output instead of graphic output:
 ##pdf(file="mcplots%03d.pdf", onefile=F, paper="special", height=6, width=6)
 
-## Now we get to use those functions to create
-## data and plots.
+## Now we get to use those functions to create data and plots.
 
+set.seed(12345)
 
 ## Create data with x1 and x2 correlated at 0.10
-dat <- genCorrelatedData(rho=.1, stde=10)
+dat <- genCorrelatedData(rho=.1, stde=7)
 
 mcGraph1(dat$x1, dat$x2, dat$y, theta=20, phi=8)
 
@@ -192,7 +196,7 @@ par(ask=FALSE)
 
 mcGraph3(dat$x1, dat$x2, dat$y, theta = 0)
 
-dat2 <- genCorrelatedData(rho = 0, stde = 10)
+dat2 <- genCorrelatedData(rho = 0, stde = 7)
 
 mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 0, phi = 10)
 
