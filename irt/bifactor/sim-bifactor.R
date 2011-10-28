@@ -11,12 +11,10 @@
 ### The individual ability parameters (called "thetas")
 
 
-
-
 library(mvtnorm)
 
 N <- 1000 # respondents
-
+Cmax <- 0.2 # maximum guessing parameter 
 D <- 5 # dimensions of individual ability (elements in theta)
 npb <- 10 # num of items "per sub block" on dimensions 2:D
 M <- (D-1)*npb # total items
@@ -30,7 +28,7 @@ rhoTheta <- diag(D)  ##correlation, initially Uncorrelated between dimensions
 covTheta  <- rhoTheta *  sdTheta %o% sdTheta
 theta    <- rmvnorm(N, mean = meanTheta, sigma = covTheta,
              method= "chol")
-
+C <- runif(M, min=0, max=Cmax)
 
 ########################################
 # difficulty is standard normal
@@ -38,6 +36,7 @@ diffp <- rnorm(M, 0, 1)
 
 ###discrimination parameters log normal in D columns
 discraw <- matrix(rlnorm(D*M, m=0, sd=1), ncol=D)
+
 
 ##Create a "mask" to generate the bi-factor structure
 ## one column of 1's, others grouped like
@@ -68,12 +67,42 @@ discp <- discraw * blotterMatrix
 eta <- discp %*% t(theta) - diffp
 ## inverse link
 invlink <- 1/(1+exp(-eta))
-## draw random items
-items <- apply(invlink, 2, function(col) rbinom(n= M, pr=col, size=1)) 
-items <- t(items) ## transpose to put in usual format
 
-### Sanity Check: Doublecheck difficulty against average scores 
-plot(diffp, colMeans(items))
+## PC=probability correct allows for guessing parameter
+## Guessing C[i] is guessing param for each question
+PC <-  C + (1-C) * invlink
+
+## Justify previous calculation to self,
+## Fiddle with some matrices
+## XM <- matrix(2, nrow=3, ncol=7)
+## XM
+## XC * XM
+## XC <- c(0.1, .2, .3)
+## XC * XM
+## A <- c(-1, -2, -3)
+## A * XC * XM
+## XC + (1-XC) * XM
 
 
 
+## draw random items column-by-column
+items <- apply(PC, 2, function(col) rbinom(n= M, pr=col, size=1)) 
+
+## Transpose to item responses are delivered N X M
+items <- t(items)
+
+### Sanity Check: Doublecheck difficulty against average scores
+
+## Rose: I bet this is the one that made your computer seem to freeze
+## plot(diffp, colMeans(items))
+
+## Saves to an R format
+save(items, file="mei-dat-1000.Rda")
+
+
+## Saves to a raw text format, easier for other programs to read
+
+write.table(items, file="mei-dat-1000.txt", row.names=FALSE)
+
+### If you have gzip, this will compress.
+system("gzip mei-dat-1000.txt")
