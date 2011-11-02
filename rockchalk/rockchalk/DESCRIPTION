@@ -1,0 +1,21 @@
+Package: rockchalk
+Type: Package
+Title: Miscellaneous CRMDA Functions
+Version: 1.0
+Date: 2011-10-29
+Author: Paul E. Johnson
+Maintainer: Paul E. Johnson <pauljohn@ku.edu>
+Description: A collection of small to medium sized
+    functions we use for regression analysis.
+License: GPL (>= 3.0)
+LazyLoad: yes
+Depends:
+    MASS
+Collate:
+    'magRange.R'
+    'mcGraph.R'
+    'outreg.R'
+    'perspEmpty.R'
+    'plotSeq.R'
+    'rockchalk-package.R'
+    'genCorrelatedData.R'
