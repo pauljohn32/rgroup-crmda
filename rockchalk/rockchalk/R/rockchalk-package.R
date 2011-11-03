@@ -1,4 +1,4 @@
-#' Miscellaneous regression tables
+#' Miscellaneous regression functions
 #' 
 #'  
 #' \tabular{ll}{ Package: \tab rockchalk\cr Type: \tab Package\cr Version: \tab
@@ -9,15 +9,12 @@
 #' @name rockchalk-package
 #' @aliases rockchalk-package rockchalk
 #' @docType package
-#' @author Paul Johnson
+#' @author Paul Johnson <pauljohn@@ku.edu>
 #' 
-#' Maintainer: Paul Johnson <pauljohn@@ku.edu >
+#' Maintainer: Paul Johnson <pauljohn@@ku.edu>
 #' @references http://pj.freefaculty.org/R
-#' @keywords lm
-#' @examples
-#' 
-#'  ##See outreg
-#' 
+#' @keywords regression hplot
+
 NULL
 
 

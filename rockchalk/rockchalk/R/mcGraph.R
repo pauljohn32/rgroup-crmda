@@ -1,86 +1,24 @@
-#' Illustrate the effect of multicollinearity in regression.
-#'
-#' This is a set of functions that faciliates the examination
-#' of multicollinearity. Suppose the "true" relationship is
-#'  y[i] = 0.2 * x1[i] + 0.2 * x2[i] + e
-#' where e is Normal(0, stde^2).
-#'
-#' @usage mcGraph1 (x1, x2, y, ...)
-#' @usage mcGraph2 (x1, x2, y, rescaley=1, ...)
-#' @usage mcGraph3 (x1, x2, y, ...)
-#' @name mcGraph1
-#' @aliases  mcGraph2 mcGraph3 mcGraph
-#' @param x1 a predictor vector
-#' @param x2 a predictor vector
-#' @param y  the dependent variable
-#' @param ... additional parameters passed to persp
-#' @export mcGraph1 mcGraph2 mcGraph3
-#' @import MASS
-#' @examples
-#' set.seed(12345)
-#' ## Create data with x1 and x2 correlated at 0.10
-#' dat <- genCorrelatedData(rho=.1, stde=7)
-#' 
-#' mcGraph1(dat$x1, dat$x2, dat$y, theta=20, phi=8, ticktype="detailed", nticks=10)
-#' 
-#' 
-#' ## This will "grow" the "cloud" of points up from the
-#' ## x1-x2 axis
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.0, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.1, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.2, theta = 0)
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.3, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.4, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.5, theta = 0)
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.6, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.7, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.8, theta = 0)
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.9, theta = 0) 
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 0)
-#' 
-#' ##rotate this
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 20)
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 40)
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 60)
-#' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 80)
-#' 
-#' ## once they reach the top, make them glitter a while
-#' for(i in 1:20){
-#'   mcGraph2(dat$x1, dat$x2, dat$y, rescaley = runif(length(dat$x1), .9,1.1), theta = 0)
-#' }
-#' 
-#' mcGraph3(dat$x1, dat$x2, dat$y, theta = 0)
-#' 
-#' dat2 <- genCorrelatedData(rho = 0, stde = 7)
-#' 
-#' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 0, phi = 10)
-#' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 30, phi = 10)
-#' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = 10)
-#' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = -10)
-#' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = -15)
-#' 
-#' ## Run regressions with not-strongly correlated data
-#' modset1 <- list()
-#' for(i in 1:20){
-#'   dat2 <- genCorrelatedData(rho = .1, stde = 7)
-#'   summary(lm( y ~ x1 + x2 , data = dat2))
-#'   modset1[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30)
-#' }
-#' 
-#' 
-#' ## Run regressions with strongly correlated data
-#' modset2 <- list()
-#' for(i in 1:20){
-#'   dat2 <- genCorrelatedData(rho = .981, stde = 7)
-#'   summary(lm( y ~ x1 + x2 , data = dat2))
-#'   modset2[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30)
-#' }
-#' 
-#' ##Compare the estimated coefficients for model sets 1 and 2
-#' lapply(modset1, coef)
-#' lapply(modset2, coef)
-#' 
-#' 
+##' Illustrate the effect of multicollinearity in regression.
+##'
+##' This is a set of functions that faciliates the examination
+##' of multicollinearity. Suppose the "true" relationship is
+##'  y[i] = 0.2 * x1[i] + 0.2 * x2[i] + e
+##' where e is Normal(0, stde^2).
+##' @name mcGraph1
+##' @param x1 a predictor vector
+##' @param x2 a predictor vector
+##' @param y  the dependent variable
+##' @param ... additional parameters passed to persp
+##' @export mcGraph1
+##' @keywords regression hplot
+##' @author Paul Johnson <pauljohn@@ku.edu>
+##' @examples
+##' set.seed(12345)
+##' ## Create data with x1 and x2 correlated at 0.10
+##' dat <- genCorrelatedData(rho=.1, stde=7)
+##' 
+##' mcGraph1(dat$x1, dat$x2, dat$y, theta=20, phi=8, ticktype="detailed", nticks=10)
+##' 
 mcGraph1 <- function (x1, x2, y, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
@@ -91,8 +29,53 @@ mcGraph1 <- function (x1, x2, y, ...){
   points( mypoints1, pch = 16, col= "blue")
 }
 
-
-mcGraph2 <- function(x1, x2, y, rescaley=1, ...){
+##' mcGraph2 draws a 3-D representation of a scatterplot with shadows in the x1-x2 plane.
+##' 
+##' The observations are represented by blue points floating above the
+##' x1-x2 plane. If scaley=1, the end result is a scatterplot "cloud"
+##' of the y points above the x1-x2 plane, and gray shadows of the
+##' points are cast down from the cloud onto the x1-x2 plane
+##' itself. This uses persp to make the actual drawing.
+##'
+##' @param x1 a predictor vector
+##' @param x2 a predictor vector
+##' @param y  the dependent variable
+##' @param rescaley a single scalar value or a vector of the same length as y. 
+##' @param drawArrows TRUE or FALSE, do you want arrows from the bottom up to observed y?
+##' @param ... arguments passed to persp
+##' @return The perspective matrix from persp (that can be used with trans3d to add more details in the plot) 
+##' @author Paul E. Johnson <pauljohn@@ku.edu>
+##' @export mcGraph2
+##' @examples
+##' set.seed(12345)
+##' ## Create data with x1 and x2 correlated at 0.10
+##' dat <- genCorrelatedData(rho=.1, stde=7)
+##' ## This will "grow" the "cloud" of points up from the
+##' ## x1-x2 axis
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.0, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.1, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.2, theta = 0)
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.3, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.4, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.5, theta = 0)
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.6, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.7, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.8, theta = 0)
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 0.9, theta = 0) 
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 0)
+##' 
+##' ##rotate this
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 20)
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 40)
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 60)
+##' mcGraph2(dat$x1, dat$x2, dat$y, rescaley = 1, theta = 80)
+##' 
+##' ## once they reach the top, make them glitter a while
+##' for(i in 1:20){
+##'   mcGraph2(dat$x1, dat$x2, dat$y, rescaley = runif(length(dat$x1), .9,1.1), theta = 0)
+##' }
+##'
+mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
@@ -102,17 +85,63 @@ mcGraph2 <- function(x1, x2, y, rescaley=1, ...){
   mypoints1 <- trans3d ( x1, x2 ,yrange[1], pmat = res )
   newy <- rescaley * (y - yrange[1]) + yrange[1]
   mypoints2 <- trans3d ( x1 , x2 , newy , pmat = res )
-  points( mypoints2, pch = 1, col= "blue")
+ 
   points( mypoints1, pch = 16, col=gray(0.8))
-  
+  points( mypoints2, pch = 1, col= "blue") 
   mypoints2s <- trans3d ( x1, x2, (0.8)*newy, pmat =res )
-  arrows ( mypoints1$x , mypoints1$y , mypoints2s$x , mypoints2s$y , col="red" , lty = 2, lwd=0.3, length=0.1)
+  if (drawArrows) arrows ( mypoints1$x , mypoints1$y , mypoints2s$x , mypoints2s$y , col="red" , lty = 2, lwd=0.3, length=0.1)
+  res
 }
 
-
-
-
-mcGraph3 <- function(x1, x2, y, ...){
+##' mcGraph3 draws a 3-dimensional scatter and a regression plane
+##'
+##' The observations are scattered in 3-dimensions, the fitted
+##' values are represented by a mesh, and their
+##' shadows in the x1-x2 plane are also represented.
+##' 
+##' @author Paul E. Johnson <pauljohn@@ku.edu>
+##' @param x1 a predictor vector
+##' @param x2 a predictor vector
+##' @param y the dependent variable
+##' @param interaction a TRUE or FALSE request for inclusion of the x1-x2 interaction in the regression calculation 
+##' @param ... optional arguments passed to persp
+##' @return a list of 2 objects, the fitted regression model and the perspective matrix used with persp to draw the image.
+##' @export mcGraph3
+##' @examples
+##' set.seed(12345)
+##' ## Create data with x1 and x2 correlated at 0.10
+##' dat <- genCorrelatedData(rho=.1, stde=7)
+##' 
+##' mcGraph3(dat$x1, dat$x2, dat$y, theta = 0)
+##' 
+##' dat2 <- genCorrelatedData(rho = 0, stde = 7)
+##' 
+##' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 0, phi = 10)
+##' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = 30, phi = 10)
+##' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = 10)
+##' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = -10)
+##' mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30, phi = -15)
+##' 
+##' ## Run regressions with not-strongly correlated data
+##' modset1 <- list()
+##' for(i in 1:20){
+##'   dat2 <- genCorrelatedData(rho = .1, stde = 7)
+##'   summary(lm( y ~ x1 + x2 , data = dat2))
+##'   modset1[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30)
+##' }
+##' 
+##' 
+##' ## Run regressions with strongly correlated data
+##' modset2 <- list()
+##' for(i in 1:20){
+##'   dat2 <- genCorrelatedData(rho = .981, stde = 7)
+##'   summary(lm( y ~ x1 + x2 , data = dat2))
+##'   modset2[[i]] <- mcGraph3(dat2$x1, dat2$x2, dat2$y, theta = -30)
+##' }
+##' 
+##' dat3 <- genCorrelatedData(rho = .981, stde = 100, beta=c(0.1, 0.2, 0.3, -0.1))
+##' mcGraph3(dat3$x1, dat3$x2, dat3$y, theta=-10, interaction = TRUE)
+mcGraph3 <- function(x1, x2, y, interaction = FALSE, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
@@ -120,12 +149,14 @@ mcGraph3 <- function(x1, x2, y, ...){
   res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, ...)
   
   mypoints1 <- trans3d( x1, x2, yrange[1], pmat = res )
+  points( mypoints1, pch = 16, col = gray(0.8))
   
   mypoints2 <- trans3d( x1, x2, y, pmat = res )
   points( mypoints2, pch = 1, col = "blue")
-  points( mypoints1, pch = 16, col = gray(0.8))
  
-  m1 <- lm( y ~ x1 + x2)
+  if (interaction) m1 <- lm(y ~ x1 * x2)
+  else m1 <- lm(y ~ x1 + x2)
+ 
   x1seq <- plotSeq (x1range, length = 20)
   x2seq <- plotSeq (x2range , length = 20)
   
@@ -146,7 +177,7 @@ mcGraph3 <- function(x1, x2, y, ...){
   mypoints2s <- trans3d ( x1, x2, newy, pmat =res )
    
   arrows ( mypoints4$x , mypoints4$y , mypoints2s$x , mypoints2s$y , col = "red" , lty = 4, lwd = 0.3, length = 0.1)
-  summary(m1)
+  list(m1, res)
 }
 
 

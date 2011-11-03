@@ -43,15 +43,14 @@
 #' boilerplate.
 #' @export outreg 
 #' @return None
+#' @keywords regression
 #' @note There are many R packages that can be used to create LaTeX regression
 #' tables. memisc, apsrtable, xtables, and rms are some. This "outreg" version
 #' was in use in our labs before we were aware that those packages were in
 #' development. It is not intended as a competitor, it is just a slightly
 #' different version of the same that is more suited to our needs.
 #' @author Paul E. Johnson <pauljohn@@ku.edu>
-#' @seealso %% ~~objects to See Also as \code{\link{help}}, ~~~
-#' @references Citation: none exists
-#' @keywords ~kwd1 ~kwd2
+#' @references Citation: 
 #' @examples
 #' 
 #' 
