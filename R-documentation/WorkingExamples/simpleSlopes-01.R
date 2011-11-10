@@ -65,7 +65,7 @@ ssplot <- function(model=NULL, plotx=NULL, modx=NULL, modxVals=NULL){
 #  plot( mm[, plotx], dat$y)
 #  lapply(newdf, function(mydat) { lines (mydat[[plotx]] , mydat$pred)} )
   
-  plot( mm[, plotx], dat$y, xlab=plotx, ylab=ylab)
+  plot( mm[, plotx], depVar, xlab=plotx, ylab=ylab)
   for(i in 1:length(modxVals)){
     lines (newdf[[i]][[plotx]] , newdf[[i]][["pred"]], lty=i, col=i)
   }
