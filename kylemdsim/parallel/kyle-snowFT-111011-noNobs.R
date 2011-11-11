@@ -205,7 +205,7 @@ rowTask <-function(x, dat, runNumber, parms)
       
       PMvec <- seq(parms$minPM, parms$maxPM, parms$PMstep) 
 
-      missOut <- lapply(PMvec, FUN=handleOneDat, dat=dat, parms2=parms)
+      missOut <- lapply(PMvec, FUN=handleOneDat, dat=cullDat, parms2=parms)
       
      ##  list(row.ControlOut=conOut, row.missing.out=missOut)
      
@@ -250,19 +250,19 @@ require(snowFT)
 
 mySeeds <- rep(235711,6)
 
-rp <- c(1:5) # seq(1:1000)
+rp <- 1 #c(1:10)
 
-cnt <- 20
+cnt <- 3
 
 parameters <- list()
-parameters$samInc <- seq(0,100,10)
+parameters$samInc <- seq(0,400,10)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
 parameters$lenScale <- 10
 parameters$minPM <- .02
 parameters$maxPM <- .60
 parameters$PMstep <- .02
-parameters$imps <- 20
+parameters$imps <- 100
 parameters$nobs <- 500
 parameters$mfK <- .05
 parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
@@ -272,9 +272,12 @@ parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
 
 ## Let's run the bugger!!! ##
 
+runTime <- system.time(
+
 performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, cltype="MPI", parms=parameters)
 
 
-#load("conOut-run-1-omit-20-4211.77507984667.RData")
+            )
 
-#missOut1[[1]]$cellMissOut$rawMissOut$imp3$rawResOut$rawResLL - missOut2[[1]]$cellMissOut$rawMissOut$imp3$rawResOut$rawResLL
+save(runTime,file="repTime.RData")
+
