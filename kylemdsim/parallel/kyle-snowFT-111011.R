@@ -1,5 +1,5 @@
 
-rm(list=ls(all=T))
+#rm(list=ls(all=T))
 
 goBabyGo <- function(runNumber,parms) {
   
@@ -265,17 +265,17 @@ require(snowFT)
 
 mySeeds <- rep(235711,6)
 
-rp <- c(1:5) # seq(1:1000)
+rp <- 1 #c(1:3) # seq(1:1000)
 
-cnt <- 10
+cnt <- 1
 
 parameters <- list()
-parameters$samInc <- 10 #seq(0,,10)
+parameters$samInc <-  seq(0,10,10)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
 parameters$lenScale <- 10
 parameters$minPM <- .02
-parameters$maxPM <- .1
+parameters$maxPM <- .06
 parameters$PMstep <- .02
 parameters$imps <- 3
 parameters$nobs <- 500
@@ -287,7 +287,7 @@ parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
 
 ## Let's run the bugger!!! ##
 
-performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, parms=parameters)
+performParallel(count=cnt, x=rp, fun=goBabyGo, cltype="MPI", seed=mySeeds, parms=parameters)
 
 
 #load("missOut-run-1-omit-10-1423.21736226538.RData")

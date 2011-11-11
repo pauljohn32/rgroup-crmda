@@ -1,5 +1,5 @@
 
-rm(list=ls(all=T))
+#rm(list=ls(all=T))
 
 goBabyGo <- function(runNumber,parms) {
   
@@ -245,24 +245,24 @@ repTask <- function(x, parms2)
 
 
 ##################################### Begin Parallel Runs (snowFT) ###################################
-require(Rmpi)
+
 require(snowFT)
 
 mySeeds <- rep(235711,6)
 
-rp <- c(1:3) # seq(1:1000)
+rp <- c(1:5) # seq(1:1000)
 
-cnt <- 2
+cnt <- 20
 
 parameters <- list()
-parameters$samInc <- 10 #seq(0,,10)
+parameters$samInc <- seq(0,100,10)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
 parameters$lenScale <- 10
 parameters$minPM <- .02
-parameters$maxPM <- .06
+parameters$maxPM <- .60
 parameters$PMstep <- .02
-parameters$imps <- 3
+parameters$imps <- 20
 parameters$nobs <- 500
 parameters$mfK <- .05
 parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
@@ -274,6 +274,7 @@ parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
 
 performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, cltype="MPI", parms=parameters)
 
-goBabyGo(rp,parameters)
 
-load("missOut-run-1-omit-10-4945.58838196099.RData")
+#load("conOut-run-1-omit-20-4211.77507984667.RData")
+
+#missOut1[[1]]$cellMissOut$rawMissOut$imp3$rawResOut$rawResLL - missOut2[[1]]$cellMissOut$rawMissOut$imp3$rawResOut$rawResLL
