@@ -27,6 +27,7 @@ mcGraph1 <- function (x1, x2, y, ...){
   yMinimum <- rep(yrange[1] , length(x1))
   mypoints1 <- trans3d ( x1, x2, yMinimum, pmat = res )
   points( mypoints1, pch = 16, col= "blue")
+  invisible(res)
 }
 
 ##' mcGraph2 draws a 3-D representation of a scatterplot with shadows in the x1-x2 plane.
@@ -90,7 +91,7 @@ mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, ...){
   points( mypoints2, pch = 1, col= "blue") 
   mypoints2s <- trans3d ( x1, x2, (0.8)*newy, pmat =res )
   if (drawArrows) arrows ( mypoints1$x , mypoints1$y , mypoints2s$x , mypoints2s$y , col="red" , lty = 2, lwd=0.3, length=0.1)
-  res
+  invisible(res)
 }
 
 ##' mcGraph3 draws a 3-dimensional scatter and a regression plane
@@ -177,7 +178,7 @@ mcGraph3 <- function(x1, x2, y, interaction = FALSE, ...){
   mypoints2s <- trans3d ( x1, x2, newy, pmat =res )
    
   arrows ( mypoints4$x , mypoints4$y , mypoints2s$x , mypoints2s$y , col = "red" , lty = 4, lwd = 0.3, length = 0.1)
-  list(m1, res)
+  invisible(list(m1, res))
 }
 
 

@@ -15,7 +15,7 @@ Description: A collection of functions for ease of
 License: GPL (>= 3.0)
 LazyLoad: yes
 Depends:
-    MASS
+    MASS, car
 Collate:
     'magRange.R'
     'mcGraph.R'
@@ -24,3 +24,5 @@ Collate:
     'plotSeq.R'
     'rockchalk-package.R'
     'genCorrelatedData.R'
+    'centralValues.R'
+    'plotSlopes.R'
