@@ -1,8 +1,8 @@
 Package: rockchalk
 Type: Package
 Title: Regression Estimation and Presentation
-Version: 1.1
-Date: 2011-11-02
+Version: 1.2
+Date: 2011-11-20
 Author: Paul E. Johnson <pauljohn@ku.edu>
 Maintainer: Paul E. Johnson <pauljohn@ku.edu>
 Description: A collection of functions for ease of
@@ -15,7 +15,8 @@ Description: A collection of functions for ease of
 License: GPL (>= 3.0)
 LazyLoad: yes
 Depends:
-    MASS, car
+    MASS,
+    car
 Collate:
     'magRange.R'
     'mcGraph.R'
@@ -26,3 +27,4 @@ Collate:
     'genCorrelatedData.R'
     'centralValues.R'
     'plotSlopes.R'
+    'pjplotSlopes.R'

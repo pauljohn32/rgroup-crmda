@@ -23,6 +23,7 @@
 ##' drawn for each level of the factor. That is a shortcoming in the
 ##' current implementation.
 ##' @param plotPoints Should the plot include the scatterplot points along with the lines.
+##' @param ... further arguments that are passed to plot
 ##' @export
 ##' @import car
 ##' @return If modx is the name of a numeric variable, will return a
