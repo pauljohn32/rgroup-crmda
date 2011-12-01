@@ -5,7 +5,7 @@
 #These commands set up the Grid Environment for your job:
 #PBS -N KyleTestRun
 #PBS -l nodes=3:ppn=1
-#PBS -l walltime=05:00:00
+#PBS -l walltime=50:00:00
 #PBS -M kylelang@ku.edu
 #PBS -m bea
 

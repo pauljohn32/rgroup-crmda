@@ -255,14 +255,14 @@ rp <- 1 #c(1:10)
 cnt <- 3
 
 parameters <- list()
-parameters$samInc <- seq(0,400,10)
+parameters$samInc <- 10 #seq(0,400,10)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
 parameters$lenScale <- 10
 parameters$minPM <- .02
-parameters$maxPM <- .60
+parameters$maxPM <- .06
 parameters$PMstep <- .02
-parameters$imps <- 100
+parameters$imps <- 10
 parameters$nobs <- 500
 parameters$mfK <- .05
 parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
