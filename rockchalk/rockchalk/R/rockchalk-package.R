@@ -9,9 +9,9 @@
 ##' @name rockchalk-package
 ##' @aliases rockchalk-package rockchalk
 ##' @docType package
-##' @author Paul Johnson <pauljohn@@ku.edu>
+##' @author Paul E. Johnson \email{pauljohn@@ku.edu}
 ##' 
-##' Maintainer: Paul Johnson <pauljohn@@ku.edu>
+##' Maintainer: Paul Johnson \email{<pauljohn@@ku.edu>}
 ##' @references http://pj.freefaculty.org/R
 ##' @keywords regression hplot
 NULL

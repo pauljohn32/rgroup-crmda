@@ -1,5 +1,6 @@
 export(centralValues)
 export(genCorrelatedData)
+export(lmrc)
 export(magRange)
 export(mcGraph1)
 export(mcGraph2)

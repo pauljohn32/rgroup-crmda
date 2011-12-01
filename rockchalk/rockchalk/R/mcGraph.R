@@ -8,6 +8,9 @@
 ##' @param x1 a predictor vector
 ##' @param x2 a predictor vector
 ##' @param y  the dependent variable
+##' @param x1lab label for the x1 axis, (the one called "xlab" inside persp)
+##' @param x2lab label for the x2 axis, (the one called "ylab" inside persp)
+##' @param ylab  label for the y (vertical) axis (the one called "zlab" inside persp)
 ##' @param ... additional parameters passed to persp
 ##' @export mcGraph1
 ##' @keywords regression hplot
@@ -19,11 +22,17 @@
 ##' 
 ##' mcGraph1(dat$x1, dat$x2, dat$y, theta=20, phi=8, ticktype="detailed", nticks=10)
 ##' 
-mcGraph1 <- function (x1, x2, y, ...){
+mcGraph1 <- function (x1, x2, y, x1lab, x2lab, ylab, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
-  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, ...)
+
+  if (missing(x1lab)) xllab <- gsub(".*\\$", "", deparse(substitute(x1)))
+  if (missing(x2lab)) x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
+  if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
+  
+  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
+  
   yMinimum <- rep(yrange[1] , length(x1))
   mypoints1 <- trans3d ( x1, x2, yMinimum, pmat = res )
   points( mypoints1, pch = 16, col= "blue")
@@ -43,7 +52,10 @@ mcGraph1 <- function (x1, x2, y, ...){
 ##' @param y  the dependent variable
 ##' @param rescaley a single scalar value or a vector of the same length as y. 
 ##' @param drawArrows TRUE or FALSE, do you want arrows from the bottom up to observed y?
-##' @param ... arguments passed to persp
+##' @param x1lab label for the x1 axis, (the one called "xlab" inside persp)
+##' @param x2lab label for the x2 axis, (the one called "ylab" inside persp)
+##' @param ylab  label for the y (vertical) axis (the one called "zlab" inside persp)
+##' ##' @param ... arguments passed to persp
 ##' @return The perspective matrix from persp (that can be used with trans3d to add more details in the plot) 
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @export mcGraph2
@@ -76,12 +88,16 @@ mcGraph1 <- function (x1, x2, y, ...){
 ##'   mcGraph2(dat$x1, dat$x2, dat$y, rescaley = runif(length(dat$x1), .9,1.1), theta = 0)
 ##' }
 ##'
-mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, ...){
+mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, x1lab, x2lab, ylab, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
   
-  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, ...)
+  if (missing(x1lab)) xllab <- gsub(".*\\$", "", deparse(substitute(x1)))
+  if (missing(x2lab)) x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
+  if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
+  
+  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
   
   mypoints1 <- trans3d ( x1, x2 ,yrange[1], pmat = res )
   newy <- rescaley * (y - yrange[1]) + yrange[1]
@@ -105,6 +121,10 @@ mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, ...){
 ##' @param x2 a predictor vector
 ##' @param y the dependent variable
 ##' @param interaction a TRUE or FALSE request for inclusion of the x1-x2 interaction in the regression calculation 
+##' @param drawArrows TRUE or FALSE, do you want arrows from the plane to observed y?
+##' @param x1lab label for the x1 axis, (the one called "xlab" inside persp)
+##' @param x2lab label for the x2 axis, (the one called "ylab" inside persp)
+##' @param ylab  label for the y (vertical) axis (the one called "zlab" inside persp)
 ##' @param ... optional arguments passed to persp
 ##' @return a list of 2 objects, the fitted regression model and the perspective matrix used with persp to draw the image.
 ##' @export mcGraph3
@@ -142,12 +162,16 @@ mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, ...){
 ##' 
 ##' dat3 <- genCorrelatedData(rho = .981, stde = 100, beta=c(0.1, 0.2, 0.3, -0.1))
 ##' mcGraph3(dat3$x1, dat3$x2, dat3$y, theta=-10, interaction = TRUE)
-mcGraph3 <- function(x1, x2, y, interaction = FALSE, ...){
+mcGraph3 <- function(x1, x2, y, interaction = FALSE, drawArrows = TRUE, x1lab, x2lab, ylab, ...){
   x1range <- magRange(x1, 1.25)
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
 
-  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, ...)
+  if (missing(x1lab)) xllab <- gsub(".*\\$", "", deparse(substitute(x1)))
+  if (missing(x2lab))  x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
+  if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
+  
+  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
   
   mypoints1 <- trans3d( x1, x2, yrange[1], pmat = res )
   points( mypoints1, pch = 16, col = gray(0.8))
@@ -177,7 +201,7 @@ mcGraph3 <- function(x1, x2, y, interaction = FALSE, ...){
                  fitted(m1) + 0.8 * (y-fitted(m1)))
   mypoints2s <- trans3d ( x1, x2, newy, pmat =res )
    
-  arrows ( mypoints4$x , mypoints4$y , mypoints2s$x , mypoints2s$y , col = "red" , lty = 4, lwd = 0.3, length = 0.1)
+  if (drawArrows) arrows ( mypoints4$x , mypoints4$y , mypoints2s$x , mypoints2s$y , col = "red" , lty = 4, lwd = 0.3, length = 0.1)
   invisible(list(m1, res))
 }
 

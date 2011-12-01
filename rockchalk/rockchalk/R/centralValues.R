@@ -7,7 +7,7 @@
 ##'
 ##' @param x a data frame
 ##' @return a data frame with the same variables and one row, the summary indicators.
-##' @author Paul E. Johnson <pauljohn@@ku.edu>
+##' @author Paul E. Johnson \email{pauljohn@@ku.edu}
 ##' @export
 ##' @examples
 ##' myDat <- data.frame(x=rnorm(100), y=rpois(100,l=4), z = cut(rnorm(100), c(-10,-1,0,10)))
