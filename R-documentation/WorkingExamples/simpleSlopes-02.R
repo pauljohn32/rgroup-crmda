@@ -1,5 +1,6 @@
 ## Paul E. Johnson <pauljohn@ku.edu>
 ## 2011-11-10
+## Revision 2011-11-11 Changed main function name to plotSlopes. 
 
 ## Second Development version of a simple slope plotter.
 ## This version works with factor or numeric moderator.
@@ -51,8 +52,8 @@ centralValues <- function(x){
 }
 
 
-## ssplot= simple slope plot
-## ssplot a function that takes these arguments:
+## plotSlopes= simple slope plot
+## plotSlopes a function that takes these arguments:
 ## model <- m1 # fitted regression object. must have a predict method
 ## plotx <- "x1" #string with name of IV to be plotted on x axis
 ## modx <- "x2" #string for moderator variable name
@@ -60,16 +61,16 @@ centralValues <- function(x){
 ## omitted, quantiles will be used for numeric variables, and
 ## observed levels will be used for factor variables.
 
-ssplot <- function(model=NULL, plotx=NULL, modx=NULL, modxVals=NULL, plotPoints=TRUE){
-  if (is.null(model)) stop("ssplot requires a fitted regression model.")
-  if (is.null(plotx)) stop("ssplot requires the name of the variable to be drawn on the x axis")
-  if (is.null(modx)) stop("ssplot requires the name of moderator variable for which several slopes are to be drawn")
+plotSlopes <- function(model=NULL, plotx=NULL, modx=NULL, modxVals=NULL, plotPoints=TRUE){
+  if (is.null(model)) stop("plotSlopes requires a fitted regression model.")
+  if (is.null(plotx)) stop("plotSlopes requires the name of the variable to be drawn on the x axis")
+  if (is.null(modx)) stop("plotSlopes requires the name of moderator variable for which several slopes are to be drawn")
   ##grab model matrix
   mm <- model.matrix(model)
   depVar <- model$model[ ,1] #first column is DV
   modxVar <- model$model[ , modx]
   plotxVar <- model$model[ ,plotx]
-  if(!is.numeric(plotxVar)) stop(paste("ssplot: The variable", plotx, "should be a numeric variable"))
+  if(!is.numeric(plotxVar)) stop(paste("plotSlopes: The variable", plotx, "should be a numeric variable"))
   ylab <- colnames(model$model)[1]
   plotyRange <- range(depVar)
   plotxRange <- range(mm[ , plotx])
@@ -181,17 +182,17 @@ rm(x1, x2, x3, x4, y, y2)
 ##ordinary regression
 m1 <- lm(y ~ x1 + x2 +x3 + x4, data=dat)
 ## must specify depvar parameter
-ssplot(m1, plotx="x1", modx="x2", modxVals=c(-0.5,0,0.5))
-ssplot(m1, plotx="x1", modx="x2")
-ssplot(m1, plotx="x4", modx="x1")
+plotSlopes(m1, plotx="x1", modx="x2", modxVals=c(-0.5,0,0.5))
+plotSlopes(m1, plotx="x1", modx="x2")
+plotSlopes(m1, plotx="x4", modx="x1")
 
 m2 <- lm(y2 ~ x1*x2 + x3 +x4, data=dat)
 summary(m2)
-ssplot(m2, plotx="x1", modx="x2")
+plotSlopes(m2, plotx="x1", modx="x2")
 
-ssplot(m2, plotx="x1", modx="x2", modxVals=c( -2, -1, 0, 1, 2))
+plotSlopes(m2, plotx="x1", modx="x2", modxVals=c( -2, -1, 0, 1, 2))
 
-ssplot(m2, plotx="x3", modx="x2")
+plotSlopes(m2, plotx="x3", modx="x2")
 
 
 
@@ -207,53 +208,53 @@ y <- 3 + 0.5*xcontinuous + 1.2 * (as.numeric(xcategorical)-1) +
 m1 <- lm (y ~ xcontinuous + xcategorical)
 summary(m1)
 
-ssplot(m1, modx = "xcategorical", plotx = "xcontinuous")
+plotSlopes(m1, modx = "xcategorical", plotx = "xcontinuous")
 
 m2 <- lm (y ~ xcontinuous * xcategorical)
 summary(m2)
-ssplot(m2, modx = "xcategorical", plotx = "xcontinuous")
+plotSlopes(m2, modx = "xcategorical", plotx = "xcontinuous")
 
 
 library(car)
 m3 <- lm(statusquo ~ income * sex, data = Chile)
 summary(m3)
-ssplot(m3, modx = "sex", plotx = "income")
+plotSlopes(m3, modx = "sex", plotx = "income")
 
 
 m4 <- lm(statusquo ~ region * income, data= Chile)
 summary(m4)
-ssplot(m4, modx = "region", plotx = "income")
+plotSlopes(m4, modx = "region", plotx = "income")
 
-ssplot(m4, modx = "region", plotx = "income", plotPoints=FALSE)
+plotSlopes(m4, modx = "region", plotx = "income", plotPoints=FALSE)
 
 
 m5 <- lm(statusquo ~ region * income + sex + age, data= Chile)
 summary(m5)
-ssplot(m5, modx = "region", plotx = "income")
+plotSlopes(m5, modx = "region", plotx = "income")
 
 m6 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
 summary(m6)
-ssplot(m6, modx = "income", plotx = "age")
+plotSlopes(m6, modx = "income", plotx = "age")
 
-ssplot(m6, modx = "income", plotx = "age", plotPoints=F)
+plotSlopes(m6, modx = "income", plotx = "age", plotPoints=F)
 
 
 ##Should cause error because education is not numeric
 m7 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
 summary(m7)
-ssplot(m7, modx = "income", plotx = "education")
+plotSlopes(m7, modx = "income", plotx = "education")
 
 ## Should cause error because "as.numeric(education") not same as
 ## plotx="education"
 m8 <- lm(statusquo ~ income * age + as.numeric(education) + sex + age, data=Chile)
 summary(m8)
-ssplot(m8, modx = "income", plotx = "education")
+plotSlopes(m8, modx = "income", plotx = "education")
 
 ## Still fails. 
-ssplot(m8, modx = "income", plotx = "as.numeric(education)")
+plotSlopes(m8, modx = "income", plotx = "as.numeric(education)")
 
 ## Must recode variable first so that variable name is coherent
 Chile$educationn <- as.numeric(Chile$education)
 m9 <- lm(statusquo ~ income * age + educationn + sex + age, data=Chile)
 summary(m9)
-ssplot(m9, modx = "income", plotx = "educationn")
+plotSlopes(m9, modx = "income", plotx = "educationn")

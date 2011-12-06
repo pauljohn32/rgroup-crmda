@@ -1,8 +1,11 @@
 ## Paul E. Johnson <pauljohn@ku.edu>
 ## 2011-11-05
 
+
 ## Development version of a simple slope plotter.
 ## This version only works with numeric moderator.
+## This has been superceded by the functions in the "rockchalk" package
+
 
 ## TODO: add switch to allow use of categorical moderator
 ## TODO: add swith to draw shaded "zones" to summarize
