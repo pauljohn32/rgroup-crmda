@@ -55,6 +55,11 @@
 ##' 
 ##' plotSlopes(m2, plotx="x3", modx="x2")
 ##' 
+##' m3 <- lm(y2 ~ x1 * x2 + x3, data=dat)
+##' plotSlopes(m3, plotx="x3", modx="x2")
+##' plotSlopes(m3, plotx="x1", modx="x2")
+##' plotSlopes(m3, plotx="x2", modx="x3")
+##'
 ##' 
 ##' ### Examples with categorical Moderator variable
 ##' 
@@ -155,8 +160,10 @@ plotSlopes <-
   predictors <- setdiff(predictors, c(modx, plotx))
   newdf <- data.frame(expand.grid(plotxRange, modxVals))
   colnames(newdf) <- c(plotx, modx)
-  if (length(predictors) > 0) 
-    newdf <- cbind(newdf, centralValues(model$model[, predictors]))
+  if (length(predictors) > 0) {
+    newdf <- cbind(newdf, centralValues(as.data.frame(model$model[, predictors])))
+    colnames(newdf) <- c(plotx, modx, predictors)
+  }
   newdf$pred <- predict(model, newdata = newdf)
   dotargs <- list(...)
   if (!plotPoints){

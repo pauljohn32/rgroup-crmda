@@ -1,5 +1,4 @@
-#' plotSeq
-#' Create an evenly spaced sequence over the range of a variable
+#' Create sequences for plotting
 #'
 #' \code{plotSeq} is a convenience for the creation of sequence
 #' that can be used for plotting example values and calculating
@@ -9,6 +8,11 @@
 #' set of values. If \code{length.out} is specified, the user
 #' determines the number of elements in plotSeq.
 #'
+#' The primary intended usage is for the creation of
+#' plotting sequences of numeric variables.  It takes
+#' a variable's range and the fills in evenly spaced steps.
+#' If x is a factor variable, the levels will be returned.
+#' Uses of this functionality are planned in the future.
 #' @usage plotSeq(x, length.out = length(x))
 #' @param x an R vector variable
 #' @param length.out the number of elements in the desired plotting sequence.
@@ -32,9 +36,19 @@
 #' seqy <- predict(mod1)
 #' lines(x, seqy, col="green")
 
-
-plotSeq <- function(x, length.out=length(x)){
-  xr <- range(x)
-  pseq <- seq(xr[1], xr[2], length.out=length.out)
-  pseq
+plotSeq <-
+  function (x, length.out = length(x)) 
+{
+  if (is.numeric(x)){
+    xr <- range(x, na.rm=T)
+    pseq <- seq(xr[1], xr[2], length.out = length.out)
+    return(pseq)
+  }else{
+    if (is.factor(x)){
+      pseq <- levels(x)
+      return(pseq)
+    }else{
+      stop("plotSeq can only create plotting sequences for numeric or factor variables")
+    }
+  }
 }

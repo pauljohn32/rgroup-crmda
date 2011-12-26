@@ -23,7 +23,7 @@
 #' magRange(x1, c(1,1.5))
 
 magRange <- function(x, mult = 1.25){
-  xr <- range(x)
+  xr <- range(x, na.rm = TRUE)
   magXr <- xr +  c(-1, 1) * (mult-1) * diff(xr)
   magXr
 }

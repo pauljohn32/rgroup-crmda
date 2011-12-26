@@ -27,7 +27,7 @@ mcGraph1 <- function (x1, x2, y, x1lab, x2lab, ylab, ...){
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
 
-  if (missing(x1lab)) xllab <- gsub(".*\\$", "", deparse(substitute(x1)))
+  if (missing(x1lab)) x1lab <- gsub(".*\\$", "", deparse(substitute(x1)))
   if (missing(x2lab)) x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
   if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
   
@@ -93,7 +93,7 @@ mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, x1lab, x2lab, ylab,
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
   
-  if (missing(x1lab)) xllab <- gsub(".*\\$", "", deparse(substitute(x1)))
+  if (missing(x1lab)) x1lab <- gsub(".*\\$", "", deparse(substitute(x1)))
   if (missing(x2lab)) x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
   if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
   
@@ -167,7 +167,7 @@ mcGraph3 <- function(x1, x2, y, interaction = FALSE, drawArrows = TRUE, x1lab, x
   x2range <- magRange(x2, 1.25)
   yrange <- magRange(y, 1.5)
 
-  if (missing(x1lab)) xllab <- gsub(".*\\$", "", deparse(substitute(x1)))
+  if (missing(x1lab)) x1lab <- gsub(".*\\$", "", deparse(substitute(x1)))
   if (missing(x2lab))  x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
   if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
   

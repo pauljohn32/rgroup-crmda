@@ -30,9 +30,9 @@
 #' perspEmpty(x1, x2, y, ticktype="detailed", nticks=10)
 
 perspEmpty <- function(x1, x2, y, x1lab, x2lab, ylab, ... ){
-  x1range <- range(x1)
-  x2range <- range(x2)
-  yrange <- range(y)
+  x1range <- range(x1, na.rm = TRUE)
+  x2range <- range(x2, na.rm = TRUE)
+  yrange <- range(y, na.rm = TRUE)
  
   zZero <- outer( plotSeq(x1range, l=5), plotSeq(x2range, l=5), function( a,b) { a*b*0 + yrange[1] } )
 
