@@ -27,6 +27,7 @@ standardize.lm <- function(model){
   res <- eval(mc)
 }
 
+
 ##Needs an alias to standardize.lm
 meanCenter.lm <- function(model, centerOnlyInteractors=TRUE, centerOnlyPredictors=TRUE, standardize=FALSE, centerContrasts = F){
 
@@ -225,3 +226,4 @@ print(m4c[[2]])
 m4c <- center.lm(m4, standardize=F, centerOnlyInteractors =T, centerOnlyPredictors=F)
 summary(m4c[[1]])
 print(m4c[[2]])
+

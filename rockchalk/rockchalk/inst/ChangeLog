@@ -1,0 +1,60 @@
+2011-12-12  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotSeq.R: allow x to be a factor, return levels if so
+
+	* /pauljohn.plotSeq.R (plotSeq): range
+	allow missings
+
+	* ../R/plotPlane.R: new introduced function
+
+2011-12-11  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../DESCRIPTION (Date): Version: bump
+
+	* ../R/perspEmpty.R (perspEmpty): range(na.rm=TRUE) allow missings
+
+	* ../R/magRange.R (magRange): range(na.rm=TRUE) to allow missings
+
+2011-12-06  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/lmrc.R (makeRCformula): This is necessary so that all
+	interactive components are included
+	iv <- paste("(", gsub(":"," + ",x),")^2") 
+	* Replace whole stucture to make sure x1.X.x2 coding gets used.
+
+	* ../R/plotSlopes.R (plotSlopes): trying to fix that pesky "one
+	extra variable" error in regression models
+
+2011-12-02  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotSlopes.R (plotSlopes): fix problem when only one
+	variable was left in calculating centralized predictor values. The
+	bare vector has to be told "as.data.frame"
+
+2011-12-01  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/lmrc.R (makeRCresiduals): revised bug in calculation lmrc
+	was not using residual centered variables when "x1:x2" was
+	included, R was constructing own product term. So necessary to
+	re-name the residual centered variable connector .X.
+
+2011-11-26  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/mcGraph.R (mcGraph3): added option drawArrows
+
+2011-11-05  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/mcGraph.R (mcGraph3): insert invisible() on returns
+
+	* ../R/rockchalk-package.R: insert dataset religioncrime and
+	documentation.
+	* data/religioncrime.RData: new dataset with beautiful example
+	of suppression
+
+2011-11-02  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* rockchalk/rockchalk/R/mcGraph.R (mcGraph3): more fiddling
+	with interaction
+
+	* mcGraph.R (mcGraph3): fix interaction code in lm
+
