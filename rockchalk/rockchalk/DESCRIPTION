@@ -1,8 +1,8 @@
 Package: rockchalk
 Type: Package
 Title: Regression Estimation and Presentation
-Version: 1.3.3
-Date: 2011-12-12
+Version: 1.4
+Date: 2011-12-28
 Author: Paul E. Johnson <pauljohn@ku.edu>
 Maintainer: Paul E. Johnson <pauljohn@ku.edu>
 Description: A collection of functions for ease of
@@ -29,3 +29,5 @@ Collate:
     'plotSlopes.R'
     'lmrc.R'
     'plotPlane.R'
+    'mcDiagnose.R'
+    'meanCenter.R'

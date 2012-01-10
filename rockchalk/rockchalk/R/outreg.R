@@ -52,8 +52,6 @@
 #' @author Paul E. Johnson \email{<pauljohn@@ku.edu>}
 #' @references Citation: 
 #' @examples
-#' 
-#' 
 #' x1 <- rnorm(100)
 #' x2 <- rnorm(100)
 #' y1 <- 5*rnorm(100)+3*x1 + 4*x2

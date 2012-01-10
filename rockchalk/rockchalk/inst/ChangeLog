@@ -1,3 +1,25 @@
+2012-01-09  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/lmrc.R (makeRCformula): weird. data from residuals turns up
+	with class "AsIs" and causes all kinds of confusion later
+	* residualCenter now a generic method
+	* residualCenter.default should work for any glm or lm.
+
+2012-01-03  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/meanCenter.R (std): create class name for mean centered
+	regression, add attributes.
+	print.mcreg: new method
+
+2011-12-30  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R (carrier.name): use get_all_vars to build emf
+
+2011-12-28  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R: insert plotPoints option to suppress plotting
+	of points.  Question. Should plotPoints=FALSE force drawArrows=FALSE?
+
 2011-12-12  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/plotSeq.R: allow x to be a factor, return levels if so
