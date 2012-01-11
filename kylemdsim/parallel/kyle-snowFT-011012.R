@@ -31,16 +31,17 @@ goBabyGo <- function(runNumber,parms) {
    
     colnames(newDat) <- c(paste("a", 1:5, sep=""),paste("b", 1:5, sep=""),"male","white","c1","c2")
     newDat
-  } # End simData()
+  }
 
 #newDat <- simData(parameters)
-#missDat <- makeMAR(.2,newDat,parameters)
-#sum(is.na(missDat))/(parms$nobs*parms$lenScale)
-  
+
 makeMAR <- function(pm,dat,parms)
   {
+    #parms <- parameters
     lenScale <- parms$lenScale
     marPred1 <- parms$marPred1
+    #pm <- .2
+    #dat <- newDat
 
         Y <- runif(lenScale*.5,0,.25*pm)
 
@@ -51,6 +52,7 @@ makeMAR <- function(pm,dat,parms)
 
         R1 <- sapply(Z[1:(length(Z)*.5)],fun1,dat=dat[,marPred1])
         R2 <- sapply(Z[((length(Z)*.5)+1):length(Z)],fun2,dat=dat[,marPred1]^2)
+        #R3 <- cbind(R1,R2)
 
         R <- cbind(cbind(R1,R2)[,sample(dim(cbind(R1,R2))[2],replace=F)],
                    matrix(FALSE,dim(dat)[1],(dim(dat)[2]-dim(cbind(R1,R2))[2])))
@@ -61,8 +63,8 @@ makeMAR <- function(pm,dat,parms)
 
   }# End makeMAR()
 
-#imputedDat <- imputeStack(missDat,parameters)
-  
+
+    
 imputeStack <- function(dat,parms)
     {
       require(Amelia)
@@ -85,7 +87,6 @@ imputeStack <- function(dat,parms)
     } # end imputeStack() 
 
 
-#missOut <- fitMissinModels(imputedDat,parameters)
 
 fitMissinModels <- function(dat, parms)
     {
@@ -109,60 +110,25 @@ fitMissinModels <- function(dat, parms)
           fullMod <- cfa(mod1, sample.cov=x, sample.nobs=nobs, std.lv=T)
 
           resMod <- cfa(mod1, sample.cov=x, sample.nobs=nobs, std.lv=T, orthogonal=T)
-  
-          rawFullFit <- matrix(fitMeasures(fullMod),1,20)
-          rawFullCoef <- matrix(coef(fullMod),1,21)
-          rawFullLambdaSE <- matrix(inspect(fullMod,"se")[[1]],10,2)
-          rawFullThetaSE <- matrix(diag(inspect(fullMod,"se")[[2]]),1,10)
-          rawFullPsiSE <- inspect(fullMod,"se")[[3]][1,2]
-          rawFullLambdaDX <- matrix(inspect(fullMod,"dx")[[1]],10,2)
-          rawFullThetaDX <- matrix(inspect(fullMod,"dx")[[2]],10,10)
-          rawFullPsiDX <- matrix(inspect(fullMod,"dx")[[3]],2,2)
-            
-          rawResFit <- matrix(fitMeasures(resMod),1,20)
-          rawResCoef <- matrix(coef(resMod),1,20)
-          rawResLambdaSE <- matrix(inspect(resMod,"se")[[1]],10,2)
-          rawResThetaSE <- matrix(diag(inspect(resMod,"se")[[2]]),1,10)
-          rawResLambdaDX <- matrix(inspect(resMod,"dx")[[1]],10,2)
-          rawResThetaDX <- matrix(inspect(resMod,"dx")[[2]],10,10)
-          rawResPsiDX <- matrix(inspect(resMod,"dx")[[3]],2,2)
 
-          list(rawFullOut=list(rawFullFit=rawFullFit, rawFullCoef=rawFullCoef, rawFullSE=list(rawFullLambdaSE,rawFullThetaSE,rawFullPsiSE), rawFullDX=list(rawFullLambdaDX,rawFullThetaDX,rawFullPsiDX)),
-               
-      rawResOut=list(rawResFit=rawResFit, rawResCoef=rawResCoef, rawResSE=list(rawResLambdaSE,rawResThetaSE,NA), rawResDX=list(rawResLambdaDX,rawResThetaDX,rawResPsiDX)))
+          list(rawFullOut=list(rawFullFit=fitMeasures(fullMod), rawFullCoef=coef(fullMod), rawFullSE=inspect(fullMod, "se"), rawFullDx=inspect(fullMod, "dx")),
 
-        }
+               rawResOut=list(rawResFit=fitMeasures(resMod), rawResCoef=coef(resMod), rawResSE=inspect(resMod, "se"), rawResDx=inspect(resMod, "dx")))
+          
+          }
 
       rawMissOut <- lapply(rawCovs,FUN=fitRawMods,parms=parms)
 
-      smFullFit <- matrix(fitMeasures(smFullMod),1,20)
-      smFullCoef <- matrix(coef(smFullMod),1,21)
-      smFullLambdaSE <- matrix(inspect(smFullMod,"se")[[1]],10,2)
-      smFullThetaSE <- matrix(diag(inspect(smFullMod,"se")[[2]]),1,10)
-      smFullPsiSE <- inspect(smFullMod,"se")[[3]][1,2]
-      smFullLambdaDX <- matrix(inspect(smFullMod,"dx")[[1]],10,2)
-      smFullThetaDX <- matrix(inspect(smFullMod,"dx")[[2]],10,10)
-      smFullPsiDX <- matrix(inspect(smFullMod,"dx")[[3]],2,2)
-            
-      smResFit <- matrix(fitMeasures(smResMod),1,20)
-      smResCoef <- matrix(coef(smResMod),1,20)
-      smResLambdaSE <- matrix(inspect(smResMod,"se")[[1]],10,2)
-      smResThetaSE <- matrix(diag(inspect(smResMod,"se")[[2]]),1,10)
-      smResLambdaDX <- matrix(inspect(smResMod,"dx")[[1]],10,2)
-      smResThetaDX <- matrix(inspect(smResMod,"dx")[[2]],10,10)
-      smResPsiDX <- matrix(inspect(smResMod,"dx")[[3]],2,2)
+      list(smMissOut=list(smFullOut=list(smFullFit=fitMeasures(smFullMod), smFullCoef=coef(smFullMod), smFullSE=inspect(smFullMod, "se"), smMissDx=inspect(smFullMod, "dx")),
 
-      list(smMissOut=list(smFullOut=list(smFullFit=smFullFit, smFullCoef=smFullCoef, smFullSE=list(smFullLambdaSE,smFullThetaSE,smFullPsiSE), smFullDX=list(smFullLambdaDX,smFullThetaDX,smFullPsiDX)),
-               
-      smResOut=list(smResFit=smResFit, smResCoef=smResCoef, smResSE=list(smResLambdaSE,smResThetaSE,NA), smResDX=list(smResLambdaDX,smResThetaDX,smResPsiDX))),
+             smResOut=list(smResFit=fitMeasures(smResMod), smResCoef=coef(smResMod), smResSE=inspect(smResMod, "se"), smResDx=inspect(smResMod, "dx"))),
 
-      rawMissOut=rawMissOut)
+           rawMissOut=rawMissOut)
+      
 
     }# End fitMissinModels() 
 
 
-#conOut <- fitControlModel(newDat,parameters)
-  
 fitControlModel <- function(dat4,parms4)
     {
       require(lavaan)
@@ -177,28 +143,10 @@ fitControlModel <- function(dat4,parms4)
 
       resMod <- cfa(mod1, sample.cov=conCov, sample.nobs=nobs,std.lv=T,orthogonal=T)
 
-      conFullFit <- matrix(fitMeasures(fullMod),1,20)
-      conFullCoef <- matrix(coef(fullMod),1,21)
-      conFullLambdaSE <- matrix(inspect(fullMod,"se")[[1]],10,2)
-      conFullThetaSE <- matrix(diag(inspect(fullMod,"se")[[2]]),1,10)
-      conFullPsiSE <- inspect(fullMod,"se")[[3]][1,2]
-      conFullLambdaDX <- matrix(inspect(fullMod,"dx")[[1]],10,2)
-      conFullThetaDX <- matrix(inspect(fullMod,"dx")[[2]],10,10)
-      conFullPsiDX <- matrix(inspect(fullMod,"dx")[[3]],2,2)
-            
-      conResFit <- matrix(fitMeasures(resMod),1,20)
-      conResCoef <- matrix(coef(resMod),1,20)
-      conResLambdaSE <- matrix(inspect(resMod,"se")[[1]],10,2)
-      conResThetaSE <- matrix(diag(inspect(resMod,"se")[[2]]),1,10)
-      conResLambdaDX <- matrix(inspect(resMod,"dx")[[1]],10,2)
-      conResThetaDX <- matrix(inspect(resMod,"dx")[[2]],10,10)
-      conResPsiDX <- matrix(inspect(resMod,"dx")[[3]],2,2)
+      list(conFullOut=list(conFullFit=fitMeasures(fullMod), conFullCoef=coef(fullMod), conFullSE=inspect(fullMod, "se"), conMissDx=inspect(fullMod, "dx")),
 
-
-      controlOut=list(conFullOut=list(conFullFit=conFullFit, conFullCoef=conFullCoef, conFullSE=list(conFullLambdaSE,conFullThetaSE,conFullPsiSE), conFullDX=list(conFullLambdaDX,conFullThetaDX,conFullPsiDX)),
-        
-      conResOut=list(conResFit=conResFit, conResCoef=conResCoef, conResSE=list(conResLambdaSE,conResThetaSE,NA), conResDX=list(conResLambdaDX,conResThetaDX,conResPsiDX)))
-
+             conResOut=list(conResFit=fitMeasures(resMod), conResCoef=coef(resMod), conResSE=inspect(resMod, "se"), conResDx=inspect(resMod, "dx")))
+      
     }# End fitControlModel()
 
 
@@ -224,7 +172,7 @@ runMissSim <- function(dat3, pm, parms3)
       print("in runMissSim")
       gc(TRUE)
 
-      list(list(hypotheticalPM=pm, empiricalPM=pctmissing3), cellMissOut=yourMissinOut)
+      list(cellPM=list(hypotheticalPM=pm, empiricalPM=pctmissing3), cellMissOut=yourMissinOut)
       
     }# end runMissSim()
 
@@ -236,8 +184,7 @@ runMissSim <- function(dat3, pm, parms3)
   ##
 
 
-#rowOut <- rowTask(parameters$samInc,newDat,rp,parameters)
-  
+
 rowTask <-function(x, dat, runNumber, parms)
     {
       nobs <- parms$nobs
@@ -309,27 +256,26 @@ require(snowFT)
 
 mySeeds <- rep(235711,6)
 
-rp <- c(3:4)
+rp <- c(1:2)
 
 cnt <- 2
 
 parameters <- list()
-parameters$samInc <- seq(0,30,10)
+parameters$samInc <- 10 #seq(0,400,10)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
 parameters$lenScale <- 10
 parameters$minPM <- .02
-parameters$maxPM <- .10
+parameters$maxPM <- .1
 parameters$PMstep <- .02
-parameters$imps <- 4
+parameters$imps <- 10
 parameters$nobs <- 500
 parameters$mfK <- .05
 parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
                     ConB =~ NA*b1 + b2 + b3 + b4 + b5"
 
 
-#goBabyGo(rp,parameters)
-
+goBabyGo(rp,parameters)
 ## Let's run the bugger!!! ##
 
 runTime <- system.time(
@@ -341,6 +287,6 @@ performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, cltype="MPI", parms
 
 save(runTime,file="repTime.RData")
 
-#load("missOut-run-4-omit-10-766.821682802148.RData")
+load("missOut-run-1-omit-10-9206.86759520322.RData")
 
-#load("repTime.RData")
+missOut

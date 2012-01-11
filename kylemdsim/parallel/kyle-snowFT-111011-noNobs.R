@@ -252,10 +252,10 @@ mySeeds <- rep(235711,6)
 
 rp <- 1 #c(1:10)
 
-cnt <- 3
+cnt <- 2
 
 parameters <- list()
-parameters$samInc <- 10 #seq(0,400,10)
+parameters$samInc <- seq(0,30,10)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
 parameters$lenScale <- 10
@@ -272,6 +272,8 @@ parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
 
 ## Let's run the bugger!!! ##
 
+goBabyGo(rp,parameters)
+
 runTime <- system.time(
 
 performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, cltype="MPI", parms=parameters)
@@ -281,3 +283,4 @@ performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, cltype="MPI", parms
 
 save(runTime,file="repTime.RData")
 
+load("missOut-run-1-omit-0-1498.47081629559.RData")
