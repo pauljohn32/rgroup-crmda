@@ -8,28 +8,29 @@ goBabyGo <- function(runNumber,parms) {
     
     nobs <- parms$nobs
     mfK <- parms$mfK
+    lenScale <- parms$lenScale
     
     phi <- matrix(c(1,.5,.5,1),2,2)
 
-    lambda <- matrix(c(rep(.6,5),rep(0,5),
-                       rep(0,5),rep(.6,5),
-                       rep(.1,5),rep(.2,5),
-                       rep(.3,5),rep(.15,5),
-                       rep(.2,5),rep(.1,5),
-                       rep(.05,5),rep(.1,5)),10,6)
+    lambda <- matrix(c(rep(.6,(lenScale/2)),rep(0,(lenScale/2)),
+                       rep(0,(lenScale/2)),rep(.6,(lenScale/2)),
+                       rep(.1,(lenScale/2)),rep(.2,(lenScale/2)),
+                       rep(.3,(lenScale/2)),rep(.15,(lenScale/2)),
+                       rep(.2,(lenScale/2)),rep(.1,(lenScale/2)),
+                       rep(.05,(lenScale/2)),rep(.1,(lenScale/2))),lenScale,6)
     
-    theta <- toeplitz(c(.3,0,0,mfK,0,0,mfK,0,0,mfK))
+    theta <- toeplitz(c(.3,0,0,0,mfK,0,0,0,0,mfK,0,0,0,0,mfK,0,0,0,0,mfK))
     eta <- rmvnorm(nobs,c(0,0),phi)
     male <- rbinom(nobs,1,.5)
     white <-  rbinom(nobs,1,.75)
     Covs <- rmvnorm(nobs,c(0,4),matrix(c(1,0,0,3),2,2))
     preds <- cbind(eta,male,white,Covs)
     colnames(preds) <- c("F1","F2","male","white","c1","c2")
-    errors <- rmvnorm(nobs,rep(0,10),theta)
+    errors <- rmvnorm(nobs,rep(0,lenScale),theta)
     dat <- preds %*% t(lambda) + errors
     newDat <- cbind(dat,preds[,3:6])
    
-    colnames(newDat) <- c(paste("a", 1:5, sep=""),paste("b", 1:5, sep=""),"male","white","c1","c2")
+    colnames(newDat) <- c(paste("a", 1:(lenScale/2), sep=""),paste("b", 1:(lenScale/2), sep=""),"male","white","c1","c2")
     newDat
   }
 
@@ -37,11 +38,8 @@ goBabyGo <- function(runNumber,parms) {
 
 makeMAR <- function(pm,dat,parms)
   {
-    #parms <- parameters
     lenScale <- parms$lenScale
     marPred1 <- parms$marPred1
-    #pm <- .2
-    #dat <- newDat
 
         Y <- runif(lenScale*.5,0,.25*pm)
 
@@ -52,7 +50,6 @@ makeMAR <- function(pm,dat,parms)
 
         R1 <- sapply(Z[1:(length(Z)*.5)],fun1,dat=dat[,marPred1])
         R2 <- sapply(Z[((length(Z)*.5)+1):length(Z)],fun2,dat=dat[,marPred1]^2)
-        #R3 <- cbind(R1,R2)
 
         R <- cbind(cbind(R1,R2)[,sample(dim(cbind(R1,R2))[2],replace=F)],
                    matrix(FALSE,dim(dat)[1],(dim(dat)[2]-dim(cbind(R1,R2))[2])))
@@ -63,7 +60,9 @@ makeMAR <- function(pm,dat,parms)
 
   }# End makeMAR()
 
+#missDat <- makeMAR(.24,newDat,parameters)
 
+#sum(is.na(missDat))/(dim(missDat)[1]*parameters$lenScale)
     
 imputeStack <- function(dat,parms)
     {
@@ -215,8 +214,8 @@ rowTask <-function(x, dat, runNumber, parms)
       
      ##  list(row.ControlOut=conOut, row.missing.out=missOut)
      
-      save(conOut, file=paste("conOut-run-",runNumber,"-omit-",x,"-", 10000*runif(1),".RData", sep=""))
-      save(missOut, file=paste("missOut-run-",runNumber,"-omit-",x,"-",10000*runif(1),".RData", sep=""))
+      save(conOut, file=paste("conOut-run-",runNumber,"-omit-",x,".RData", sep=""))
+      save(missOut, file=paste("missOut-run-",runNumber,"-omit-",x,".RData", sep=""))
       rm(conOut)
       rm(missOut)
       gc(TRUE)
@@ -256,37 +255,37 @@ require(snowFT)
 
 mySeeds <- rep(235711,6)
 
-rp <- 1 #c(1:90)
+rp <- c(1:1000)
 
-cnt <- 1
+cnt <- 84
 
 parameters <- list()
-parameters$samInc <- seq(0,400,10)
+parameters$samInc <- c(0,250,375)
 parameters$marPred1 <- "c1"
 parameters$marPred2 <- "c2"
-parameters$lenScale <- 10
-parameters$minPM <- .02
-parameters$maxPM <- .6
-parameters$PMstep <- .02
+parameters$lenScale <- 20
+parameters$minPM <- .1
+parameters$maxPM <- .5
+parameters$PMstep <- .2
 parameters$imps <- 100
 parameters$nobs <- 500
 parameters$mfK <- .05
-parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5
-                    ConB =~ NA*b1 + b2 + b3 + b4 + b5"
+parameters$mod1 <- "ConA =~ NA*a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+                    ConB =~ NA*b1 + b2 + b3 + b4 + b5 + b6 + b7 + b8 + b9 + b10"
 
 
 #goBabyGo(rp,parameters)
 ## Let's run the bugger!!! ##
 
-runTime <- system.time(
+#runTime <- system.time(
 
 performParallel(count=cnt, x=rp, fun=goBabyGo, seed=mySeeds, cltype="MPI", parms=parameters)
 
 
-            )
+#           )
 
-save(runTime,file="runTime.RData")
+#save(runTime,file="runTime.RData")
 
-#load("missOut-run-1-omit-10-9206.86759520322.RData")
+#load("conOut-run-96-omit-0-8279.29370852492.RData")
 
 #missOut
