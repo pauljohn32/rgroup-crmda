@@ -2,19 +2,19 @@ rm(list=ls(all=T))
 
 stripMissFit <- function(i)
 {
-  load(paste("missOut-run-",i,"-omit-375.RData",sep=""))
+  load(paste("missOut-run-",i,"-N-1000.RData",sep=""))
 
-  smFullFit <- missOut[[3]]$cellMissOut$smMissOut$smFullOut$smFullFit
-  smResFit <- missOut[[3]]$cellMissOut$smMissOut$smResOut$smResFit
+  smFullFit <- missOut[[1]]$cellMissOut$smMissOut$smFullOut$smFullFit
+  smResFit <- missOut[[1]]$cellMissOut$smMissOut$smResOut$smResFit
 
   impMatFunRes <- function(j)
     {
-      missOut[[3]]$cellMissOut$rawMissOut[[j]]$rawResOut$rawResFit
+      missOut[[1]]$cellMissOut$rawMissOut[[j]]$rawResOut$rawResFit
     }
   
   impMatFunFull <- function(j)
     {
-      missOut[[3]]$cellMissOut$rawMissOut[[j]]$rawFullOut$rawFullFit
+      missOut[[1]]$cellMissOut$rawMissOut[[j]]$rawFullOut$rawFullFit
     }
 
   resImpMat <- sapply(c(1:100),FUN=impMatFunRes)
@@ -30,7 +30,7 @@ stripMissFit <- function(i)
 
 stripControlFit <- function(i)
 {
-  load(paste("conOut-run-",i,"-omit-375.RData",sep=""))
+  load(paste("conOut-run-",i,"-N-1000.RData",sep=""))
 
   conFullFit <- conOut$conFullOut$conFullFit
   conResFit <- conOut$conResOut$conResFit
