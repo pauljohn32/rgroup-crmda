@@ -201,6 +201,8 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
 ################################when this gets used
 
 
+nreps <- 4
+
 runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=NULL, n.chains=NULL){
   currentStream <- 1
   currentSeeds <- startSeeds <- initSeeds(re)
@@ -214,15 +216,14 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   writeBUGSModel(re, nitems, nE, nD, maxa)
   bugsfiles <- writeBUGSFiles(bf.sim, re, nD, n.chains, nE = nE )
   
-  system(paste("OpenBUGS < ", bugsfiles$script, " > results.txt"))
-  system(paste("gzip *.txt"))
+  t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
   setwd(olddir)
+  t1
 }
 
 
 
 library(parallel)
-###library(snow)
 
 ## set seed here in case any random draws are called
 ## for by user code.
@@ -266,7 +267,7 @@ maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
 
 
-nReps <- 40  
+nReps <- 40 
 
 
 cl <- makeCluster(19, "MPI")
