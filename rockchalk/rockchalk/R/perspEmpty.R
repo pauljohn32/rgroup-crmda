@@ -20,6 +20,7 @@
 ##' @param ... further arguments that are passed to persp.
 ##' Note that persp options xlab, ylab, and zlab are ignored,
 ##' because this function re-names them x1lab, x2lab, and ylab.
+##' @return The perspective matrix that is returned by persp
 ##' @name perspEmpty
 ##' @export perspEmpty
 ##' @examples
@@ -27,7 +28,9 @@
 ##' x2 <- 40:50
 ##' y <-  rnorm(10)
 ##' perspEmpty(x1, x2, y)
-##' perspEmpty(x1, x2, y, ticktype="detailed", nticks=10)
+##' res <- perspEmpty(x1, x2, y, ticktype="detailed", nticks=10)
+##' mypoints1 <- trans3d ( x1, x2, y, pmat = res )
+##' points( mypoints1, pch = 16, col= "blue")
 perspEmpty <- function(x1, x2, y, x1lab, x2lab, ylab, ... ){
   x1range <- range(x1, na.rm = TRUE)
   x2range <- range(x2, na.rm = TRUE)

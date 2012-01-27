@@ -1,3 +1,7 @@
+2012-01-25  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotSlopes.R (plotSlopes): change return value to include newdf
+
 2012-01-09  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/lmrc.R (makeRCformula): weird. data from residuals turns up

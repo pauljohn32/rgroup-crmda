@@ -1,0 +1,1349 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass sweavel-article
+\begin_preamble
+%\VignetteIndexEntry{Using rockchalk}
+
+\usepackage{Sweavel}
+\usepackage{graphicx}
+\usepackage{color}
+
+\usepackage[samesize]{cancel}
+
+
+
+\usepackage{ifthen}
+
+\makeatletter
+
+\renewenvironment{figure}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{figure}
+
+ }{%
+
+   \@float{figure}[#1]%
+
+ }%
+
+ \centering
+
+}{%
+
+ \end@float
+
+}
+
+\renewenvironment{table}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{table}
+
+ }{%
+
+   \@float{table}[#1]%
+
+ }%
+
+ \centering
+
+%  \setlength{\@tempdima}{\abovecaptionskip}%
+
+%  \setlength{\abovecaptionskip}{\belowcaptionskip}%
+
+% \setlength{\belowcaptionskip}{\@tempdima}%
+
+}{%
+
+ \end@float
+
+}
+
+
+%\usepackage{listings}
+% Make ordinary listings look as if they come from Sweave
+\lstset{tabsize=2, breaklines=true,style=Rstyle}
+
+% In document Latex options:
+\fvset{listparameters={\setlength{\topsep}{0em}}}
+\def\Sweavesize{\scriptsize} 
+\def\Rcolor{\color{black}} 
+\def\Rbackground{\color[gray]{0.90}}
+\end_preamble
+\use_default_options true
+\begin_modules
+sweave
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Using rockchalk Functions for Quick & Consistent Presentations
+\end_layout
+
+\begin_layout Author
+Paul Johnson
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+% In document Latex options:
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+fvset{listparameters={
+\backslash
+setlength{
+\backslash
+topsep}{0em}}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{ae=F,nogin=T}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<Roptions, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+options(device = pdf)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(width=160, prompt=" ", continue="  ")
+\end_layout
+
+\begin_layout Plain Layout
+
+options(useFancyQuotes = FALSE) 
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+The rockchalk package is an agglomeration of functions that I need when
+ I'm teaching about regression.
+ The functions here divide into three categories.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Functions that help me prepare lectures.
+ I find myself doing the same thing over and over, so I write functions
+ that facilitate my work.
+ Some functions in R are very hard to use and get right consistently, especially
+ where 3 dimensional plotting is concerned.
+ That's where functions like mcGraph1, mcGraph2, mcGraph3, and plotPlane
+ come in handy.
+ These don't do any work that is particularly original, but they do help
+ to easily make the multidimensional plots that turn out 
+\begin_inset Quotes eld
+\end_inset
+
+about right
+\begin_inset Quotes erd
+\end_inset
+
+ most of the time.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Some of the functions simplify vital chores that are difficult for students.
+ Consider plotSlopes, my suggestion for creating interaction plots of 
+\begin_inset Quotes eld
+\end_inset
+
+simple slopes
+\begin_inset Quotes erd
+\end_inset
+
+.
+ This handles the work of calculating predicted values and drawing them
+ for several possible values of a third variable.
+ plotPlane is along the same line.
+ If students find that useful, they can then use the examples to build up
+ more complicated drawings.
+\end_layout
+
+\begin_layout Enumerate
+Some functions provide calculations that are not available in existing R
+ packages, or are done in a way that I do not endorse.
+ The functions to explore regressions with interactions, such as meanCenter
+ and residualCenter, fall into this category.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Some functions do the wrong thing, statistically speaking.
+ Some common practices in other statistical packages, such as the calculation
+ of standardized coefficients in a regression model, are a bit tedious in
+ R.
+ So I provide the function standardize, which, as far as I understand it,
+ replicates the whole mistake perpetrated by SPSS.
+ There are other functions in rockchalk that estimate kinds of regressions
+ that are arguably wrong, such as mean-centered regression or residual-centered
+ regression.
+\end_layout
+
+\begin_layout Section
+Some outreg Examples.
+\end_layout
+
+\begin_layout Standard
+outreg was a function in search of a package for a long time.
+ I didn't bother to build rockchalk until I had some other worthwhile functions.
+ So it seems appropriate to start with outreg.
+\end_layout
+
+\begin_layout Standard
+On May 8, 2006, Dave Armstrong, a political science PhD student at University
+ of Maryland, posted a code snippet in r-help that demonstrated one way
+ to use the 
+\begin_inset Quotes eld
+\end_inset
+
+cat
+\begin_inset Quotes erd
+\end_inset
+
+ function from R to write LaTeX markup.
+ That gave me the idea to write a LaTeX output scheme that would help create
+ some nice looking term and research papers.
+ I'd been frustrated with the LaTeX output from other R functions.
+ I needed a table-maker to include all of the required information in a
+ regression table without including a lot of chaff (in my opinion).
+ I don't want both the standard error of b and the t value, I never want
+ p values, I need stars for the significant variables, and I want a minimally
+ sufficient set of summary statistics.
+ In 2006, there was no function that met those needs.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(rockchalk)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+These models are created with some simulated data.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+set.seed(1234)
+\end_layout
+
+\begin_layout Plain Layout
+
+x1 <- rnorm(100)
+\end_layout
+
+\begin_layout Plain Layout
+
+x2 <- rnorm(100)
+\end_layout
+
+\begin_layout Plain Layout
+
+y1 <- 5*rnorm(100) - 3*x1 + 4*x2
+\end_layout
+
+\begin_layout Plain Layout
+
+y2 <- rnorm(100)+5*x2
+\end_layout
+
+\begin_layout Plain Layout
+
+dat <- data.frame(x1, x2, y1, y2)
+\end_layout
+
+\begin_layout Plain Layout
+
+rm (x1, x2, y1, y2)
+\end_layout
+
+\begin_layout Plain Layout
+
+m1 <- lm (y1~x1, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+m2 <- lm (y1~x2, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+m3 <- lm (y1 ~ x1 + x2, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+myilogit <- function(x) exp(x)/(1 + exp(x))
+\end_layout
+
+\begin_layout Plain Layout
+
+y3 <- rbinom(100, size=1, p=myilogit(scale(dat$y1)))
+\end_layout
+
+\begin_layout Plain Layout
+
+gm1 <- glm(y3~x1 + x2, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In each of the floating tables, I have presented an example use of the 
+\begin_inset Quotes eld
+\end_inset
+
+outreg
+\begin_inset Quotes erd
+\end_inset
+
+ function along with the regression table that it creates.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+My One Tightly Printed Regression
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Tab1"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<outreg10, results=tex, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(m1)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab1"
+
+\end_inset
+
+ displays the default output, without any special options.
+ The command is
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<outreg10>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+, 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+My Spread Out Regressions
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Tab2"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<outreg20, results=tex, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(m1, tight=FALSE, modelLabels=c("Fingers"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In the literature, regression tables are sometimes presented in a tight
+ column format, with the estimates of the coefficients and standard errors
+ 
+\begin_inset Quotes eld
+\end_inset
+
+stacked up
+\begin_inset Quotes erd
+\end_inset
+
+ to allow multiple models side by side, while sometimes they are printed
+ with separate columns for the coefficients and standard errors.
+ The outreg option tight=F provides the two column style.
+ In Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab2"
+
+\end_inset
+
+, I've also used the argument modelLabels to insert the word 
+\begin_inset Quotes eld
+\end_inset
+
+Fingers
+\begin_inset Quotes erd
+\end_inset
+
+ above the regression model.
+ The command that produces the table is
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<outreg20>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+My Two Linear Regressions Tightly Printed
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Tab3"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+(a) Tightly Formatted Columns
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<outreg30, results=tex, echo=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(list(m1,m2), modelLabels=c("Mine","Yours"), varLabels = list(x1="Billie")
+)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+(b) Two Columns Per Regression Model
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<outreg33, results=tex, echo=FALSE>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(list(m1,m2), tight=FALSE,  modelLabels=c("Mine","Yours"), varLabels
+ = list(x1="Billie"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The outreg function can present different models in a single table, as we
+ see in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab3"
+
+\end_inset
+
+.
+ The default output uses the tight format, so there is no need to specify
+ that explicitly.
+ In part (a) of Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab3"
+
+\end_inset
+
+, we have tightly formatted columns of regression output that result from
+ this command:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<outreg30>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+To my eye, there is something pleasant about the less-tightly-packed format,
+ as illustrated in part (b) of Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab3"
+
+\end_inset
+
+.
+ Note that the only difference in the commands that produce those tables
+ is the insertion of tight=FALSE.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<outreg33>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+My Three Linear Regressions in a Tight Format
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:3tight"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<outreg35, results=tex, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(list(m1,m2,m3), modelLabels=c("A","B","C"), varLabels = list(x1="I
+ Forgot x1", x2="He Remembered x2"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+In addition to using modelLables to provide headings for the 2 models, the
+ other argument that was used in Table is 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab3"
+
+\end_inset
+
+ varLabels.
+ It is often a problem that the variables in the R program are terse, while
+ a presentation must have a full name.
+ So in Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Tab3"
+
+\end_inset
+
+, I've demonstrated how to replace the variable name x1 with the word 
+\begin_inset Quotes eld
+\end_inset
+
+Billie
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Any of the predictor variables can be re-named in this way.
+ Another usage of varLabels is offered in an example with three models in
+ Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:3tight"
+
+\end_inset
+
+, which is a result of
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<outreg35>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+As one can see, outreg gracefully handles the situation in which variables
+ are inserted or removed from a fitted model.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Three Regressions in the Spread out Format
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:3RegNotTIght"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=tex, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(list(m1,m2,m3), tight=F, modelLabels=c("I Love love love really long
+ titles","Hate Long","Medium"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+I have not bothered with some fine points of LaTeX table formatting.
+ I also have not worried about the problem of restricting columns to use
+ the exact same amount of horizontal space.
+ In Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:3RegNotTIght"
+
+\end_inset
+
+, we have regression output which is, in my opinion, completely acceptable
+ for inclusion in a presentation or conference paper.
+ Because the model labels are not equal in length, the columns are not equally
+ sized.
+ That is not a concern for me, at the moment, but I imagine it might be
+ a concern for somebody.
+ Perhaps, at some point, I may come back and deal with the problem that
+ decimal values within columns should be vertically aligned (at least as
+ an option).
+ I don't want to make outreg output dependent on additional LaTeX packages.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Combined OLS and GLM Estimates
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Combined-OLSGLM"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<outreg70, results=tex, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(list(m1,gm1),modelLabels=c("OLS:y1","GLM: Categorized y1"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Another feature of outreg is that it can present the estimates of different
+ kinds of models.
+ It can present the estimates from R's lm and glm functions in a single
+ table.
+ Consider Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Combined-OLSGLM"
+
+\end_inset
+
+, which resulted from the command
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<outreg70>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+At one time, I was working on a similar presentation for mixed models estimated
+ by lme4, but I stopped that effort because the lme4 package was changing
+ rapidly and the format of its returned objects was not stable enough for
+ a finalized presentation format.
+ Eventually, I will include a method to display those mixed models.
+ 
+\end_layout
+
+\begin_layout Section
+Plot Slopes and Plot Planes
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ps10, fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ps20, fig=T, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuous
+ Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Suppose one does not like the default choice of values for the moderator
+ variable, x2.
+ If we want to plot lines for three particular values, a command like this
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=hide>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+<<ps20>>
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+will produce Figure X.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<pp10, fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+p10 <- plotPlane(m3, plotx1="x1", plotx2="x2")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+That model is linear, so the figures are not too pleasant to look at.
+ If there is a nonlinearity, for example an interaction, then it is a little
+ more fun.
+ I create a new dependent variable y4 and then put the fitted model through
+ the plotSlopes and plotPlane functions.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+dat$y4 <- with(dat, -3*x1 + 4*x2 + 1.2 *x1 * x2 + 15*rnorm(100)) 
+\end_layout
+
+\begin_layout Plain Layout
+
+m4 <- lm (y4 ~ x1 * x2, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+plotSlopes says:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ps50, fig=T, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+plotPlane says:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<pp50, fig=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+p50 <- plotPlane(m4, plotx1="x1", plotx2="x2")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+I'd like to have a simple way to 
+\begin_inset Quotes eld
+\end_inset
+
+highlight
+\begin_inset Quotes erd
+\end_inset
+
+ the lines on the plane, but the interface to plotSlopes now does not provide
+ the required information.
+ That's on my TODO list.
+\end_layout
+
+\begin_layout Standard
+#for(j in c(0.2, 0.5, 0.7)){
+\end_layout
+
+\begin_layout Standard
+#lines(trans3d(x1, rep(length(x1), j), p[,j], pmat=p10), col="yellow", lwd=3)
+\end_layout
+
+\begin_layout Standard
+#}
+\end_layout
+
+\end_body
+\end_document

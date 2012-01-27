@@ -26,8 +26,9 @@
 ##' @param ... further arguments that are passed to plot
 ##' @export
 ##' @import car
-##' @return If modx is the name of a numeric variable, will return a
-##' table of estimates and hypothesis tests for the simple slopes.
+##' @return When plotSlopes runs, and modx a numeric variable, a dataframe
+##' will be created to summarize the hypothesis tests for the simple slopes.
+##' The return value includes that dataframe, as well as a "newdf" object that includes information on the simple slopes that were plotted.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @examples
 ##' set.seed(12345)
@@ -220,8 +221,10 @@ plotSlopes <-
       covbsimple <- vcov(model)[plotx, plotx]
       tbsimple <- bsimple/sqrt(covbsimple)
     }
-    data.frame(modx = modxVals, b = bsimple, se = sqrt(covbsimple), 
+    testSlopes <- data.frame(modx = modxVals, b = bsimple, se = sqrt(covbsimple), 
                t = tbsimple, p = 2 * pt(abs(tbsimple), df = model$df.residual, 
                                lower.tail = FALSE))
+    return(list(testSlopes, newdf))
   }
+  list(newdf)
 }

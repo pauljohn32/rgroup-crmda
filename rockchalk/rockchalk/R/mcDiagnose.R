@@ -60,19 +60,29 @@ getVIF <- function(rsq){
   invisible(vif)
 }
 
-##' Calculates the delta R-squares for a fitted model. This is also
-##' known as the semi-partial correlation coefficient for each variable.
+##' Calculates the delta R-squares, also known as squared
+##' semi-partial correlation coefficients.
 ##' 
 ##' The change in the R-square when a variable is removed from a
 ##' regression is called delta R-square. It is sometimes suggested as
 ##' a way to determine whether a variable has a substantial effect on
-##' an outcome. This is also known as the semi-partial correlation
+##' an outcome. This is also known as the squared semi-partial correlation
 ##' coefficient. 
 ##'
 ##' @export
 ##' @param model a fitted regression model 
 ##' @return a vector of estimates of the delta R-squares
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
+##' @examples
+##' dat1 <- genCorrelatedData(N=250, means=c(100,100),
+##' sds=c(30,20), rho=0.0,  stde = 7, beta=c(1.1, 2.4, 4.1, 0))
+##' m1 <- lm(y ~ x1 + x2, data=dat1)
+##' getDeltaRsquare(m1)
+##' ## more problematic in presence of collinearity
+##' dat2 <- genCorrelatedData(N=250, means=c(100,100),
+##' sds=c(30,20), rho=0.6,  stde = 7, beta=c(1.1, 2.4, 4.1, 0))
+##' m2 <- lm(y ~ x1 + x2, data=dat2)
+##' getDeltaRsquare(m2)
 getDeltaRsquare <- function(model){
   modeldrop1 <- drop1(model)
   RSS <- modeldrop1[1, "RSS"] ##Residual Sum of Squares
