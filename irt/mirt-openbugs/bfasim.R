@@ -16,11 +16,7 @@ writeDataFiles <- function(bf.sim, re, nitems, mina, maxa ){
                                          digits = 3), round(bf.sim[[3]], 3), round(bf.sim[[4]], 3)), file =
               paste("itemtrue", re, ".txt", sep = ""),append = T, sep = "\t",
               row.names = F, col.names = F)
-                                        #write true theta into .thet a file
 
-                                        #write true theta into .txt a file
-                                        #write.table( round(bf.sim[[5]], 4), file = paste("thetatrue",re,".txt",sep=""),
-                                        #            sep = "\t", row.names = F, col.names= T)
   theta1 <- bf.sim[[5]]
   save(theta1, file = paste("thetatrue",re,".rda", sep=""))          ## DD: 1/6/12
 
@@ -29,7 +25,7 @@ writeDataFiles <- function(bf.sim, re, nitems, mina, maxa ){
 
 
 
-writeBUGSModel <- function(re, nitems, nE, nD, maxa){
+writeBUGSModel <- function(re, nitems, nE, nD, mina, maxa){
  ## edited: prior for guessing beta(20,80) and discrimination dnorm(0.00, pr.a)  I(0.00, )
 
  bug.model <- ' model
@@ -39,17 +35,19 @@ writeBUGSModel <- function(re, nitems, nE, nD, maxa){
     }
     for (j in 1:nitems) {
         strctr[j, 1] <- 1
-        b[j] ~ dnorm (0.00, 1.00)
+        b[j] ~ dnorm (0.00, pr.b) Trnct(-3,3)
         g[j] ~ dbeta(20, 80)
         for (k in 2:nD) {
             strctr[j, k] <- equals(k, st[j])
         }
         for (k in 1:nD) {
-            temp[j, k] ~ dnorm(0.00, pr.a)  I(0.00, )
+            temp[j, k] ~ dnorm(0.00, pr.a)  Trnct(0.25, 1.75)
             a[j, k] <- (strctr[j, k]+0.000001) * temp[j, k]
         }
     }
-    pr.a <- pow(maxa , -2)
+
+    pr.b <- pow(1.0,-2)
+    pr.a <- pow(sig.a, -2)
     for (i in 1:nE) {
         for (j in 1:nitems) {
             for (k in 1:nD) {
@@ -71,7 +69,11 @@ writeBUGSModel <- function(re, nitems, nE, nD, maxa){
  ## replace nitems
  bug.model <- gsub( "nitems", nitems, bug.model)
  ##replace tau with maxa - tau = (b-mean/sd, N(mean,sd), normal truncated below b.
- bug.model <- gsub( "maxa", maxa, bug.model)
+ sigma <- round(sqrt(((maxa - mina)^2)/12), 3)
+ bug.model <- gsub( "sig.a", sigma, bug.model)
+ meana <- (maxa - mina)/2
+ bug.model <- gsub( "m.a", meana, bug.model)
+ bug.model <- gsub( "Trnct", "T", bug.model)
 
  cat(bug.model, file = "bifactor.txt")
 
@@ -104,8 +106,8 @@ writeBUGSFiles <- function(bf.sim, re, nD, n.chains, nE=NULL){
                             b = mean(bf.sim[[3]]),
                             g = mean(bf.sim[[4]]),
                             theta = rmvnorm(nE, mu, SIG))  }
-  n.iter <- 10000
-  n.burnin <- 3000
+  n.iter <- 500
+  n.burnin <- 100
   n.update <- (n.iter - n.burnin)
   n.beg <- n.burnin + 1
   n.thin <- 1
@@ -166,7 +168,7 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
     }
   }
 
-  b <- rtnorm(nitems, m = 0, sd = 1, lower = -2.75, upper = 2.75)   #fixed b to have N(0,1) with truncation between -2.75 and 2.75
+  b <- rtnorm(nitems, m = 0, sd = 1, lower = -3.0, upper = 3.0)   #fixed b to have N(0,1) with truncation between -2.75 and 2.75
 
                                         #Pra <- matrix(0, nE, nitems)
   Xa <- matrix(0, nE, nitems)
@@ -213,7 +215,7 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   setwd(workdir)
   bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa)
   writeDataFiles( bf.sim, re = re, nitems = nitems, mina = mina, maxa = maxa )
-  writeBUGSModel(re, nitems, nE, nD, maxa)
+  writeBUGSModel(re, nitems, nE, nD, mina, maxa)
   bugsfiles <- writeBUGSFiles(bf.sim, re, nD, n.chains, nE = nE )
   
   t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
