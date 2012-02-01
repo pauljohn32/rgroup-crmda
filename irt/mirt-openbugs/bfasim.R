@@ -1,7 +1,4 @@
 
-#library(MCMCglmm) ## has truncated normal generator
- #multivariate normal data
-
 Pra <- function(thet = matrix(0), a = matrix(0), b = 0, g = 0) {         ## will be used for item responses in bfgena.sim
   g+(1-g)*(1/(1+exp(sum((-a)*(thet - b)))))
 }
@@ -106,8 +103,8 @@ writeBUGSFiles <- function(bf.sim, re, nD, n.chains, nE=NULL){
                             b = mean(bf.sim[[3]]),
                             g = mean(bf.sim[[4]]),
                             theta = rmvnorm(nE, mu, SIG))  }
-  n.iter <- 500
-  n.burnin <- 100
+  n.iter <- 10000
+  n.burnin <- 3000
   n.update <- (n.iter - n.burnin)
   n.beg <- n.burnin + 1
   n.thin <- 1
@@ -140,8 +137,6 @@ runOpenbugs <- function(script, n.chains)
 
 bfgena <- function(re = 1, nE = 100, nitems = 30,
                    nD = 4, mina = .75, maxa = 1.25) {
-
-
   require(msm)
   require(mvtnorm)
 
@@ -160,7 +155,7 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
   b <- vector(nitems, mode="numeric")
   g <- rep(0.2, nitems) # fix guessing for each item at 0.2
 
-  useStream(2)
+  useStream(2, origin=TRUE)
   #set.seed(7315 + re)           ## seed for a,b and g parameters is set up with an increment of re
   for (d in 1:nD){
     if (d == 1) {
@@ -182,14 +177,11 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
   Xa <- matrix(0, nE, nitems)
 
 
-  useStream(3)
+  useStream(3, origin=TRUE)
 ###Caution: Following is tedious. Could be done with matrix algebra in 1 step.
   for (p in 1:nE) {
     for (i in 1:nitems) {
-
-      #set.seed(37591 + re)                      ##seed for item responses over replication
       Xa[p, ] <- ifelse (runif(nitems,0,1) < Pra(theta1[p, 1: nD], a[i, 1: nD], b[i], g[i]), 1, 0)
-
     }
   }
   list(st, a, b, g, theta1, Xa)
@@ -206,7 +198,6 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
 ################################when this gets used
 
 
-nreps <- 4
 
 runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=NULL, n.chains=NULL){
   currentStream <- 1
@@ -222,7 +213,10 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   writeBUGSModel(re, nitems, nE, nD, mina, maxa)
   bugsfiles <- writeBUGSFiles(bf.sim, re, nD, n.chains, nE = nE )
   
-  t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
+#  t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
+
+  runBugs( script=  bugsfiles$script )
+  
   setwd(olddir)
   t1
 }
@@ -265,7 +259,7 @@ initSeeds <- function(p = NULL){
 
 
 
-nE <- 150
+nE <- 1500
 nitems <- 30
 nD <- 4           ## Levels of discrimination in the secondary dimension
 mina <- 1.25      ## .25, .50, .75, 1.00, 1.25
@@ -273,7 +267,7 @@ maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
 
 
-nReps <- 40 
+nReps <- 100 
 
 
 cl <- makeCluster(19, "MPI")
