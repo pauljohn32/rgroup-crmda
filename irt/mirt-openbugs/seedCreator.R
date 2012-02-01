@@ -5,8 +5,8 @@ set.seed(23456)
 
 ## nrep = number of repetitions (or tasks)
 ## streamsPerRep = number of streams needed by each repetition
-nReps <- 2000
-streamsPerRep <- 2
+nReps <- 500
+streamsPerRep <- 3 
 
 ## projSeeds=list of lists of stream seeds
 projSeeds <- vector(mode="list", nReps)
@@ -18,9 +18,10 @@ s <- .Random.seed
 origSeed <- s
 
 for (i in 1:nReps) {
-  for (j in 1:streamsPerRep){
+  projSeeds[[i]][[1]] <- origSeed
+  for (j in 2:streamsPerRep){
+     s <- nextRNGStream(s)
     projSeeds[[i]][[j]] <- s
-    s <- nextRNGStream(s)
   }
 }
 

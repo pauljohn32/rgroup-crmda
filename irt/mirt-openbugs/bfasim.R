@@ -140,9 +140,16 @@ runOpenbugs <- function(script, n.chains)
 
 bfgena <- function(re = 1, nE = 100, nitems = 30,
                    nD = 4, mina = .75, maxa = 1.25) {
-  set.seed(7315 + re)
+
+
   require(msm)
   require(mvtnorm)
+
+   ## set.seed(15937)   ##seed fixed (same group of examinees)
+  useStream(1, origin=TRUE)
+  theta1 <- rmvnorm(nE, mu, SIG)
+
+
   ##to allow for diff in nE, nitems, nD, mina and maxa
   niD <- nitems/(nD-1) #items per specific dimension
   mu <- matrix(0, 1, nD) #mean for theta matrix
@@ -153,6 +160,7 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
   b <- vector(nitems, mode="numeric")
   g <- rep(0.2, nitems) # fix guessing for each item at 0.2
 
+  useStream(2)
   #set.seed(7315 + re)           ## seed for a,b and g parameters is set up with an increment of re
   for (d in 1:nD){
     if (d == 1) {
@@ -173,13 +181,8 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
                                         #Pra <- matrix(0, nE, nitems)
   Xa <- matrix(0, nE, nitems)
 
-  #set.seed(15937)               ##seed for theta1 is fixed (same group of examinees)
 
-  ##theta1 = as.matrix(rmvnorm(nE, mu, SIG), nE, nD)    #theta is MVN(0, I)
-  ##REDUNDANT. rmvnorm output is a mtrix already
-
-  theta1 <- rmvnorm(nE, mu, SIG)
-
+  useStream(3)
 ###Caution: Following is tedious. Could be done with matrix algebra in 1 step.
   for (p in 1:nE) {
     for (i in 1:nitems) {
@@ -213,6 +216,7 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   workdir <- paste("batch", nitems, mina, maxa, re, sep="-")
   dir.create(workdir, showWarnings = TRUE, recursive = TRUE)
   setwd(workdir)
+
   bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa)
   writeDataFiles( bf.sim, re = re, nitems = nitems, mina = mina, maxa = maxa )
   writeBUGSModel(re, nitems, nE, nD, mina, maxa)
