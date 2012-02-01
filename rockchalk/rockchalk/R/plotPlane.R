@@ -58,9 +58,9 @@ plotPlane <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawArrows = 
 ##' @S3method plotPlane default
 plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawArrows = F, plotPoints = TRUE, npp = 20, x1lab, x2lab, ylab, envir = environment(formula(model)),  ...){
   if (is.null(model)) 
-    stop("plotSlopes requires a fitted regression model.")
+    stop("plotPlane requires a fitted regression model.")
   if (is.null(plotx1) | is.null(plotx2)) 
-    stop("plotSlopes requires the name of the variable to be drawn on the x axis")
+    stop("plotPlane requires the name of the variable to be drawn on the x axis")
   if (plotx1 == plotx2) stop("the two plotting variables should not be the same")
  
    carrier.name <- function(term) {

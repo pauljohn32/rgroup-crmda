@@ -141,8 +141,8 @@ plotSlopes <-
   if (!is.numeric(plotxVar)) 
     stop(paste("plotSlopes: The variable", plotx, "should be a numeric variable"))
   ylab <- colnames(model$model)[1]
-  plotyRange <- range(depVar)
-  plotxRange <- range(mm[, plotx])
+  plotyRange <- range(depVar, na.rm = TRUE)
+  plotxRange <- range(mm[, plotx], na.rm = TRUE)
   plotxSeq <- plotSeq(plotxRange, l = 40)
   if (is.factor(modxVar)) {
     if (is.null(modxVals)) {
@@ -151,9 +151,9 @@ plotSlopes <-
     lmx <- length(modxVals)
   }
   else {
-    modxRange <- range(mm[, modx])
+    modxRange <- range(mm[, modx], na.rm = TRUE)
     if (is.null(modxVals)) {
-      modxVals <- quantile(mm[, modx])
+      modxVals <- quantile(mm[, modx], na.rm = TRUE)
     }
     lmx <- length(modxVals)
   }
