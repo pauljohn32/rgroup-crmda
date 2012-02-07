@@ -201,10 +201,7 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
 
 
 runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=NULL, n.chains=NULL){
-  currentStream <- 1
-  assign("startSeeds", initSeeds(re), envir = .GlobalEnv)
-  assign("currentSeeds", startSeeds, envir = .GlobalEnv)
-  assign(".Random.seed",  startSeeds[[currentStream]],  envir = .GlobalEnv)
+  initSeedStreams(re)
   olddir <- getwd()
   workdir <- paste("batch", nitems, mina, maxa, re, sep="-")
   dir.create(workdir, showWarnings = TRUE, recursive = TRUE)
@@ -237,23 +234,40 @@ set.seed(234234)
 load("projSeeds.rda")
 
 
-## currentStream <- 1
-## currentSeeds <- startSeeds <- projSeeds[[1]]
-## .Random.seed <- startSeeds[[currentStream]]
 
+## Copy .Random.seed into currentSeeds[[currentStream]]
+## Get change currentStream to n, then grab that seed
+## and put it into .Random.seed
 useStream <- function(n = NULL, origin = FALSE){
-  if (n > length(currentSeeds)) stop("requested stream does not exist")
-  currentSeeds[[currentStream]] <<- .Random.seed
-  if (origin) assign(".Random.seed", startSeeds[[n]], envir = .GlobalEnv)
-  else assign(".Random.seed",  currentSeeds[[n]], envir = .GlobalEnv)
-  currentStream <<- n
+  oldseed <-
+    if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
+      get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+    else stop("in useStream, .Random.seed was NULL")
+  ## get local copies of currentStream, currentSeeds, startSeeds
+  curStream <- get("currentStream", envir = .GlobalEnv, inherits = FALSE)
+  curSeeds <- get("currentSeeds", envir = .GlobalEnv, inherits = FALSE)
+  
+  if (n > length(curSeeds)) stop("requested stream does not exist")
+  curSeeds[[curStream]] <- oldseed
+  if (origin) {
+    strtSeeds <- get("startSeeds", envir = .GlobalEnv, inherits = FALSE)
+    assign(".Random.seed", strtSeeds[[n]], envir = .GlobalEnv)
+  } else {
+    assign(".Random.seed", curSeeds[[n]], envir = .GlobalEnv)
+  }
+  ## put currentStream and currentSeeds back to .GlobalEnv
+  assign("currentStream", n, envir = .GlobalEnv)
+  assign("currentSeeds", curSeeds, envir = .GlobalEnv)
 }
 
 
 ## will run on worker, so can retrieve seeds for particular run
-initSeeds <- function(p = NULL){
-  currentStream <<- 1
-  projSeeds[[p]]
+initSeedStreams <- function(rep = NULL){
+  repSeeds <- projSeeds[[rep]]
+  assign("currentStream",  1L, envir = .GlobalEnv)
+  assign("startSeeds", repSeeds, envir = .GlobalEnv)  
+  assign("currentSeeds", repSeeds, envir = .GlobalEnv)
+  assign(".Random.seed", repSeeds[[1L]],  envir = .GlobalEnv)
 }
 
 
