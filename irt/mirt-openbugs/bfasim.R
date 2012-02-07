@@ -136,20 +136,21 @@ runOpenbugs <- function(script, n.chains)
 }
 
 bfgena <- function(re = 1, nE = 100, nitems = 30,
-                   nD = 4, mina = .75, maxa = 1.25) {
+                   nD = 4, mina = .75, maxa = 1.25, currentSeeds=NULL) {
   require(msm)
   require(mvtnorm)
 
    ## set.seed(15937)   ##seed fixed (same group of examinees)
   useStream(1, origin=TRUE)
+  mu <- matrix(0, 1, nD) #mean for theta matrix
+  SIG <- diag(nD)      #identity matrix for var-cov matrix of theta
+
   theta1 <- rmvnorm(nE, mu, SIG)
 
 
   ##to allow for diff in nE, nitems, nD, mina and maxa
   niD <- nitems/(nD-1) #items per specific dimension
-  mu <- matrix(0, 1, nD) #mean for theta matrix
-  SIG <- diag(nD)      #identity matrix for var-cov matrix of theta
-
+ 
   a <- matrix(0, nitems, nD)
   st <- vector(nitems, mode="numeric")
   b <- vector(nitems, mode="numeric")
@@ -201,21 +202,22 @@ bfgena <- function(re = 1, nE = 100, nitems = 30,
 
 runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=NULL, n.chains=NULL){
   currentStream <- 1
-  currentSeeds <- startSeeds <- initSeeds(re)
+  assign("startSeeds", initSeeds(re), envir = .GlobalEnv)
+  assign("currentSeeds", startSeeds, envir = .GlobalEnv)
   assign(".Random.seed",  startSeeds[[currentStream]],  envir = .GlobalEnv)
   olddir <- getwd()
   workdir <- paste("batch", nitems, mina, maxa, re, sep="-")
   dir.create(workdir, showWarnings = TRUE, recursive = TRUE)
   setwd(workdir)
 
-  bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa)
+  bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa, currentSeeds=currentSeeds)
   writeDataFiles( bf.sim, re = re, nitems = nitems, mina = mina, maxa = maxa )
   writeBUGSModel(re, nitems, nE, nD, mina, maxa)
   bugsfiles <- writeBUGSFiles(bf.sim, re, nD, n.chains, nE = nE )
   
-#  t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
+  t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
 
-  runBugs( script=  bugsfiles$script )
+  # runBugs( script=  bugsfiles$script )
   
   setwd(olddir)
   t1
@@ -241,7 +243,7 @@ load("projSeeds.rda")
 
 useStream <- function(n = NULL, origin = FALSE){
   if (n > length(currentSeeds)) stop("requested stream does not exist")
-  currentSeeds[[currentStream]] <- .Random.seed
+  currentSeeds[[currentStream]] <<- .Random.seed
   if (origin) assign(".Random.seed", startSeeds[[n]], envir = .GlobalEnv)
   else assign(".Random.seed",  currentSeeds[[n]], envir = .GlobalEnv)
   currentStream <<- n
@@ -267,7 +269,7 @@ maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
 
 
-nReps <- 100 
+nReps <- 20 
 
 
 cl <- makeCluster(19, "MPI")
