@@ -1,5 +1,13 @@
 ##J-N technique
-##Alex Schoemann & Kris Preacher
+## Title: jntest
+## Author: Alexander M. Schoemann <schoemann@ku.edu>, Kris Preacher
+## Date posted: 02/04/12
+## Depends: jntest
+## Description: A function to plot regions of signficance for 2 way interactions 
+## using the Jonnson-Neyman Technique. 
+## ----------------------------------------------------------------------------------------------------
+
+
 
 ## jnplot= Johnson-Neyman technique for probing interactions and plotting regions of significance
 ## Function to replicate the JN plot found at quantpsy.org

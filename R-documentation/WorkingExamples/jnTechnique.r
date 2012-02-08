@@ -1,5 +1,11 @@
-##J-N technique
-## Alex Schoemann
+## Title: jntest
+## Author: Alexander M. Schoemann <schoemann@ku.edu>
+## Date posted: 02/04/12
+## Depends: None
+## Description: A function to find regions of signficance for 2 way interactions 
+## using the Jonnson-Neyman Technique. 
+## ----------------------------------------------------------------------------------------------------
+
 
 ## jntest= Finding regions of significance with the Johnson-Neyman Technique
 ## jntest a function that takes these arguments:
