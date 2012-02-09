@@ -1,3 +1,14 @@
+2012-02-01  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotSlopes.R (plotSlopes): "std.dev." and "quantile" now
+	legal strings for modxVals, along with particular values.
+
+2012-01-30  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R (plotPlane.default): correct typos referring to plotSlopes
+
+	* ../R/plotSlopes.R (plotSlopes): add na.rm=TRUE for range commands
+
 2012-01-25  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/plotSlopes.R (plotSlopes): change return value to include newdf

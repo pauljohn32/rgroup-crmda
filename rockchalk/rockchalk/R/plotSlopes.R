@@ -1,128 +1,60 @@
 ##' Assists creation of predicted value lines for values of a moderator variable.
 ##'
-##' This is a "simple slope" plotter, especially for regressions that
-##' include interactive variables.  This version works with factor or
-##' numeric moderator.  It insists that the plotx variable must be
-##' numeric.  It only prints out the t tests for "simple slopes"  if
-##' user gives a numeric moderator. Otherwise, user can simply read
-##' the t tests from the regression output itself. I may re-think that
-##' (stubborn) stance.  Here is the wrinkle. How to calculate
-##' predicted values in regressions that include categorical
-##' variables? Obviously, numeric variables can be set at observed
-##' means. This version sets categorical (factor) variables at mode value (most
-##' frequently observed value).
-
+##' This is a "simple slope" plotter for linear regression.  The term
+##' "simple slopes" was coined by psychologists to refer to analysis
+##' of interaction effects for particular values of a moderating
+##' variable, be it continuous or categorical. To use this function,
+##' the user should estimate a regression (with as many variables as
+##' desired, including interactions) and the resulting regression
+##' object is then supplied to this function, along with user requests
+##' for plots of certain variables.
+##'
+##' The variable \code{plotx} will be the horizontal plotting
+##' variable; it must be numeric.  The variable \code{modx} is the
+##' moderator variable. A line will be drawn to represent the
+##' predicted value for select values of the moderator.
+##'
+##' The parameter \code{modxVals} is optional.  It is used to
+##' fine-tune the values of the moderator that are used to create the
+##' simple slope plot.  Numeric and factor moderators are treated
+##' differently. If the moderator is a numeric variable, then some
+##' particular values must be chosen for plottings. If the user does
+##' not specify the parameter \code{modxVals}, then lines will be
+##' drawn for the quantile values of the moderator.  If the moderator
+##' is a factor, then lines are drawn for each different value of the
+##' factor variable, unless the user specifies a subset of levels with
+##' the \code{modxVals} parameter.
+##'
+##' For numeric moderators, the user may specify a vector of values
+##' for the numeric moderator variable, such as c(1,2,3). The user may
+##' also specify an algorithm, either "quantile" (which would be
+##' selected by default) or "std.dev." The alternative method at this
+##' time is "std.dev.", which causes 5 lines to be drawn. These lines
+##' are the "standard deviations about the mean of \code{modx}" lines,
+##' at which modx is set at mean - k* standard deviation, and k takes
+##' on values -2, -1, 0, 1, 2.
+##' 
+##' Here is a wrinkle. There can be many variables in a regression
+##' model, and we are plotting only for the \code{plotx} and
+##' \code{modx} variables. How should we calculate predicted values
+##' when the values of the other variables are required?  For the
+##' other variables, the ones that are not explicitly inlcluded in the
+##' plot, we use the mean and mode, for numeric or factor variables
+##' (respectively). Those values can be reviewed in the newdata object
+##' that is created as a part of the output from this function
+##'
 ##' @param model Fitted regression object. Must have a predict method
 ##' @param plotx String with name of IV to be plotted on x axis
 ##' @param modx String for moderator variable name. May be either numeric or factor.
-##' @param modxVals A vector of numeric values for which plotted lines
-##' are sought.  This is intended for numeric variables referred to by
-##' "modx". These are user specified "for instance" values. If
-##' omitted, quantiles will be used for numeric variables. If "modx"
-##' is a factor, this parameter is ignored and a predictive line is
-##' drawn for each level of the factor. That is a shortcoming in the
-##' current implementation.
-##' @param plotPoints Should the plot include the scatterplot points along with the lines.
+##' @param modxVals This is an optional parameter. For which values of the moderator are the simple slope lines are to be drawn? Factors and numeric moderators are treated differently. 
+##' @param plotPoints TRUE or FALSE: Should the plot include the scatterplot points along with the lines.
 ##' @param ... further arguments that are passed to plot
 ##' @export
 ##' @import car
-##' @return When plotSlopes runs, and modx a numeric variable, a dataframe
-##' will be created to summarize the hypothesis tests for the simple slopes.
-##' The return value includes that dataframe, as well as a "newdf" object that includes information on the simple slopes that were plotted.
+##' @return The plot is drawn on the screen, and the return object includes the "newdata" object that was used to create the plot, along with the "modxVals" vector, the values of the moderator for which lines were drawn. It also includes the call that generated the plot.
+##' @seealso plotCurves and testSlopes
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-##' @examples
-##' set.seed(12345)
-##' x1 <- rnorm(100)
-##' x2 <- rnorm(100)
-##' x3 <- rnorm(100)
-##' x4 <- rnorm(100)
-##' y <- rnorm(100)
-##' y2 <- 0.03 + 0.1*x1 + 0.1*x2 + 0.25*x1*x2 + 0.4*x3 -0.1*x4 + 1*rnorm(100)
-##' dat <- data.frame(x1,x2,x3,x4,y, y2)
-##' rm(x1, x2, x3, x4, y, y2)
-##' 
-##' ##ordinary regression
-##' m1 <- lm(y ~ x1 + x2 +x3 + x4, data=dat)
-##' ## must specify depvar parameter
-##' plotSlopes(m1, plotx="x1", modx="x2", modxVals=c(-0.5,0,0.5))
-##' plotSlopes(m1, plotx="x1", modx="x2")
-##' plotSlopes(m1, plotx="x4", modx="x1")
-##' 
-##' m2 <- lm(y2 ~ x1*x2 + x3 +x4, data=dat)
-##' summary(m2)
-##' plotSlopes(m2, plotx="x1", modx="x2")
-##' 
-##' plotSlopes(m2, plotx="x1", modx="x2", modxVals=c( -2, -1, 0, 1, 2))
-##' 
-##' plotSlopes(m2, plotx="x3", modx="x2")
-##' 
-##' m3 <- lm(y2 ~ x1 * x2 + x3, data=dat)
-##' plotSlopes(m3, plotx="x3", modx="x2")
-##' plotSlopes(m3, plotx="x1", modx="x2")
-##' plotSlopes(m3, plotx="x2", modx="x3")
-##'
-##' 
-##' ### Examples with categorical Moderator variable
-##' 
-##' xcontinuous <- rnorm(100)
-##' xcategorical <- gl(2,50, labels=c("Gigantic","Humongous"))
-##' stde <- 8
-##' y <- 3 + 0.5*xcontinuous + 1.2 * (as.numeric(xcategorical)-1) +
-##'   -0.8* (as.numeric(xcategorical)-1) * xcontinuous +  stde * rnorm(100)
-##' 
-##' m1 <- lm (y ~ xcontinuous + xcategorical)
-##' summary(m1)
-##' 
-##' plotSlopes(m1, modx = "xcategorical", plotx = "xcontinuous")
-##' 
-##' m2 <- lm (y ~ xcontinuous * xcategorical)
-##' summary(m2)
-##' plotSlopes(m2, modx = "xcategorical", plotx = "xcontinuous")
-##' 
-##' 
-##' library(car)
-##' m3 <- lm(statusquo ~ income * sex, data = Chile)
-##' summary(m3)
-##' plotSlopes(m3, modx = "sex", plotx = "income")
-##' 
-##' 
-##' m4 <- lm(statusquo ~ region * income, data= Chile)
-##' summary(m4)
-##' plotSlopes(m4, modx = "region", plotx = "income")
-##' 
-##' plotSlopes(m4, modx = "region", plotx = "income", plotPoints=FALSE)
-##' 
-##' 
-##' m5 <- lm(statusquo ~ region * income + sex + age, data= Chile)
-##' summary(m5)
-##' plotSlopes(m5, modx = "region", plotx = "income")
-##' 
-##' m6 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
-##' summary(m6)
-##' plotSlopes(m6, modx = "income", plotx = "age")
-##' 
-##' plotSlopes(m6, modx = "income", plotx = "age", plotPoints=FALSE)
-##' 
-##' 
-##' ## Should cause error because education is not numeric
-##' ## m7 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
-##' ## summary(m7)
-##' ## plotSlopes(m7, modx = "income", plotx = "education")
-##' 
-##' ## Should cause error because "as.numeric(education") not same as
-##' ## plotx="education"
-##' ## m8 <- lm(statusquo ~ income * age + as.numeric(education) + sex + age, data=Chile)
-##' ## summary(m8)
-##' ## plotSlopes(m8, modx = "income", plotx = "education")
-##' 
-##' ## Still fails. 
-##' ## plotSlopes(m8, modx = "income", plotx = "as.numeric(education)")
-##' 
-##' ## Must recode variable first so that variable name is coherent
-##' Chile$educationn <- as.numeric(Chile$education)
-##' m9 <- lm(statusquo ~ income * age + educationn + sex + age, data=Chile)
-##' summary(m9)
-##' plotSlopes(m9, modx = "income", plotx = "educationn")
+##' @example inst/plotSlopes-ex.R
 
 plotSlopes <-
   function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL, 
@@ -134,6 +66,17 @@ plotSlopes <-
     stop("plotSlopes requires the name of the variable to be drawn on the x axis")
   if (is.null(modx)) 
     stop("plotSlopes requires the name of moderator variable for which several slopes are to be drawn")
+
+  cutBySD <- function(x){
+    mx <- round(mean(x, na.rm=T),2)
+    sdx <- round(sd(x, na.rm=T),2)
+    qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
+    suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
+    names(qs) <-  paste(qs, suffix)
+    invisible(qs)
+  }
+  
+  cl <- match.call()
   mm <- model.matrix(model)
   depVar <- model$model[, 1]
   modxVar <- model$model[, modx]
@@ -141,22 +84,38 @@ plotSlopes <-
   if (!is.numeric(plotxVar)) 
     stop(paste("plotSlopes: The variable", plotx, "should be a numeric variable"))
   ylab <- colnames(model$model)[1]
-  plotyRange <- range(depVar, na.rm = TRUE)
+  plotyRange <- magRange(depVar, mult=c(1,1.2))
   plotxRange <- range(mm[, plotx], na.rm = TRUE)
   plotxSeq <- plotSeq(plotxRange, l = 40)
-  if (is.factor(modxVar)) {
+
+  if (is.factor(modxVar)) { ## modxVar is a factor
     if (is.null(modxVals)) {
       modxVals <- levels(modxVar)
+    } else {
+      if (!modxVals %in% levels(modxVar)) stop("modxVals includes non-observed levels of modxVar")
     }
-    lmx <- length(modxVals)
-  }
-  else {
-    modxRange <- range(mm[, modx], na.rm = TRUE)
+  } else {                  ## modxVar is not a factor
+    modxRange <- range(modxVar, na.rm=TRUE)
     if (is.null(modxVals)) {
-      modxVals <- quantile(mm[, modx], na.rm = TRUE)
+      modxVals <- quantile(modxVar, na.rm = TRUE)
+    } else {
+      if (is.numeric(modxVals)) { 
+        print("TODO: Insert some checks that modxVals are reasonable")
+      } else {
+        if (is.character(modxVals)) {
+          modxVals <- match.arg(tolower(modxVals),
+                                c("quantile", "std.dev."))
+          print(modxVals)
+          modxVals <- switch(modxVals,
+                             quantile = quantile(modxVar, na.rm = TRUE ),
+                             "std.dev." = cutBySD(modxVar),
+                             stop("unknown 'modxVals' algorithm"))
+        }
+      }
     }
-    lmx <- length(modxVals)
   }
+  lmx <- length(modxVals)
+  
   predictors <- colnames(model$model)[-1]
   predictors <- setdiff(predictors, c(modx, plotx))
   newdf <- data.frame(expand.grid(plotxRange, modxVals))
@@ -197,34 +156,6 @@ plotSlopes <-
   }
   legend("topleft", legend = legnd, lty = 1:lmx, col = 1:lmx, 
          bg = "white")
-  if (!is.factor(modxVar)) {
-    ivs <- attr(terms(model), "term.labels")
-    bs <- coef(model)
-    V <- vcov(model)
-    relevantInteractions <- c(paste(plotx, ":", modx, sep = ""), 
-                              paste(modx, ":", plotx, sep = ""))
-    bmodx <- NULL
-    bplotx <- bs[plotx]
-    if (any(relevantInteractions %in% ivs)) {
-      interactionsIn <- relevantInteractions[which(relevantInteractions %in% 
-                                                   ivs)]
-      bmodx <- bs[interactionsIn]
-      bsimple <- bplotx + bmodx * modxVals
-      covbsimple <- cbind(1, modxVals^2, 2 * modxVals) %*% 
-        c(V[plotx, plotx], V[names(bmodx), names(bmodx)], 
-          V[plotx, names(bmodx)])
-      tbsimple <- bsimple/sqrt(covbsimple)
-    }
-    else {
-      bmodx <- 0
-      bsimple <- rep(bplotx, length(modxVals))
-      covbsimple <- vcov(model)[plotx, plotx]
-      tbsimple <- bsimple/sqrt(covbsimple)
-    }
-    testSlopes <- data.frame(modx = modxVals, b = bsimple, se = sqrt(covbsimple), 
-               t = tbsimple, p = 2 * pt(abs(tbsimple), df = model$df.residual, 
-                               lower.tail = FALSE))
-    return(list(testSlopes, newdf))
-  }
-  list(newdf)
+
+  invisible(list(call=cl, newdata=newdf, modxVals = modxVals))
 }

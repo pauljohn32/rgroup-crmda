@@ -1,0 +1,395 @@
+\batchmode
+\makeatletter
+\def\input@path{{/home/pauljohn/SVN/rgroup/trunk/rockchalk/rockchalk/vignettes//}}
+\makeatother
+\documentclass[english,noae]{article}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\usepackage{Sweavel}
+<<echo=F>>=
+  if(exists(".orig.enc")) options(encoding = .orig.enc)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%\VignetteIndexEntry{Using rockchalk}
+
+\usepackage{Sweavel}
+\usepackage{graphicx}
+\usepackage{color}
+
+\usepackage[samesize]{cancel}
+
+
+
+\usepackage{ifthen}
+
+\makeatletter
+
+\renewenvironment{figure}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{figure}
+
+ }{%
+
+   \@float{figure}[#1]%
+
+ }%
+
+ \centering
+
+}{%
+
+ \end@float
+
+}
+
+\renewenvironment{table}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{table}
+
+ }{%
+
+   \@float{table}[#1]%
+
+ }%
+
+ \centering
+
+%  \setlength{\@tempdima}{\abovecaptionskip}%
+
+%  \setlength{\abovecaptionskip}{\belowcaptionskip}%
+
+% \setlength{\belowcaptionskip}{\@tempdima}%
+
+}{%
+
+ \end@float
+
+}
+
+
+%\usepackage{listings}
+% Make ordinary listings look as if they come from Sweave
+\lstset{tabsize=2, breaklines=true,style=Rstyle}
+
+% In document Latex options:
+\fvset{listparameters={\setlength{\topsep}{0em}}}
+\def\Sweavesize{\scriptsize} 
+\def\Rcolor{\color{black}} 
+\def\Rbackground{\color[gray]{0.90}}
+
+\makeatother
+
+\usepackage{babel}
+\begin{document}
+
+\title{Using rockchalk Functions for Quick \& Consistent Presentations}
+
+
+\author{Paul Johnson}
+
+\maketitle
+% In document Latex options:
+\fvset{listparameters={\setlength{\topsep}{0em}}}
+\SweaveOpts{ae=F,nogin=T}
+
+<<Roptions, echo=F>>=
+options(device = pdf)
+options(width=160, prompt=" ", continue="  ")
+options(useFancyQuotes = FALSE) 
+@
+
+
+\section{Introduction}
+
+The rockchalk package is an agglomeration of functions that I need
+when I'm teaching about regression. The functions here divide into
+three categories. 
+\begin{enumerate}
+\item Functions that help me prepare lectures. I find myself doing the same
+thing over and over, so I write functions that facilitate my work.
+Some functions in R are very hard to use and get right consistently,
+especially where 3 dimensional plotting is concerned. That's where
+functions like mcGraph1, mcGraph2, mcGraph3, and plotPlane come in
+handy. These don't do any work that is particularly original, but
+they do help to easily make the multidimensional plots that turn out
+``about right'' most of the time. 
+\item Some of the functions simplify vital chores that are difficult for
+students. Consider plotSlopes, my suggestion for creating interaction
+plots of ``simple slopes''. This handles the work of calculating
+predicted values and drawing them for several possible values of a
+third variable. plotPlane is along the same line. If students find
+that useful, they can then use the examples to build up more complicated
+drawings.
+\item Some functions provide calculations that are not available in existing
+R packages, or are done in a way that I do not endorse. The functions
+to explore regressions with interactions, such as meanCenter and residualCenter,
+fall into this category. 
+\item Some functions do the wrong thing, statistically speaking. Some common
+practices in other statistical packages, such as the calculation of
+standardized coefficients in a regression model, are a bit tedious
+in R. So I provide the function standardize, which, as far as I understand
+it, replicates the whole mistake perpetrated by SPSS. There are other
+functions in rockchalk that estimate kinds of regressions that are
+arguably wrong, such as mean-centered regression or residual-centered
+regression.
+\end{enumerate}
+
+\section{Some outreg Examples.}
+
+outreg was a function in search of a package for a long time. I didn't
+bother to build rockchalk until I had some other worthwhile functions.
+So it seems appropriate to start with outreg.
+
+On May 8, 2006, Dave Armstrong, a political science PhD student at
+University of Maryland, posted a code snippet in r-help that demonstrated
+one way to use the ``cat'' function from R to write \LaTeX{} markup.
+That gave me the idea to write a \LaTeX{} output scheme that would
+help create some nice looking term and research papers. I'd been frustrated
+with the \LaTeX{} output from other R functions. I needed a table-maker
+to include all of the required information in a regression table without
+including a lot of chaff (in my opinion). I don't want both the standard
+error of b and the t value, I never want p values, I need stars for
+the significant variables, and I want a minimally sufficient set of
+summary statistics. In 2006, there was no function that met those
+needs.
+
+<<echo=F>>=
+library(rockchalk)
+@
+
+These models are created with some simulated data.
+
+<<echo=T>>=
+set.seed(1234)
+x1 <- rnorm(100)
+x2 <- rnorm(100)
+y1 <- 5*rnorm(100) - 3*x1 + 4*x2
+y2 <- rnorm(100)+5*x2
+dat <- data.frame(x1, x2, y1, y2)
+rm (x1, x2, y1, y2)
+m1 <- lm (y1~x1, data=dat)
+m2 <- lm (y1~x2, data=dat)
+m3 <- lm (y1 ~ x1 + x2, data=dat)
+myilogit <- function(x) exp(x)/(1 + exp(x))
+y3 <- rbinom(100, size=1, p=myilogit(scale(dat$y1)))
+gm1 <- glm(y3~x1 + x2, data=dat)
+@
+
+In each of the floating tables, I have presented an example use of
+the ``outreg'' function along with the regression table that it
+creates.
+
+\begin{table}
+\caption{My One Tightly Printed Regression\label{tab:Tab1}}
+
+
+<<outreg10, results=tex, echo=F>>=
+outreg(m1)
+@
+\end{table}
+
+
+Table \ref{tab:Tab1} displays the default output, without any special
+options. The command is
+
+<<results=hide>>=
+<<outreg10>>
+@, 
+
+\begin{table}
+\caption{My Spread Out Regressions\label{tab:Tab2}}
+
+
+<<outreg20, results=tex, echo=F>>=
+outreg(m1, tight=FALSE, modelLabels=c("Fingers"))
+@
+\end{table}
+
+
+In the literature, regression tables are sometimes presented in a
+tight column format, with the estimates of the coefficients and standard
+errors ``stacked up'' to allow multiple models side by side, while
+sometimes they are printed with separate columns for the coefficients
+and standard errors. The outreg option tight=F provides the two column
+style. In Table \ref{tab:Tab2}, I've also used the argument modelLabels
+to insert the word ``Fingers'' above the regression model. The command
+that produces the table is
+
+<<results=hide>>=
+<<outreg20>>
+@
+
+\begin{table}
+\caption{My Two Linear Regressions Tightly Printed\label{tab:Tab3}}
+
+
+(a) Tightly Formatted Columns
+
+<<outreg30, results=tex, echo=FALSE>>=
+outreg(list(m1,m2), modelLabels=c("Mine","Yours"), varLabels = list(x1="Billie"))
+@
+
+(b) Two Columns Per Regression Model
+
+<<outreg33, results=tex, echo=FALSE>>=
+outreg(list(m1,m2), tight=FALSE,  modelLabels=c("Mine","Yours"), varLabels = list(x1="Billie"))
+@
+\end{table}
+
+
+The outreg function can present different models in a single table,
+as we see in Table \ref{tab:Tab3}. The default output uses the tight
+format, so there is no need to specify that explicitly. In part (a)
+of Table \ref{tab:Tab3}, we have tightly formatted columns of regression
+output that result from this command:
+
+<<results=hide>>=
+<<outreg30>>
+@\\
+To my eye, there is something pleasant about the less-tightly-packed
+format, as illustrated in part (b) of Table \ref{tab:Tab3}. Note
+that the only difference in the commands that produce those tables
+is the insertion of tight=FALSE.
+
+<<results=hide>>=
+<<outreg33>>
+@
+
+\begin{table}
+\caption{My Three Linear Regressions in a Tight Format\label{tab:3tight}}
+
+
+<<outreg35, results=tex, echo=F>>=
+outreg(list(m1,m2,m3), modelLabels=c("A","B","C"), varLabels = list(x1="I Forgot x1", x2="He Remembered x2"))
+@
+\end{table}
+In addition to using modelLables to provide headings for the 2 models,
+the other argument that was used in Table is \ref{tab:Tab3} varLabels.
+It is often a problem that the variables in the R program are terse,
+while a presentation must have a full name. So in Table \ref{tab:Tab3},
+I've demonstrated how to replace the variable name x1 with the word
+``Billie''. Any of the predictor variables can be re-named in this
+way. Another usage of varLabels is offered in an example with three
+models in Table \ref{tab:3tight}, which is a result of
+
+<<results=hide>>=
+<<outreg35>>
+@\\
+As one can see, outreg gracefully handles the situation in which variables
+are inserted or removed from a fitted model.
+
+\begin{table}
+\caption{Three Regressions in the Spread out Format\label{tab:3RegNotTIght}}
+
+
+<<results=tex, echo=F>>=
+outreg(list(m1,m2,m3), tight=F, modelLabels=c("I Love love love really long titles","Hate Long","Medium"))
+@
+\end{table}
+
+
+I have not bothered with some fine points of \LaTeX{} table formatting.
+I also have not worried about the problem of restricting columns to
+use the exact same amount of horizontal space. In Table \ref{tab:3RegNotTIght},
+we have regression output which is, in my opinion, completely acceptable
+for inclusion in a presentation or conference paper. Because the model
+labels are not equal in length, the columns are not equally sized.
+That is not a concern for me, at the moment, but I imagine it might
+be a concern for somebody. Perhaps, at some point, I may come back
+and deal with the problem that decimal values within columns should
+be vertically aligned (at least as an option). I don't want to make
+outreg output dependent on additional \LaTeX{} packages.
+
+\begin{table}
+\caption{Combined OLS and GLM Estimates\label{tab:Combined-OLSGLM}}
+
+
+<<outreg70, results=tex, echo=F>>=
+outreg(list(m1,gm1),modelLabels=c("OLS:y1","GLM: Categorized y1"))
+@
+\end{table}
+
+
+Another feature of outreg is that it can present the estimates of
+different kinds of models. It can present the estimates from R's lm
+and glm functions in a single table. Consider Table \ref{tab:Combined-OLSGLM},
+which resulted from the command
+
+<<results=hide>>=
+<<outreg70>>
+@
+
+At one time, I was working on a similar presentation for mixed models
+estimated by lme4, but I stopped that effort because the lme4 package
+was changing rapidly and the format of its returned objects was not
+stable enough for a finalized presentation format. Eventually, I will
+include a method to display those mixed models. 
+
+
+\section{Plot Slopes and Plot Planes}
+
+<<ps10, fig=T>>=
+plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous Predictor")
+@
+
+<<ps20, fig=T, echo=F>>=
+plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuous Predictor")
+@
+
+Suppose one does not like the default choice of values for the moderator
+variable, x2. If we want to plot lines for three particular values,
+a command like this
+
+<<results=hide>>=
+<<ps20>>
+@
+
+will produce Figure X. 
+
+<<pp10, fig=T>>=
+p10 <- plotPlane(m3, plotx1="x1", plotx2="x2")
+@
+
+That model is linear, so the figures are not too pleasant to look
+at. If there is a nonlinearity, for example an interaction, then it
+is a little more fun. I create a new dependent variable y4 and then
+put the fitted model through the plotSlopes and plotPlane functions.
+
+<<>>=
+dat$y4 <- with(dat, -3*x1 + 4*x2 + 1.2 *x1 * x2 + 15*rnorm(100)) 
+m4 <- lm (y4 ~ x1 * x2, data=dat)
+@
+
+plotSlopes says:
+
+<<ps50, fig=T, echo=F>>=
+plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+@
+
+plotPlane says:
+
+<<pp50, fig=T>>=
+p50 <- plotPlane(m4, plotx1="x1", plotx2="x2")
+@
+
+I'd like to have a simple way to ``highlight'' the lines on the
+plane, but the interface to plotSlopes now does not provide the required
+information. That's on my TODO list.
+
+\#for(j in c(0.2, 0.5, 0.7))\{
+
+\#lines(trans3d(x1, rep(length(x1), j), p{[},j{]}, pmat=p10), col=\textquotedbl{}yellow\textquotedbl{},
+lwd=3)
+
+\#\}
+\end{document}
