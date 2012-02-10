@@ -1,5 +1,4 @@
-##' Generates summary table of hypothesis tests and the J-N interval estimates
-##' for regression objects created by plotSlopes
+##' Hypothesis tests for Simple Slopes Objects
 ##'
 ##' The user must first run plotSlopes, and then supply that output object
 ##' to this function.
@@ -65,9 +64,7 @@ testSlopes <- function(plotSlopesObject) {
                                t = tbsimple, p = 2 * pt(abs(tbsimple), df = model$df.residual, 
                                                lower.tail = FALSE))
       colnames(testSlopes) <- c(deparse(modx), "slope", "Std. Error", "t value", "Pr(>|t|)")
-    }
-    
-    else {
+    } else {
       mcoef <- coef(model)
       modxContrastNames <- c(grep(plotx,  grep(modx, names(mcoef), value = TRUE),  value=TRUE))
       slope <- mcoef[modxContrastNames] + coef(model)[plotx]
@@ -179,8 +176,8 @@ testSlopes <- function(plotSlopesObject) {
       abline(h=0, col="gray80")
       
       par("mfcol" = origmfcol)
-    }
-  }
-  if(is.null(res)) cat("There were no interactions in the plotSlopes object, so testSlopes can't offer any advice.\n")
+    } ## !is.null(b2)
+  } ## !is.factor(modxVar)
+  if (is.null(res)) cat("There were no interactions in the plotSlopes object, so testSlopes can't offer any advice.\n")
   invisible(res)
 }

@@ -1,38 +1,44 @@
-##' Assists creation of predicted value curves for values of a
-##' moderator variable.
+##' Assists creation of predicted value curves for regression models. 
+##' 
 ##'
-##' I think of this as "termplot for interactions."  It creates a plot
+##' This is similar to \code{plotSlopes}, but it accepts regressions
+##' in which there are transformed variables, such as "log(x1)". 
+##' Think of this as "termplot for interactions."  It creates a plot
 ##' of the predicted dependent variable against one of the numeric
-##' predictors, \code{plotx}, for each value of a numeric or
-##' categorical moderator variable, \code{modx}. The moderator
-##' variable may be a factor or a numeric.  Numeric moderators are, by
-##' default, divided into sections on the basis of quartiles and a
-##' line is plotted for the following percentiles {0,25,50,75,100}.
-##' The user can change that by either specifying a vector of values
-##' for which the lines are desired, or by specifying an alternative
-##' algorithm.  That is, \code{modxVals = c( 1,2,3)} would draw lines
-##' for values 1,2,and 3 of the moderator, while \code{modxVals
-##' ="std.dev." will create 5 lines, corresponding to {mean-2*sd,
-##' mean-sd, mean, mean+sd, mean+2*sd }.
+##' predictors, \code{plotx}. It draws a predicted value line for
+##' several values of \code{modx}, a moderator variable. The
+##' moderator may be a numeric or categorical moderator
+##' variable.
+##'
+##' The user may designate which particular values of the moderator
+##' are used for calculating the predicted value lines.   That is,
+##' \code{modxVals = c( 12,22,37)} would draw lines for values 12, 22,
+##' and 37 of the moderator.
+##'
+##' If the user does not specify the parameter \code{modxVals},
+##' built-in algorithms will select the "cut points". Three algorithms
+##' have been prepared so far, \code{quantile}, \code{std.dev.}, and
+##' \code{table}. If the number of unique observed values is smaller than 6, the \code{table} method is used.  The 5 most frequently observed values of modx are selected. Otherwise, the quantile method is used. Predictive lines are plotted
+##' for the following percentiles {0.25,0.50,0.75}. The algorithm
+##' \code{std.dev.} plots three lines, one for the mean of modx, and one for the mean minus one standard deviation, and the other for the mean plus one standard deviation. 
+##' 
 ##' 
 ##' @param model Fitted regression object. Must have a predict method
 ##' @param plotx String with name of IV to be plotted on x axis
 ##' @param modx String for moderator variable name. May be either numeric or factor.
-##' @param modxVals A vector of numeric values for which plotted lines
-##' are sought.  This is intended for numeric variables referred to by
-##' "modx". These are user specified "for instance" values. If
-##' omitted, quantiles will be used for numeric variables. If "modx"
-##' is a factor, this parameter is ignored and a predictive line is
-##' drawn for each level of the factor. That is a shortcoming in the
-##' current implementation.
+##' @param modxVals If modx is numeric, either a character string, "quantile", "std.dev.",
+##' or "table", or a vector of values for which plotted lines are
+##' sought. If modx is a factor, the default approach will create one
+##' line for each level, but the user can supply a vector of levels if
+##' a subset is desired.
 ##' @param plotPoints Should the plot include the scatterplot points along with the lines.
 ##' @param envir environment to search for variables. 
 ##' @param ... further arguments that are passed to plot.
 ##' @export
 ##' @import car
-##' @return When plotSlopes runs, and modx a numeric variable, a dataframe
-##' will be created to summarize the hypothesis tests for the simple slopes.
-##' The return value includes that dataframe, as well as a "newdf" object that includes information on the simple slopes that were plotted.
+##' @return A plot is created as a side effect, a list is returned including
+##' The call, a newdata object that includes information on the curves that were 
+##' plotted, along with a vector modxVals, the values for which curves were drawn.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @example  inst/examples/plotCurves-ex.R
 
@@ -57,13 +63,41 @@ plotCurves <-
       carrier.name(term[[2L]])
     else as.character(term)
   }
-  cutBySD <- function(x){
-    mx <- round(mean(x, na.rm=T),2)
-    sdx <- round(sd(x, na.rm=T),2)
-    qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
-    suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
-    names(qs) <-  paste(qs, suffix)
+
+  cutByTable <- function(x, n = 5){
+    table1 <- table(x)
+    table1sort <-  sort(table1, decreasing = T)
+    qs <- table1sort[1:n]
+    names(qs) <- names(table1sort[1:n])
     invisible(qs)
+  }
+  
+  cutByQuantile <- function(x){
+    uniqueVals <- unique(x)
+    if (length(uniqueVals) < 6) {
+      qs <- cutByTable(x, 5)
+      invisible(qs)
+    } else {
+      qs <- quantile(x, probs = c(0.25, 0.50, 0.75), na.rm = TRUE)
+      invisible(qs)
+    }
+  }
+  
+  cutBySD <- function(x){
+    uniqueVals <- unique(x)
+    if (length(uniqueVals) < 6) {
+      qs <- cutByTable(x, 5)
+      invisible(qs)
+    } else {
+      mx <- round(mean(x, na.rm=T),2)
+      sdx <- round(sd(x, na.rm=T),2)
+      ##qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
+      ##suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
+      qs <- c(mx - sdx, mx, mx + sdx)
+      suffix <- c("(m-sd)","(m)","(m+sd)")
+      names(qs) <-  paste(qs, suffix)
+      invisible(qs)
+    }
   }
 
   
@@ -77,20 +111,20 @@ plotCurves <-
   emf <- get_all_vars(tt, data = expand.model.frame(model, varnames, na.expand=TRUE))
 
   ## experimenting with another way to gather variables.
-  ## data <- eval(model$call$data, envir) ##when ever needed?
+  ## data <- eval(model$call$data, envir) ##grabs nothing unless data option was used
   ## if (is.null(data)) 
   ##   data <- mf
   ## ## if (plotx %in% varnames) plotxVar <- emf[, plotx] else stop("plotx missing")
   ## data <- data[row.names(emf) , ]
   
   plotxVar <- carrier(parse(text = plotx), emf, enc=envir)
-  modxVar <- carrier(parse(text = modx), emf, enc=envir)
-
-  depVar <- mf[, 1]
-  
   if (!is.numeric(plotxVar)) 
     stop(paste("plotCurves: The variable", plotx, "should be a numeric variable"))
-  ylab <- colnames(mf)[1]
+
+  modxVar <- carrier(parse(text = modx), emf, enc=envir)
+  depVar <- model.response(mf)
+ 
+  ylab <- names(mf)[1]  ## returns transformed DV
   ##ylab <- varnames[1] ## returns untransformed carrier DV
   plotyRange <- magRange(depVar, mult=c(1,1.2))
   plotxRange <- range(plotxVar, na.rm=TRUE)
@@ -99,21 +133,28 @@ plotCurves <-
   if (is.factor(modxVar)) { ## modxVar is a factor
     if (is.null(modxVals)) {
       modxVals <- levels(modxVar)
-    } else if (!modxVals %in% levels(modxVar)) stop("modxVals includes non-observed levels of modxVar")
+    } else {
+      if (!all(modxVals %in% levels(modxVar))) stop("modxVals includes non-observed levels of modxVar")
+    }
   } else {                  ## modxVar is not a factor
     modxRange <- range(modxVar, na.rm=TRUE)
     if (is.null(modxVals)) {
-      modxVals <- quantile(modxVar, na.rm = TRUE)
-    } else if (is.numeric(modxVals)) { 
+      modxVals <- cutByQuantile(modxVar)
+    } else {
+      if (is.numeric(modxVals)) { 
       ##TODO: Insert some checks that modxVals are reasonable
-    } else if (is.character(modxVals)) {
-      modxVals <- match.arg(tolower(modxVals),
-                            c("quantile", "std.dev."))
-      print(modxVals)
-      modxVals <- switch(modxVals,
-                         quantile = quantile(modxVar, na.rm = TRUE ),
-                         "std.dev." = cutBySD(modxVar),
-                         stop("unknown 'modxVals' algorithm"))
+      } else {
+        if (is.character(modxVals)) {
+          modxVals <- match.arg(tolower(modxVals),
+                                c("quantile", "std.dev.", "table"))
+          print(modxVals)
+          modxVals <- switch(modxVals,
+                             table = cutByTable(modxVar),
+                             quantile = cutByQuantile(modxVar),
+                             "std.dev." = cutBySD(modxVar),
+                             stop("unknown 'modxVals' algorithm"))
+        }
+      }
     }
   }
   lmx <- length(modxVals)                            

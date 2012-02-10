@@ -43,10 +43,14 @@
 ##' (respectively). Those values can be reviewed in the newdata object
 ##' that is created as a part of the output from this function
 ##'
-##' @param model Fitted regression object. Must have a predict method
-##' @param plotx String with name of IV to be plotted on x axis
-##' @param modx String for moderator variable name. May be either numeric or factor.
-##' @param modxVals This is an optional parameter. For which values of the moderator are the simple slope lines are to be drawn? Factors and numeric moderators are treated differently. 
+##' @param model Required. Fitted regression object. Must have a predict method
+##' @param plotx Required. String with name of IV to be plotted on x axis
+##' @param modx  Required. String for moderator variable name. May be either numeric or factor.
+##' @param modxVals Optional. If modx is numeric, either a character
+##' string, "quantile", "std.dev.", or "table", or a vector of values
+##' for which plotted lines are sought. If modx is a factor, the
+##' default approach will create one line for each level, but the user
+##' can supply a vector of levels if a subset is desired.. 
 ##' @param plotPoints TRUE or FALSE: Should the plot include the scatterplot points along with the lines.
 ##' @param ... further arguments that are passed to plot
 ##' @export
@@ -54,7 +58,7 @@
 ##' @return The plot is drawn on the screen, and the return object includes the "newdata" object that was used to create the plot, along with the "modxVals" vector, the values of the moderator for which lines were drawn. It also includes the call that generated the plot.
 ##' @seealso plotCurves and testSlopes
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-##' @example inst/plotSlopes-ex.R
+##' @example inst/examples/plotSlopes-ex.R
 
 plotSlopes <-
   function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL, 
@@ -67,15 +71,43 @@ plotSlopes <-
   if (is.null(modx)) 
     stop("plotSlopes requires the name of moderator variable for which several slopes are to be drawn")
 
-  cutBySD <- function(x){
-    mx <- round(mean(x, na.rm=T),2)
-    sdx <- round(sd(x, na.rm=T),2)
-    qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
-    suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
-    names(qs) <-  paste(qs, suffix)
+  cutByTable <- function(x, n = 5) {
+    table1 <- table(x)
+    table1sort <-  sort(table1, decreasing = T)
+    qs <- table1sort[1:n]
+    names(qs) <- names(table1sort[1:n])
     invisible(qs)
   }
   
+  cutByQuantile <- function(x){
+    uniqueVals <- unique(x)
+    if (length(uniqueVals) < 6) {
+      qs <- cutByTable(x, 5)
+      invisible(qs)
+    } else {
+      qs <- quantile(x, probs = c(0.25, 0.50, 0.75), na.rm = TRUE)
+      invisible(qs)
+    }
+  }
+   
+  cutBySD <- function(x){
+    uniqueVals <- unique(x)
+    if (length(uniqueVals) < 6) {
+      qs <- cutByTable(x, 5)
+      invisible(qs)
+    } else {
+      mx <- round(mean(x, na.rm=T),2)
+      sdx <- round(sd(x, na.rm=T),2)
+      ##qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
+      ##suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
+      qs <- c(mx - sdx, mx, mx + sdx)
+      suffix <- c("(m-sd)","(m)","(m+sd)")
+      names(qs) <-  paste(qs, suffix)
+      invisible(qs)
+    }
+  }
+
+ 
   cl <- match.call()
   mm <- model.matrix(model)
   depVar <- model$model[, 1]
@@ -92,12 +124,12 @@ plotSlopes <-
     if (is.null(modxVals)) {
       modxVals <- levels(modxVar)
     } else {
-      if (!modxVals %in% levels(modxVar)) stop("modxVals includes non-observed levels of modxVar")
+      if (!all(modxVals %in% levels(modxVar))) stop("modxVals includes non-observed levels of modxVar")
     }
   } else {                  ## modxVar is not a factor
     modxRange <- range(modxVar, na.rm=TRUE)
     if (is.null(modxVals)) {
-      modxVals <- quantile(modxVar, na.rm = TRUE)
+      modxVals <- cutByQuantile(modxVar)
     } else {
       if (is.numeric(modxVals)) { 
         print("TODO: Insert some checks that modxVals are reasonable")
@@ -107,9 +139,10 @@ plotSlopes <-
                                 c("quantile", "std.dev."))
           print(modxVals)
           modxVals <- switch(modxVals,
-                             quantile = quantile(modxVar, na.rm = TRUE ),
-                             "std.dev." = cutBySD(modxVar),
-                             stop("unknown 'modxVals' algorithm"))
+                         table = cutByTable(modxVar),
+                         quantile = cutByQuantile(modxVar),
+                         "std.dev." = cutBySD(modxVar),
+                         stop("unknown 'modxVals' algorithm"))
         }
       }
     }
