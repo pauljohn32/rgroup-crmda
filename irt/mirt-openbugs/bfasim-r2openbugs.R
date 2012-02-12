@@ -93,19 +93,7 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
 
 ## a function to compute errors for all paramaters, and to compute average SSI -- DD 7/2/12
 parErrSSI <-function(bf.sim, res, re) {
-  aerr <- matrix(0, nitems, nD)
-  berr <- matrix(0, nitems, nD)
-  cerr <- matrix(0, nitems, nD)
-  theterr <- matrix(0, nE, nD)
-  aabserr <- matrix(0, nitems, nD)
-  babserr <- matrix(0, nitems, nD)
-  cabserr <- matrix(0, nitems, nD)
-  thetabserr <- matrix(0, nE, nD)
-  aerr2 <- matrix(0, nitems, nD)
-  berr2 <- matrix(0, nitems, nD)
-  cerr2 <- matrix(0, nitems, nD)
-  theterr2 <- matrix(0, nE, nD)
-  
+ 
   ##Error = true item parameters - estimated item and person parameters from OpenBUGS
   aerr <- bf.sim[[2]] - res$mean$a  ## errors of the discrimination
   berr <- bf.sim[[3]] - res$mean$b
@@ -153,26 +141,105 @@ parErrSSI <-function(bf.sim, res, re) {
   SSI13 <- unlist(tab13[[2]]/nE)
   tab14 <- table(essi14 > 1)
   SSI14 <- unlist(tab14[[2]]/nE)
-  
-  ##------these files need to be written out outside of all of the bacth forlders(HOW??)----
-  write.table(round(cbind(aerr, berr, cerr, aabserr, babserr, cabserr, aerr2,
-                          berr2, cerr2), digits = 3),
-              file = "F:/Dissdata/parallel/parallel/parserrors.txt", append = T, sep = "\t",
-              row.names = F, col.names = F)
-  
-  write.table(round(cbind(theterr, theterr2), digits = 6),
-              file = "F:/Dissdata/parallel/parallel/Thetaerrors.txt", append = T, sep = "\t",
-              row.names = F, col.names = F)
-  
-  write.table(round(cbind(abstheta12, abstheta13, abstheta14, SSI12, SSI13, SSI14), digits = 6),
-              file ="F:/Dissdata/parallel/parallel/SSI.txt", append = T, sep = "\t",
-              row.names = F, col.names = F)
-  ##-------
-  
-  #list(aerr, aerr2, berr, berr2, cerr, cerr2, theterr, theterr2, 
-  #     abstheta12, abstheta13, abstheta14, SSI12, SSI13, SSI14)
+
+  parserrors <- cbind(aerr, berr, cerr, aabserr, babserr, cabserr,
+                      aerr2, berr2, cerr2)
+
+  thetaerrors <- cbind(theterr, theterr2)
+
+  ssi <- cbind(abstheta12, abstheta13, abstheta14, SSI12, SSI13, SSI14)
+
+  results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "ssi"=ssi)
 }
 
+## Take a list of 50 result objects, extract and combine
+## matrices perrors, terrors, ssi, return summary numbers
+summarizeResultList <- function(aList){
+  ## list placeholders 
+  parserrorList <- vector("list", length=length(aList))
+  terrorList <- vector("list", length=length(aList))
+  ssiList <- vector("list", length=length(aList))
+  for( i in seq_along(aList)){
+    parserrorList[[i]] <- aList[[i]]$parserrors
+    terrorList[[i]] <- aList[[i]]$thetaerrors
+    ssiList[[i]] <-  aList[[i]]$ssi
+  }
+
+  perrors <- do.call("rbind", parerrList)
+  terrors <- do.call("rbind", terrorList)
+  ssi <-  do.call("rbind", ssiList)
+  ## do.call significantly more efficient than repeated use of rbind. For explanation, see
+  ## http://pj.freefaculty.org/R/WorkingExamples/stackListItems.R
+  
+  rm(parserrorList, terrorList, ssiList)
+  
+  ## BIAS
+  ## a1bias <- mean(perrors[[1]])
+  ## a2bias <- mean(perrors[[2]])
+  ## a3bias <- mean(perrors[[3]])
+  ## a4bias <- mean(perrors[[4]])
+  ## bbias <- mean(perrors[[5]])
+  ## cbias <- mean(perrors[[6]])
+  
+  pbias <- apply( perrors[ , 1:6], 2, mean)
+  names(pbias) <- c("a1bias","a2bias","a3bias","a4bias","bbias","cbias")
+  
+  
+  ## t1bias <- mean(terrors[[1]])
+  ## t2bias <- mean(terrors[[2]])
+  ## t3bias <- mean(terrors[[3]])
+  ## t4bias <- mean(terrors[[4]])
+  
+  tbias <- apply( terrors[, 1:4], 2, mean)
+  names(tbias) <- paste("t", 1:4, "bias", sep="")
+  
+  ## RMSE
+  ## a1rmse <- sqrt(mean(perrors[[13]]))
+  ## a2rmse <- sqrt(mean(perrors[[14]]))
+  ## a3rmse <- sqrt(mean(perrors[[15]]))
+  ## a4rmse <- sqrt(mean(perrors[[16]]))
+  ## brmse <- sqrt(mean(perrors[[17]]))
+  ## crmse <- sqrt(mean(perrors[[18]]))
+  
+  prmse <- apply( perrors[ , 13:18], 2, function(x) {sqrt(mean(x))})
+  names(prmse) <- c("a1rmse", "a2rmse", "a3rmse", "a4rmse", "brmse", "crmse")
+  
+  
+  ## t1rmse <- sqrt(mean(terrors[[5]]))
+  ## t2rmse <- sqrt(mean(terrors[[6]]))
+  ## t3rmse <- sqrt(mean(terrors[[7]]))
+  ## t4rmse <- sqrt(mean(terrors[[8]]))
+  
+  
+  trmse <- apply( terrors[ , 5:8], 2, function(x) {sqrt(mean(x))})
+  names(trmse) <-  paste("t", 1:4, "rmse", sep="")
+  
+  ##SEE (Standard Error of Estimates)
+  ## seea1 <- sqrt(a1rmse^2 - a1bias^2)
+  ## seea2 <- sqrt(a2rmse^2 - a2bias^2)
+  ## seea3 <- sqrt(a3rmse^2 - a3bias^2)
+  ## seea4 <- sqrt(a4rmse^2 - a4bias^2)
+  ## seeb <- sqrt(brmse^2 - bbias^2)
+  ## seec <- sqrt(crmse^2 - cbias^2)
+  ## seet1 <- sqrt(t1rmse^2 - t1bias^2)
+  ## seet2 <- sqrt(t2rmse^2 - t2bias^2)
+  ## seet3 <- sqrt(t3rmse^2 - t3bias^2)
+  ## seet4 <- sqrt(t4rmse^2 - t4bias^2)
+  
+  
+  psee <- sqrt(prmse^2 - pbias^2)
+  
+  ## SSI (mean SSI over replications)
+  ## SSI12 <- mean(ssi[,4])
+  ## SSI13 <- mean(ssi[,5])
+  ## SSI14 <- mean(ssi[,6])
+  
+  SSI <- apply( ssi[, 4:6], 2, mean)
+  names(SSI) <- c("SSI12", "SSI13", "SSI14")
+
+  list(pbias, tbias, prmse, trmse,  psee, SSI)
+
+}
 
 
 bfgena <- function(re = 1, nE = 100, nitems = 30, nD = 4, mina = .75,
@@ -292,8 +359,9 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa, currentSeeds=currentSeeds)
   writeBUGSModel(re, nitems, nE, nD, mina, maxa )
   res <- runOpenBUGS(bf.sim, re, nD, n.chains, nE = nE, n.iter = n.iter, n.burnin = n.burnin , n.thin = n.thin)
+  res2 <- parErrSSI(bf.sim, res, re)
   setwd(olddir)
-  invisible(res)
+  combinedResults <- c(res, res2)
 }
 
 
@@ -331,16 +399,6 @@ n.thin <- 1
 
 res <- runOneSimulation(re = 1, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
-## the res object is pretty interesting. 
-
-
-
-
-
-
-
-
-
 
 
 ##############################
@@ -358,129 +416,18 @@ clusterExport(cl, c("projSeeds", "useStream", "initSeeds"))
 clusterExport(cl, c("writeDataFiles", "writeBUGSModel", 
 "writeBUGSFiles", "bfgena"))
 
-res <- snow:::clusterApplyLB(cl, 1:nReps, runOneSimulation, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
+resultList <- snow:::clusterApplyLB(cl, 1:nReps, runOneSimulation, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
-res
+sumry <- summarizeResultList(resultList)
+
+##keep copies of result object collection and summary in current working directory
+save( unlist(sumry), file="resultSummary.rda")
+save(resultList, file="resultList.rda")
+
 
 library(snow)
 stopCluster(cl)
 mpi.quit()
 
 
-
-#### after the parallel part: bias, rmse, see and mean ssi are calculated here --- DD 2/7/12
-####### i'm not sure if this should be written out in a separate R file 
-####### this reads the saved files from parErrSSI() above
-
-
-a1bias <- vector(0, mode = "numeric")
-a2bias <- vector(0, mode = "numeric")
-a3bias <- vector(0, mode = "numeric")
-a4bias <- vector(0, mode = "numeric")
-bbias <- vector(0, mode = "numeric")
-cbias <- vector(0, mode = "numeric")
-t1bias <- vector(0, mode = "numeric")
-t2bias <- vector(0, mode = "numeric")
-t3bias <- vector(0, mode = "numeric")
-t4bias <- vector(0, mode = "numeric")
-a1rmse <- vector(0, mode = "numeric")
-a2rmse <- vector(0, mode = "numeric")
-a3rmse <- vector(0, mode = "numeric")
-a4rmse <- vector(0, mode = "numeric")
-rmseb <- vector(0, mode = "numeric")
-rmsec <- vector(0, mode = "numeric")
-t1rmse <- vector(0, mode = "numeric")
-t2rmse <- vector(0, mode = "numeric")
-t3rmse <- vector(0, mode = "numeric")
-t4rmse <- vector(0, mode = "numeric")
-seea1 <- vector(0, mode = "numeric")
-seea2 <- vector(0, mode = "numeric")
-seea3 <- vector(0, mode = "numeric")
-seea4 <- vector(0, mode = "numeric")
-seeb <- vector(0, mode = "numeric")
-seec <- vector(0, mode = "numeric")
-seet1 <- vector(0, mode = "numeric")
-seet2 <- vector(0, mode = "numeric")
-seet3 <- vector(0, mode = "numeric")
-seet4 <- vector(0, mode = "numeric")
-
-
-##---these variables should be read from files that have been saved above in parErrSSI() ---
-## need to change the path (outside the batch folders).
-perrors <- read.delim("F:/Dissdata/parallel/parallel/parserrors.txt", header = FALSE, quote=NULL, dec=".",
-                      fill = TRUE, comment.char="", sep = "\t")
-terrors <- read.delim("F:/Dissdata/parallel/parallel/Thetaerrors.txt", header = FALSE, quote=NULL, dec=".",
-                      fill = TRUE, comment.char="", sep = "\t")
-ssi <- read.delim(file ="F:/Dissdata/parallel/parallel/SSI.txt", header = FALSE, quote=NULL, dec=".",
-                  fill = TRUE, comment.char="", sep = "\t") 
-## perrors = aerr, berr, cerr, aabserr, babserr, cabserr, aerr2, berr2, cerr2
-## terrors = theterr, theterr2
-## ssi = abstheta12, abstheta13, abstheta14, SSI12, SSI13, SSI14
-##---
-
-## BIAS
-#asumerr <-  apply(errors[[1]], 2, sum)
-#abias <- apply(errors[[1]], 2, function(x) sum(x)/(nitems*nreps))
-
-#abias <- apply(errors[[1]], 2, function(x) mean(x))
-#bbias <- apply(errors[[3]], 2, function(x) mean(x))
-#cbias <- apply(errors[[5]], 2, function(x) mean(x))
-a1bias <- mean(perrors[[1]])
-a2bias <- mean(perrors[[2]])
-a3bias <- mean(perrors[[3]])
-a4bias <- mean(perrors[[4]])
-bbias <- mean(perrors[[5]])
-cbias <- mean(perrors[[6]])
-t1bias <- mean(terrors[[1]])
-t2bias <- mean(terrors[[2]])
-t3bias <- mean(terrors[[3]])
-t4bias <- mean(terrors[[4]])
-
-## RMSE
-#asumerr2 <- apply(errors[[2]], 2, sum)
-#rmsea <- apply(errors[[2]], 2, function(x) sqrt(mean(x)))
-#rmseb <- apply(errors[[4]], 2, function(x) sqrt(mean(x)))
-#rmsec <- apply(errors[[6]], 2, function(x) sqrt(mean(x)))
-a1rmse <- sqrt(mean(perrors[[13]]))
-a2rmse <- sqrt(mean(perrors[[14]]))
-a3rmse <- sqrt(mean(perrors[[15]]))
-a4rmse <- sqrt(mean(perrors[[16]]))
-brmse <- sqrt(mean(perrors[[17]]))
-crmse <- sqrt(mean(perrors[[18]]))
-t1rmse <- sqrt(mean(terrors[[5]]))
-t2rmse <- sqrt(mean(terrors[[6]]))
-t3rmse <- sqrt(mean(terrors[[7]]))
-t4rmse <- sqrt(mean(terrors[[8]]))
-
-##SEE (Standard Error of Estimates)
-seea1 <- sqrt(a1rmse^2 - a1bias^2)
-seea2 <- sqrt(a2rmse^2 - a2bias^2)
-seea3 <- sqrt(a3rmse^2 - a3bias^2)
-seea4 <- sqrt(a4rmse^2 - a4bias^2)
-seeb <- sqrt(brmse^2 - bbias^2)
-seec <- sqrt(crmse^2 - cbias^2)
-seet1 <- sqrt(t1rmse^2 - t1bias^2)
-seet2 <- sqrt(t2rmse^2 - t2bias^2)
-seet3 <- sqrt(t3rmse^2 - t3bias^2)
-seet4 <- sqrt(t4rmse^2 - t4bias^2)
-
-## SSI (mean SSI over replications)
-SSI12 <- mean(ssi[,4])
-SSI13 <- mean(ssi[,5])
-SSI14 <- mean(ssi[,6])
-
-##------these files need to be written out outside of all of the bacth forlders(HOW??)----
-write.table(round(cbind(a1bias, a2bias, a3bias, a4bias, bbias, cbias,
-                        a1rmse, a2rmse, a3rmse, a4rmse, brmse, crmse,
-                        seea1, seea2, seea3, seea4, seeb, seec), digits = 3),
-            file ="F:/Dissdata/parallel/parallel/pareval.txt", append = F, sep = "\t",
-            row.names = F, col.names = F)
-
-write.table(round(cbind(t1bias, t2bias, t3bias, t4bias,
-                        t1rmse, t2rmse, t3rmse, t4rmse,
-                        seet1, seet2, seet3, seet4), digits = 3),
-            file ="F:/Dissdata/parallel/parallel/theteval.txt", append = F, sep = "\t",
-            row.names = F, col.names = F)
-write.table(cbind(SSI12, SSI13, SSI14), file ="F:/Dissdata/parallel/parallel/meanSSI.txt", 
-            append = F, sep = "\t",row.names = F, col.names = F)
 
