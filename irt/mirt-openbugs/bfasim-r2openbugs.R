@@ -145,11 +145,11 @@ parErrSSI <-function(bf.sim, res, re) {
   parserrors <- cbind(aerr, berr, cerr, aabserr, babserr, cabserr,
                       aerr2, berr2, cerr2)
 
-  thetaerrors <- cbind(theterr, theterr2)
+  thetaerrors <- cbind(theterr, theterr2, abstheta12, abstheta13, abstheta14))
 
-  ssi <- cbind(abstheta12, abstheta13, abstheta14, SSI12, SSI13, SSI14)
+  fit <- cbind(SSI12, SSI13, SSI14, DIC)
 
-  results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "ssi"=ssi)
+  results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "fit"=fit)
 }
 
 ## Take a list of 50 result objects, extract and combine
@@ -158,20 +158,21 @@ summarizeResultList <- function(aList){
   ## list placeholders 
   parserrorList <- vector("list", length=length(aList))
   terrorList <- vector("list", length=length(aList))
-  ssiList <- vector("list", length=length(aList))
+  fitList <- vector("list", length=length(aList))
+
   for( i in seq_along(aList)){
     parserrorList[[i]] <- aList[[i]]$parserrors
     terrorList[[i]] <- aList[[i]]$thetaerrors
-    ssiList[[i]] <-  aList[[i]]$ssi
+    fitList[[i]] <-  aList[[i]]$ssi
   }
 
   perrors <- do.call("rbind", parerrList)
   terrors <- do.call("rbind", terrorList)
-  ssi <-  do.call("rbind", ssiList)
+  fit <-  do.call("rbind", fitList)
   ## do.call significantly more efficient than repeated use of rbind. For explanation, see
   ## http://pj.freefaculty.org/R/WorkingExamples/stackListItems.R
   
-  rm(parserrorList, terrorList, ssiList)
+  rm(parserrorList, terrorList, fitList)
   
   ## BIAS
   ## a1bias <- mean(perrors[[1]])
@@ -234,11 +235,10 @@ summarizeResultList <- function(aList){
   ## SSI13 <- mean(ssi[,5])
   ## SSI14 <- mean(ssi[,6])
   
-  SSI <- apply( ssi[, 4:6], 2, mean)
-  names(SSI) <- c("SSI12", "SSI13", "SSI14")
+  SSI <- apply( fit[, 1:4], 2, mean)
+  names(SSI) <- c("SSI12", "SSI13", "SSI14", "DIC")
 
   list(pbias, tbias, prmse, trmse,  psee, SSI)
-
 }
 
 
@@ -421,7 +421,7 @@ resultList <- snow:::clusterApplyLB(cl, 1:nReps, runOneSimulation, nitems=nitems
 sumry <- summarizeResultList(resultList)
 
 ##keep copies of result object collection and summary in current working directory
-save( unlist(sumry), file="resultSummary.rda")
+save(unlist(sumry), file="resultSummary.rda")
 save(resultList, file="resultList.rda")
 
 
