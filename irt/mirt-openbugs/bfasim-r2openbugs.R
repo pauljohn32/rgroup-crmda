@@ -87,11 +87,11 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
   
  ## model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin,  codaPkg = TRUE, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
 
-   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
+   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="C:/OpenBUGS/OpenBUGS321/OpenBugs.exe",  working.directory = getwd(), clearWD=FALSE, )
 }
 
 
-## a function to compute errors for all paramaters, and to compute average SSI -- DD 7/2/12
+## a function to compute errors for all paramaters, average SSI and model fit
 parErrSSI <-function(bf.sim, res, re) {
  
   ##Error = true item parameters - estimated item and person parameters from OpenBUGS
@@ -110,10 +110,12 @@ parErrSSI <-function(bf.sim, res, re) {
   cerr2 <- (cerr)^2
   theterr2 <-(theterr)^2
   
-  ##deviance, DIC and
-  dev <- res$mean$deviance
-  pD <- res$DIC     ## this is weird ---> pD should be pD not DIC (but the output in res gives reverse value)
-  DIC <- res$pD     ## same thing here
+  ##deviance, pD, DIC and AIC
+  dev <- res$mean$deviance  ## Dbar
+  ## res from bugs() gives reverse value, so need to revert them back
+  pD <- res$DIC    ##effective number of parameters 
+  DIC <- res$pD    ##Deviance information criteria
+  AIC <- dev + (2*pD) #approximation of AIC
   
   ## SSI
   ### Subscore separation index is computed from a ratio of the differences between
@@ -134,7 +136,7 @@ parErrSSI <-function(bf.sim, res, re) {
   essi13 <- abstheta13/se13
   essi14 <- abstheta14/se14
   
-  ## Subscore Separation Index   (SSI) - percent of essi > 1 (incorrect--CHECK!)
+  ## Subscore Separation Index (SSI) - percent of essi > 1 
   tab12 <- table(essi12 > 1)
   SSI12 <- unlist(tab12[[2]]/nE)
   tab13 <- table(essi13 > 1)
@@ -145,15 +147,15 @@ parErrSSI <-function(bf.sim, res, re) {
   parserrors <- cbind(aerr, berr, cerr, aabserr, babserr, cabserr,
                       aerr2, berr2, cerr2)
 
-  thetaerrors <- cbind(theterr, theterr2, abstheta12, abstheta13, abstheta14))
+  thetaerrors <- cbind(theterr, theterr2, abstheta12, abstheta13, abstheta14)
 
-  fit <- cbind(SSI12, SSI13, SSI14, DIC)
+  fit <- cbind(SSI12, SSI13, SSI14, dev, pD, DIC, AIC)
 
   results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "fit"=fit)
 }
 
 ## Take a list of 50 result objects, extract and combine
-## matrices perrors, terrors, ssi, return summary numbers
+## matrices perrors, terrors, fit, return summary numbers
 summarizeResultList <- function(aList){
   ## list placeholders 
   parserrorList <- vector("list", length=length(aList))
@@ -163,7 +165,7 @@ summarizeResultList <- function(aList){
   for( i in seq_along(aList)){
     parserrorList[[i]] <- aList[[i]]$parserrors
     terrorList[[i]] <- aList[[i]]$thetaerrors
-    fitList[[i]] <-  aList[[i]]$ssi
+    fitList[[i]] <-  aList[[i]]$fit
   }
 
   perrors <- do.call("rbind", parerrList)
@@ -229,16 +231,17 @@ summarizeResultList <- function(aList){
   
   
   psee <- sqrt(prmse^2 - pbias^2)
+  tsee <- sqrt(trmse^2 - tbias^2)
   
   ## SSI (mean SSI over replications)
   ## SSI12 <- mean(ssi[,4])
   ## SSI13 <- mean(ssi[,5])
   ## SSI14 <- mean(ssi[,6])
   
-  SSI <- apply( fit[, 1:4], 2, mean)
-  names(SSI) <- c("SSI12", "SSI13", "SSI14", "DIC")
+  bffit <- apply( fit[, 1:7], 2, mean)
+  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "AIC")
 
-  list(pbias, tbias, prmse, trmse,  psee, SSI)
+  list(pbias, tbias, prmse, trmse,  psee, tsee, bffit)
 }
 
 
