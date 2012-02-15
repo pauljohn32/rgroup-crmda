@@ -1,6 +1,6 @@
 
 writeDataFiles <- function(bf.sim, re, nitems, mina, maxa ){
-  ##print true item parameters to .txt file
+  ##print true item and person parameters and item responses to .txt files
   write.table(cbind("dim", "discs", "diff", "guessing"),
               file = paste("itemtrue", re, ".txt", sep = ""),
               append = F, sep  = "  ", row.names = F, col.names = F)
@@ -11,7 +11,7 @@ writeDataFiles <- function(bf.sim, re, nitems, mina, maxa ){
               row.names = F, col.names = F)
 
   theta1 <- bf.sim[[5]]
-  save(theta1, file = paste("thetatrue",re,".rda", sep=""))          ## DD: 1/6/12
+  save(theta1, file = paste("thetatrue",re,".rda", sep=""))          
 
   write.table(bf.sim[[6]], file = paste("ir", re, ".txt", sep = ""), row.names = F,col.names = F)
 }
@@ -53,13 +53,11 @@ writeBUGSModel <- function(re, nitems, nE, nD, mina, maxa){
  
 '
 
- ## replace text "nE" with value nE
+ ## replace texts with values
  bug.model <- gsub( "nE", nE, bug.model)
- ## replace nD
  bug.model <- gsub( "nD", nD, bug.model)
- ## replace nitems
  bug.model <- gsub( "nitems", nitems, bug.model)
- ##replace tau with maxa - tau = (b-mean/sd, N(mean,sd), normal truncated below b.
+ ##replace sig.a with uniform sd
  sigma <- round(sqrt(((maxa - mina)^2)/12), 3)
  bug.model <- gsub( "sig.a", sigma, bug.model)
  meana <- (maxa - mina)/2
@@ -75,8 +73,8 @@ writeBUGSModel <- function(re, nitems, nE, nD, mina, maxa){
 runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin=300, n.thin=1){
   require(R2OpenBUGS)
    
-  parameters <- c("a", "b", "g", "theta")      ## AIC and BIC are added 1/14/12
-  model.file <- file.path(getwd(), "bifactor.txt")  ## DD: 1/6/12
+  parameters <- c("a", "b", "g", "theta")      
+  model.file <- file.path(getwd(), "bifactor.txt")
   data <- list(mu = rep(0,nD), SIG = diag(nD), st = bf.sim[[1]], r = bf.sim[[6]])
   inits <- function() {
     list(a = mean(bf.sim[[2]]),
@@ -87,15 +85,20 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
   
  ## model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin,  codaPkg = TRUE, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
 
-   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="C:/OpenBUGS/OpenBUGS321/OpenBugs.exe",  working.directory = getwd(), clearWD=FALSE, )
+   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
+  
+  #pdf("convergence", re,".pdf", sep = "")
+  #plot(model)              ## Question: How to save this plot?
+  #dev.off()
+  
 }
 
 
 ## a function to compute errors for all paramaters, average SSI and model fit
 parErrSSI <-function(bf.sim, res, re) {
  
-  ##Error = true item parameters - estimated item and person parameters from OpenBUGS
-  aerr <- bf.sim[[2]] - res$mean$a  ## errors of the discrimination
+  ##Error = true - estimated 
+  aerr <- bf.sim[[2]] - res$mean$a  
   berr <- bf.sim[[3]] - res$mean$b
   cerr <- bf.sim[[4]] - res$mean$g
   theterr <- bf.sim[[5]] - res$mean$theta
@@ -118,10 +121,6 @@ parErrSSI <-function(bf.sim, res, re) {
   AIC <- dev + (2*pD) #approximation of AIC
   
   ## SSI
-  ### Subscore separation index is computed from a ratio of the differences between
-  ### a pair (primary and secondary) of the estimated subscores to the sum of the standard errors of the two subscores.
-  ### The percentage of this ratio over examinees that is greater than 1.0 for all pairs of
-  ### subscores is the measure of SSI.
   ## Absolute EAP different for each examinee
   abstheta12 <- abs(res$mean$theta[,1] - res$mean$theta[,2])
   abstheta13 <- abs(res$mean$theta[,1] - res$mean$theta[,3])
@@ -130,12 +129,10 @@ parErrSSI <-function(bf.sim, res, re) {
   se12 <- res$sd$theta[,1] + res$sd$theta[,2]
   se13 <- res$sd$theta[,1] + res$sd$theta[,3]
   se14 <- res$sd$theta[,1] + res$sd$theta[,4]
-  
   ## Absolute EAP different/std errors
   essi12 <- abstheta12/se12
   essi13 <- abstheta13/se13
   essi14 <- abstheta14/se14
-  
   ## Subscore Separation Index (SSI) - percent of essi > 1 
   tab12 <- table(essi12 > 1)
   SSI12 <- unlist(tab12[[2]]/nE)
@@ -168,7 +165,7 @@ summarizeResultList <- function(aList){
     fitList[[i]] <-  aList[[i]]$fit
   }
 
-  perrors <- do.call("rbind", parerrList)
+  perrors <- do.call("rbind", parserrorList)
   terrors <- do.call("rbind", terrorList)
   fit <-  do.call("rbind", fitList)
   ## do.call significantly more efficient than repeated use of rbind. For explanation, see
@@ -176,68 +173,25 @@ summarizeResultList <- function(aList){
   
   rm(parserrorList, terrorList, fitList)
   
-  ## BIAS
-  ## a1bias <- mean(perrors[[1]])
-  ## a2bias <- mean(perrors[[2]])
-  ## a3bias <- mean(perrors[[3]])
-  ## a4bias <- mean(perrors[[4]])
-  ## bbias <- mean(perrors[[5]])
-  ## cbias <- mean(perrors[[6]])
-  
+  ## BIAS: perrors[[1]] to perrors[[6]]
   pbias <- apply( perrors[ , 1:6], 2, mean)
   names(pbias) <- c("a1bias","a2bias","a3bias","a4bias","bbias","cbias")
-  
-  
-  ## t1bias <- mean(terrors[[1]])
-  ## t2bias <- mean(terrors[[2]])
-  ## t3bias <- mean(terrors[[3]])
-  ## t4bias <- mean(terrors[[4]])
-  
+  ##       terrors[[1]] to terrors[[4]]
   tbias <- apply( terrors[, 1:4], 2, mean)
   names(tbias) <- paste("t", 1:4, "bias", sep="")
   
-  ## RMSE
-  ## a1rmse <- sqrt(mean(perrors[[13]]))
-  ## a2rmse <- sqrt(mean(perrors[[14]]))
-  ## a3rmse <- sqrt(mean(perrors[[15]]))
-  ## a4rmse <- sqrt(mean(perrors[[16]]))
-  ## brmse <- sqrt(mean(perrors[[17]]))
-  ## crmse <- sqrt(mean(perrors[[18]]))
-  
+  ## RMSE: perrors[[13]] to perrors[[18]]: sqrt of the mean of errors squared
   prmse <- apply( perrors[ , 13:18], 2, function(x) {sqrt(mean(x))})
   names(prmse) <- c("a1rmse", "a2rmse", "a3rmse", "a4rmse", "brmse", "crmse")
-  
-  
-  ## t1rmse <- sqrt(mean(terrors[[5]]))
-  ## t2rmse <- sqrt(mean(terrors[[6]]))
-  ## t3rmse <- sqrt(mean(terrors[[7]]))
-  ## t4rmse <- sqrt(mean(terrors[[8]]))
-  
-  
+  ##      terrors[[5]] to terrors[[8]]
   trmse <- apply( terrors[ , 5:8], 2, function(x) {sqrt(mean(x))})
   names(trmse) <-  paste("t", 1:4, "rmse", sep="")
   
-  ##SEE (Standard Error of Estimates)
-  ## seea1 <- sqrt(a1rmse^2 - a1bias^2)
-  ## seea2 <- sqrt(a2rmse^2 - a2bias^2)
-  ## seea3 <- sqrt(a3rmse^2 - a3bias^2)
-  ## seea4 <- sqrt(a4rmse^2 - a4bias^2)
-  ## seeb <- sqrt(brmse^2 - bbias^2)
-  ## seec <- sqrt(crmse^2 - cbias^2)
-  ## seet1 <- sqrt(t1rmse^2 - t1bias^2)
-  ## seet2 <- sqrt(t2rmse^2 - t2bias^2)
-  ## seet3 <- sqrt(t3rmse^2 - t3bias^2)
-  ## seet4 <- sqrt(t4rmse^2 - t4bias^2)
-  
-  
+  ##SEE (Standard Error of Estimates) = rmse^2 - bias^2
   psee <- sqrt(prmse^2 - pbias^2)
   tsee <- sqrt(trmse^2 - tbias^2)
   
-  ## SSI (mean SSI over replications)
-  ## SSI12 <- mean(ssi[,4])
-  ## SSI13 <- mean(ssi[,5])
-  ## SSI14 <- mean(ssi[,6])
-  
+  ## SSI and model-fit (mean over replications)
   bffit <- apply( fit[, 1:7], 2, mean)
   names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "AIC")
 
@@ -251,7 +205,7 @@ bfgena <- function(re = 1, nE = 100, nitems = 30, nD = 4, mina = .75,
   require(mvtnorm)
 
   ## nested function to perform logit transform with guessing.
-  Pra <- function(thet = matrix(0), a = matrix(0), b = 0, g = 0) {         ## will be used for item responses in bfgena.sim
+  Pra <- function(thet = matrix(0), a = matrix(0), b = 0, g = 0) {         
     g+(1-g)*(1/(1+exp(sum((-a)*(thet - b)))))
   }
    ## set.seed(15937)   ##seed fixed (same group of examinees)
@@ -278,10 +232,8 @@ bfgena <- function(re = 1, nE = 100, nitems = 30, nD = 4, mina = .75,
       st[1:niD] <- 1
     } else {  # assigns to specified dimensions
       k1 = ((d-2)*niD)+1
-      k2 = (d-1)*niD  ## note k2 < k1 (really?)  ## I get this-->k1=((2-2)10)+1=1 < k2=(2-1)10=10 , k1=((3-2)10)+1=11 < k2=(3-1)10=20 , k1=((4-2)10)+1=21 < k2=(4-1)10=30
-                                        #a[k2:k1 , d] <- runif( niD, min = 0.25, max = 0.75)
-      a[k1:k2 , d] <- runif( niD, min = mina, max = maxa)   #DD 1/2/12: I think it should be from k1 to k2
-                                        #st[k2:k1] <- d
+      k2 = (d-1)*niD  ## k1=((2-2)10)+1=1 < k2=(2-1)10=10 , k1=((3-2)10)+1=11 < k2=(3-1)10=20 , k1=((4-2)10)+1=21 < k2=(4-1)10=30
+      a[k1:k2 , d] <- runif( niD, min = mina, max = maxa)   
       st[k1:k2] <- d
     }
   }
