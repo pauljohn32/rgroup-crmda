@@ -352,31 +352,31 @@ n.thin <- 1
 
 ## To test this out, run this. Does not require cluster framework.
 
-res <- runOneSimulation(re = 1, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
+##res <- runOneSimulation(re = 1, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
 
 
 ##############################
 ###Here's the parallel part.
-nReps <- 50
+nReps <- 4 
 
-cl <- makeCluster(19, "MPI")
+cl <- makeCluster(4, "MPI")
 
 clusterEvalQ(cl, {
   RNGkind("L'Ecuyer-CMRG")
 } )
 
-clusterExport(cl, c("projSeeds", "useStream", "initSeeds"))
+clusterExport(cl, c("projSeeds", "useStream", "initSeedStreams"))
 
 clusterExport(cl, c("writeDataFiles", "writeBUGSModel", 
-"writeBUGSFiles", "bfgena"))
+"runOpenBUGS", "bfgena", "parErrSSI"))
 
 resultList <- snow:::clusterApplyLB(cl, 1:nReps, runOneSimulation, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
 sumry <- summarizeResultList(resultList)
 
 ##keep copies of result object collection and summary in current working directory
-save(unlist(sumry), file="resultSummary.rda")
+save(sumry, file="resultSummary.rda")
 save(resultList, file="resultList.rda")
 
 
