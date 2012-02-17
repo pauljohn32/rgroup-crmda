@@ -95,7 +95,7 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
 
 
 ## a function to compute errors for all paramaters, average SSI and model fit
-parErrSSI <-function(bf.sim, res, re) {
+parErrSSI <-function(bf.sim, res, re, nE) {
  
   ##Error = true - estimated 
   aerr <- bf.sim[[2]] - res$mean$a  
