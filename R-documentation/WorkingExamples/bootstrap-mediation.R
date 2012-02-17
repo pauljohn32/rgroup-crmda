@@ -13,12 +13,12 @@
 ## dv = name of the dependent variable in data (character)
 ## iv = name of the independent variable in data (character)
 ## med = name of the mediating variable in data (character)
-## numBoot = number of bootstrap samples to draw
+## nBoot = number of bootstrap samples to draw
 ## returns = a boot object, can use boot.ci to get 
 ## confidence intervals for the indirect effect
 
 
-bootMed <- function(data, dv, iv, med, numBoot) {
+bootMed <- function(data, dv, iv, med, nBoot) {
 require(boot)
 
 #make sure variable names are characters
@@ -51,7 +51,7 @@ return(medBoot)
 ##Example
 summary(attitude)
 
-test <- bootMed(data=attitude, dv='advance', iv='complaints', med='learning', numBoot=50)
+test <- bootMed(data=attitude, dv='advance', iv='complaints', med='learning', nBoot=50)
 
 
 ## Get confidence intervals
