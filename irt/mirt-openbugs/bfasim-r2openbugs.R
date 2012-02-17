@@ -314,7 +314,7 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa, currentSeeds=currentSeeds)
   writeBUGSModel(re, nitems, nE, nD, mina, maxa )
   res <- runOpenBUGS(bf.sim, re, nD, n.chains, nE = nE, n.iter = n.iter, n.burnin = n.burnin , n.thin = n.thin)
-  res2 <- parErrSSI(bf.sim, res, re)
+  res2 <- parErrSSI(bf.sim, res, re, nE)
   setwd(olddir)
   combinedResults <- c(res, res2)
 }
