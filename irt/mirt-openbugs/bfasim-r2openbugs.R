@@ -189,7 +189,9 @@ summarizeResultList <- function(aList){
   
   ##SEE (Standard Error of Estimates) = rmse^2 - bias^2
   psee <- sqrt(prmse^2 - pbias^2)
+  names(psee) <- c("a1see", "a2see", "a3see", "a4see", "bsee", "csee")
   tsee <- sqrt(trmse^2 - tbias^2)
+  names(tsee) <- paste("t", 1:4, "see", sep="")
   
   ## SSI and model-fit (mean over replications)
   bffit <- apply( fit[, 1:7], 2, mean)
