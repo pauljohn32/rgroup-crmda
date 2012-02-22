@@ -348,14 +348,14 @@ load("projSeeds.rda")
 ### Never leave numbers that need to be changed in functions above.
 ### 2012-02-06
 
-nE <- 150
+nE <- 1500
 nitems <- 30
 nD <- 4           ## Levels of discrimination in the secondary dimension
 mina <- 1.25      ## .25, .50, .75, 1.00, 1.25
 maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
-n.iter <- 700
-n.burnin <- 300
+n.iter <- 10000
+n.burnin <- 3000
 n.thin <- 1
 
 ## To test this out, run this. Does not require cluster framework.
