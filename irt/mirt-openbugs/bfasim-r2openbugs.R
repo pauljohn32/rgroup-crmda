@@ -115,10 +115,15 @@ parErrSSI <-function(bf.sim, res, re, nE) {
   
   ##deviance, pD, DIC and AIC
   dev <- res$mean$deviance  ## Dbar
-  ## res from bugs() gives reverse value, so need to revert them back
-  pD <- res$DIC    ##effective number of parameters 
-  DIC <- res$pD    ##Deviance information criteria
+  pD <- res$pD    ##effective number of parameters 
+  DIC <- res$DIC    ##Deviance information criteria
+  DIC2 <- res$mean$deviance + res$pD
   AIC <- dev + (2*pD) #approximation of AIC
+  pDlin1 <- res$sd$deviance
+  pDlin <- (pDlin1^2)/2
+  DIClin <- res$mean$deviance + pDlin
+  AIClin <- res$mean$deviance + (2*pDlin)
+  
   
   ## SSI
   ## Absolute EAP different for each examinee
@@ -146,7 +151,7 @@ parErrSSI <-function(bf.sim, res, re, nE) {
 
   thetaerrors <- cbind(theterr, theterr2, abstheta12, abstheta13, abstheta14)
 
-  fit <- cbind(SSI12, SSI13, SSI14, dev, pD, DIC, AIC)
+  fit <- cbind(SSI12, SSI13, SSI14, dev, pD, DIC, DIC2, AIC, pDlin, DIClin, AIClin )
 
   results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "fit"=fit)
 }
@@ -194,8 +199,8 @@ summarizeResultList <- function(aList){
   names(tsee) <- paste("t", 1:4, "see", sep="")
   
   ## SSI and model-fit (mean over replications)
-  bffit <- apply( fit[, 1:7], 2, mean)
-  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "AIC")
+  bffit <- apply( fit[, 1:11], 2, mean)
+  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "DIC2", "AIC", "pDlin", "DIClin", "AICLin")
 
   list(pbias, tbias, prmse, trmse,  psee, tsee, bffit)
 }
@@ -315,6 +320,7 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
 
   bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa, currentSeeds=currentSeeds)
   writeBUGSModel(re, nitems, nE, nD, mina, maxa )
+  writeDataFiles(bf.sim, re, nitems, mina, maxa )
   res <- runOpenBUGS(bf.sim, re, nD, n.chains, nE = nE, n.iter = n.iter, n.burnin = n.burnin , n.thin = n.thin)
   res2 <- parErrSSI(bf.sim, res, re, nE)
   setwd(olddir)
