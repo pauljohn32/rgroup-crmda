@@ -83,7 +83,7 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
          theta = rmvnorm(nE, c(rep(0,nD)), diag(nD)))
   }
   
- ## model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin,  codaPkg = TRUE, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
+ ## model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin,  codaPkg = TRUE, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=TRUE )
 
    model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
   
@@ -366,9 +366,9 @@ n.thin <- 1
 
 ##############################
 ###Here's the parallel part.
-nReps <- 4 
+nReps <- 9 
 
-cl <- makeCluster(4, "MPI")
+cl <- makeCluster(9, "MPI")
 
 clusterEvalQ(cl, {
   RNGkind("L'Ecuyer-CMRG")
