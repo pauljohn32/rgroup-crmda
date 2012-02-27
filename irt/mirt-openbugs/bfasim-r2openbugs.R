@@ -372,9 +372,9 @@ n.thin <- 2
 
 ##############################
 ###Here's the parallel part.
-nReps <- 9 
+nReps <- 50 
 
-cl <- makeCluster(9, "MPI")
+cl <- makeCluster(10, "MPI")
 
 clusterEvalQ(cl, {
   RNGkind("L'Ecuyer-CMRG")
