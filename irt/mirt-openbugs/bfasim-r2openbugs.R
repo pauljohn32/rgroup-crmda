@@ -68,7 +68,7 @@ writeBUGSModel <- function(re, nitems, nE, nD, mina, maxa){
 
 }
 
-
+##'
 
 runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin=300, n.thin=1){
   require(R2OpenBUGS)
@@ -85,7 +85,7 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
   
  ## model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin,  codaPkg = TRUE, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=TRUE )
 
-   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=FALSE, )
+   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD = TRUE )
   
   #pdf("convergence", re,".pdf", sep = "")
   #plot(model)              ## Question: How to save this plot?
@@ -156,7 +156,7 @@ parErrSSI <-function(bf.sim, res, re, nE) {
   results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "fit"=fit)
 }
 
-## Take a list of 50 result objects, extract and combine
+## Take a list of 50 result object names, extract and combine
 ## matrices perrors, terrors, fit, return summary numbers
 summarizeResultList <- function(aList){
   ## list placeholders 
@@ -165,9 +165,11 @@ summarizeResultList <- function(aList){
   fitList <- vector("list", length=length(aList))
 
   for( i in seq_along(aList)){
-    parserrorList[[i]] <- aList[[i]]$parserrors
-    terrorList[[i]] <- aList[[i]]$thetaerrors
-    fitList[[i]] <-  aList[[i]]$fit
+    load( aList[[i]] ) ##causes combinedResults into memory
+    parserrorList[[i]] <- combinedResults$parserrors
+    terrorList[[i]] <- combinedResults$thetaerrors
+    fitList[[i]] <-  combinedResults$fit
+    rm(combinedResults)
   }
 
   perrors <- do.call("rbind", parserrorList)
@@ -325,6 +327,9 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   res2 <- parErrSSI(bf.sim, res, re, nE)
   setwd(olddir)
   combinedResults <- c(res, res2)
+  newfn <- paste("res", sprintf("%003d", re),".rda", sep="")
+  save(combinedResults, file= newfn)
+  newfn
 }
 
 
@@ -354,14 +359,15 @@ nD <- 4           ## Levels of discrimination in the secondary dimension
 mina <- 1.25      ## .25, .50, .75, 1.00, 1.25
 maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
-n.iter <- 10000
-n.burnin <- 3000
-n.thin <- 1
+n.iter <- 8000
+n.burnin <- 4000
+n.thin <- 2 
 
 ## To test this out, run this. Does not require cluster framework.
 
-##res <- runOneSimulation(re = 1, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
+## res <- runOneSimulation(re = 1, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
+## save(res, file="res1.rda")
 
 
 ##############################
@@ -381,6 +387,11 @@ clusterExport(cl, c("writeDataFiles", "writeBUGSModel",
 
 resultList <- snow:::clusterApplyLB(cl, 1:nReps, runOneSimulation, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
+
+library(snow)
+stopCluster(cl)
+
+
 sumry <- summarizeResultList(resultList)
 
 ##keep copies of result object collection and summary in current working directory
@@ -388,8 +399,8 @@ save(sumry, file="resultSummary.rda")
 save(resultList, file="resultList.rda")
 
 
-library(snow)
-stopCluster(cl)
+## library(snow)
+## stopCluster(cl)
 mpi.quit()
 
 

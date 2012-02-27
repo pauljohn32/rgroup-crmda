@@ -4,7 +4,7 @@
 #
 #These commands set up the Grid Environment for your job:
 #PBS -N BifactorSim 
-#PBS -l nodes=5:ppn=2:noib,mem=40gb,vmem=40gb,pmem=4gb,pvmem=4gb
+#PBS -l nodes=10:ppn=1:noib,mem=80gb,vmem=80gb,pmem=8gb,pvmem=8gb
 #PBS -l walltime=50:00:00
 #PBS -M pauljohn@ku.edu
 #PBS -m bea
