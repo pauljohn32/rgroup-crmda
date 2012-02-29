@@ -326,9 +326,12 @@ runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=
   res <- runOpenBUGS(bf.sim, re, nD, n.chains, nE = nE, n.iter = n.iter, n.burnin = n.burnin , n.thin = n.thin)
   res2 <- parErrSSI(bf.sim, res, re, nE)
   setwd(olddir)
+  rhats <- res$summary[ ,8]
+  rhfn <- paste("rhat", sprintf("%003d", re),".rda", sep="")
+  save(rhats, file = rhfn)
   combinedResults <- c(res, res2)
   newfn <- paste("res", sprintf("%003d", re),".rda", sep="")
-  save(combinedResults, file= newfn)
+  save(combinedResults, file = newfn)
   newfn
 }
 
