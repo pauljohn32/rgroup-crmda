@@ -202,7 +202,7 @@ summarizeResultList <- function(aList){
   
   ## SSI and model-fit (mean over replications)
   bffit <- apply( fit[, 1:11], 2, mean)
-  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "DIC2", "AIC", "pDlin", "DIClin", "AICLin")
+  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "DIC2", "AIC", "pDlin", "DIClin", "AIClin")
 
   list(pbias, tbias, prmse, trmse,  psee, tsee, bffit)
 }
