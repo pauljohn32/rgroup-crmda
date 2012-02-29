@@ -41,7 +41,8 @@ standardize.lm <- function(model){
   fmla <- paste(dvnameticked, " ~ ", paste(dmnamesticked, collapse= " + "))
   mc$formula <- formula(fmla)
   res <- eval(mc)
-  class(res) <- c("stdreg", class(model)) 
+  class(res) <- c("stdreg", class(model))
+  res
 }
 
 
@@ -83,11 +84,23 @@ NULL
 
 ##' meanCenter selectively centers or standarizes variables in a regression model.
 ##'
-##' The defaults will cause a regression's numeric interactive
-##' variables to be mean centered. If one wants all predictors to be
-##' centered, the option centerOnlyInteractors should be set to FALSE. The dependent
-##' variable will not be centered, unless the user explicitly requests it by
-##' setting centerDV = TRUE.
+##' Mean-centering has often been recommended as a way to ameliorate
+##' multi-collinearity in regression models that include interaction
+##' terms (Aiken and West, 1991; Cohen, et al 2002). While this claim
+##' may have been mistaken (Echambadi and Hess, 2007), mean-centering
+##' is still widely practiced.  This function facilitates comparison
+##' of mean-centered models with others by automatically
+##' re-calculating centered variables.  The defaults will cause a
+##' regression's numeric interactive variables to be mean
+##' centered. That is to say, if an interaction x1:x2 is present in
+##' the model, then x1 and x2 are replaced by (m1-mean(m1)) and
+##' (m2-mean(m2) in all of the terms in which they appear in the model
+##' (the main effect and the interaction).  If one wants all
+##' predictors to be centered, the option \code{centerOnlyInteractors}
+##' should be set to FALSE. The dependent variable will not be
+##' centered, unless the user explicitly requests it by setting
+##' centerDV = TRUE. The centered variables can be standardized
+##' (optionally, of course). 
 ##' @title meanCenter 
 ##' @param model a fitted regression model (presumably from lm) 
 ##' @param centerOnlyInteractors If false, all predictors in the
@@ -100,6 +113,12 @@ NULL
 ##' @rdname meanCenter
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @seealso \code{\link[pequod]{lmres}}
+##' @references 
+##' Aiken, L. S. and West, S.G. (1991). Multiple Regression: Testing and Interpreting Interactions. Newbury Park, Calif: Sage Publications.
+##'
+##' Cohen, J., Cohen, P., West, S. G., and Aiken, L. S. (2002). Applied Multiple Regression/Correlation Analysis for the Behavioral Sciences (Third.). Routledge Academic.
+##'
+##' Echambadi, R., and Hess, J. D. (2007). Mean-Centering Does Not Alleviate Collinearity Problems in Moderated Multiple Regression Models. Marketing Science, 26(3), 438-445.
 ##' @example inst/examples/meanCenter-ex.R
 meanCenter <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE, standardize=FALSE, centerContrasts = F){
   UseMethod("meanCenter")
@@ -115,7 +134,7 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
 
   std <- function(x) {
     if( !is.numeric(x) ){
-      stop("center.lm tried to center a factor variable. No Can Do!")
+      stop("meanCenter tried to center a factor variable. No Can Do!")
     } else {
       scale(x, center = TRUE, scale = standardize)
     }
@@ -155,7 +174,7 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
 
   mc <- model$call
   # run same model call, replacing non centered data with centered data.  
-  ## if no need to center factor contrasts:
+  ## 
   if (!centerContrasts)
     {
       stddat <- rdf

@@ -4,7 +4,7 @@ x1 <- rnorm(N, m=5, s=1)
 x2 <- rnorm(N)
 x3 <- rnorm(N)
 x4 <- rnorm(N)
-xcat1 <- gl(2,50, labels=c("M","F"))
+xcat1 <- gl(2,50, labels=c("Monster","Human"))
 xcat2 <- cut(rnorm(N), breaks=c(-Inf, 0, 0.4, 0.9, 1, Inf), labels=c("R", "M", "D", "P", "G"))
 dat <- data.frame(x1, x2, x3, x4, xcat1, xcat2)
 rm(x1, x2, x3, x4, xcat1, xcat2)
@@ -28,126 +28,96 @@ stde <- 8
 dat$y4 <- with(dat, 3 + 0.5*x1 + xcat2n %*% c(0.1, -0.2, 0.3, 0.05)  + stde * rnorm(N))
 
 
-
-
-##ordinary regression
+## Curvature with interaction
 m1 <- lm(y ~ log(x1)*xcat1 + x2 + I(x2^2), data=dat)
 summary(m1)
 plotCurves(m1, plotx="x1", modx="xcat1")
 
+## Verify that plot by comparing against a manually contructed alternative
+par(mfrow=c(1,2))
+plotCurves(m1, plotx="x1", modx="xcat1")
+newdat <- with(dat, expand.grid(x1 = plotSeq(x1, 30), xcat1=levels(xcat1)))
+newdat$x2 <-  with(dat, mean(x2, na.rm=TRUE))
+newdat$m1p <- predict(m1, newdata=newdat)
+plot( y ~ x1, data=dat, type="n")
+points( y ~ x1, data=dat, col=dat$xcat1)
+by(newdat, newdat$xcat1, function(dd) {lines(dd$x1, dd$m1p)})
+legend("topleft", legend=levels(dat$xcat1), col=as.numeric(dat$xcat1), lty=1)
+par(mfrow=c(1,1))
+##Close enough!
+
+
 plotCurves(m1, plotx="x2", modx="x1")
 ##OK
 
 plotCurves(m1, plotx="x2", modx="xcat1")
-##error
-
-m1 <- lm(y ~ log(x1)*xcat1 + xcat1*(x2 + I(x2^2)), data=dat)
-summary(m1)
-plotCurves(m1, plotx="x2", modx="xcat1")
-##error. 
-
-plotCurves(m1, plotx="x2", modx="x1")
 ##OK
 
-plotCurves(m1, plotx="x2", modx="x1")
+m2 <- lm(y ~ log(x1)*xcat1 + xcat1*(x2 + I(x2^2)), data=dat)
+summary(m2)
+plotCurves(m2, plotx="x2", modx="xcat1")
+##OK 
+
+plotCurves(m2, plotx="x2", modx="x1")
+##OK
+
+plotCurves(m2, plotx="x2", modx="x1")
 ##OK
 
 
 
-m2 <- lm(y ~ poly(x2,2) + xcat1, data=dat)
-plotCurves(m2, plotx="x2", modx="xcat1")
+m3a <- lm(y ~ poly(x2,2) + xcat1, data=dat)
+plotCurves(m3a, plotx="x2", modx="xcat1")
 #OK
 
-
-
-m2 <- lm(y ~ x2 + I(x2^2) + xcat1, data=dat)
-plotCurves(m2, plotx="x2", modx="xcat1")
+m3b <- lm(y ~ x2 + I(x2^2) + xcat1, data=dat)
+plotCurves(m3b, plotx="x2", modx="xcat1")
 #OK
 
-m3 <- lm(log(y+10) ~ poly(x2, 2)*xcat1 + x1, data=dat)
-summary(m3)
-plotCurves(m3, plotx="x2", modx="xcat1")
+m4 <- lm(log(y+10) ~ poly(x2, 2)*xcat1 + x1, data=dat)
+summary(m4)
+plotCurves(m4, plotx="x2", modx="xcat1")
 #OK
-plotCurves(m3, plotx="x2", modx="x1")
+plotCurves(m4, plotx="x2", modx="x1")
+#OK
+plotCurves(m4, plotx="x2", modx="xcat1", modxVals=c("Monster"))
 #OK
 
-
-
-
-m2 <- lm(y2 ~ x1*x2 + x3 +x4, data=dat)
-summary(m2)
-plotCurves(m2, plotx="x1", modx="x2")
-
-plotCurves(m2, plotx="x1", modx="x2", modxVals=c( -2, -1, 0, 1, 2))
-
-plotCurves(m2, plotx="x3", modx="x2")
-
-m3 <- lm(y2 ~ x1 * x2 + x3, data=dat)
-plotCurves(m3, plotx="x3", modx="x2")
-plotCurves(m3, plotx="x1", modx="x2")
-plotCurves(m3, plotx="x2", modx="x3")
-
-
-### Examples with categorical Moderator variable
-
-d1 <- data.frame(xcontinuous= rnorm(N))
-d1$xcategorical <- gl(2,50, labels=c("Gigantic","Humongous"))
-stde <- 8
-y <- 3 + 0.5*xcontinuous + 1.2 * (as.numeric(xcategorical)-1) +
--0.8* (as.numeric(xcategorical)-1) * xcontinuous +  stde * rnorm(N)
-
-m1 <- lm (y ~ xcontinuous*xcategorical, data=d1)
-summary(m1)
-
-plotCurves(m1, modx = "xcategorical", plotx = "xcontinuous")
-
-
-
-m2 <- lm (y ~ xcontinuous * xcategorical)
-summary(m2)
-plotCurves(m2, modx = "xcategorical", plotx = "xcontinuous")
+##ordinary interaction
+m5 <- lm(y2 ~ x1*x2 + x3 +x4, data=dat)
+summary(m5)
+plotCurves(m5, plotx="x1", modx="x2")
+plotCurves(m5, plotx="x1", modx="x2", modxVals=c( -2, -1, 0, 1, 2))
+plotCurves(m5, plotx="x1", modx="x2", modxVals=c(-2 ))
+plotCurves(m5, plotx="x1", modx="x2", modxVals="std.dev.")
+plotCurves(m5, plotx="x1", modx="x2", modxVals="quantile")
+plotCurves(m5, plotx="x3", modx="x2")
 
 
 library(car)
-m3 <- lm(statusquo ~ income * sex, data = Chile)
-summary(m3)
-plotCurves(m3, modx = "sex", plotx = "income")
+mc1 <- lm(statusquo ~ income * sex, data = Chile)
+summary(mc1)
+plotCurves(mc1, modx = "sex", plotx = "income")
+plotCurves(mc1, modx = "sex", plotx = "income", modxVals = "M")
+
+mc2 <- lm(statusquo ~ region * income, data= Chile)
+summary(mc2)
+plotCurves(mc2, modx = "region", plotx = "income")
+plotCurves(mc2, modx = "region", plotx = "income", modxVals = levels(Chile$region)[c(1,4)])
+plotCurves(mc2, modx = "region", plotx = "income", modxVals = c("S","M","SA"))
+
+plotCurves(mc2, modx = "region", plotx = "income", plotPoints=FALSE)
 
 
-m4 <- lm(statusquo ~ region * income, data= Chile)
-summary(m4)
-plotCurves(m4, modx = "region", plotx = "income")
-
-plotCurves(m4, modx = "region", plotx = "income", plotPoints=FALSE)
+mc3 <- lm(statusquo ~ region * income + sex + age, data= Chile)
+summary(mc3)
+plotCurves(mc3, modx = "region", plotx = "income")
 
 
-m5 <- lm(statusquo ~ region * income + sex + age, data= Chile)
-summary(m5)
-plotCurves(m5, modx = "region", plotx = "income")
+mc4 <- lm(statusquo ~ income * (age + I(age^2)) + education + sex + age, data=Chile)
+summary(mc4)
+plotCurves(mc4, modx = "income", plotx = "age")
+plotCurves(mc4, modx = "income", plotx = "age", plotPoints=FALSE)
 
-m6 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
-summary(m6)
-plotCurves(m6, modx = "income", plotx = "age")
-
-plotCurves(m6, modx = "income", plotx = "age", plotPoints=FALSE)
-
-
-## Should cause error because education is not numeric
-## m7 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
-## summary(m7)
-## plotCurves(m7, modx = "income", plotx = "education")
-
-## Should cause error because "as.numeric(education") not same as
-## plotx="education"
-## m8 <- lm(statusquo ~ income * age + as.numeric(education) + sex + age, data=Chile)
-## summary(m8)
-## plotCurves(m8, modx = "income", plotx = "education")
-
-## Still fails. 
-## plotCurves(m8, modx = "income", plotx = "as.numeric(education)")
-
-## Must recode variable first so that variable name is coherent
-Chile$educationn <- as.numeric(Chile$education)
-m9 <- lm(statusquo ~ income * age + educationn + sex + age, data=Chile)
-summary(m9)
-plotCurves(m9, modx = "income", plotx = "educationn")
+plotCurves(mc4, modx = "age", plotx = "income")
+plotCurves(mc4, modx = "income", plotx = "age", plotPoints=FALSE)

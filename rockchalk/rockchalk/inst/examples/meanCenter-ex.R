@@ -32,6 +32,8 @@ dat$x3 <- gl(4, 25, labels=c("none","some","much","total"))
 
 m3 <- lm(y ~ x1 * x2 + x3, data=dat)
 summary(m3)
+## visualize, for fun
+plotPlane(m3, "x1", "x2")
 
 m3c1 <- meanCenter(m3)
 summary(m3c1)

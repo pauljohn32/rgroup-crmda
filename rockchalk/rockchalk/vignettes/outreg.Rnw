@@ -5,6 +5,7 @@
 \documentclass[english,noae]{article}
 \usepackage[T1]{fontenc}
 \usepackage[latin9]{inputenc}
+\usepackage{listings}
 \usepackage{geometry}
 \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
 
@@ -92,7 +93,7 @@
 \usepackage{babel}
 \begin{document}
 
-\title{Using rockchalk Functions for Quick \& Consistent Presentations}
+\title{Using rockchalk Functions for Quick \& Consistent Regression Presentations}
 
 
 \author{Paul Johnson}
@@ -336,34 +337,155 @@ stable enough for a finalized presentation format. Eventually, I will
 include a method to display those mixed models. 
 
 
-\section{Plot Slopes and Plot Planes}
+\section{Plot and Test Simple Slopes}
 
-<<ps10, fig=T>>=
+In psychology, methodologists have recommended the analysis of ``simple
+slopes'' to depict the effect of several variables in a 2 dimensional
+plot. The idea is to consider the effect of $x1$ on $y$ for several
+values of $x2$, and then possibly test whether the plotted effects
+are statistically significantly different from zero. 
+
+This is only truly interesting when there are interaction effects,
+of course, but I begin with a simple linear model. Recall that
+
+\begin{lstlisting}
+m3 <- lm (y1 ~ x1 + x2, data=dat)
+\end{lstlisting}
+
+
+Figure \ref{fig:ps10} illustrates the plotSlopes function for two
+use cases. The first is
+
+\begin{lstlisting}
 plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous Predictor")
-@
+\end{lstlisting}
 
-<<ps20, fig=T, echo=F>>=
+
+\noindent The plotx argument is variable x1, meaning that x1 will
+be the horizontal axis, and x2 serves as the moderator variable. By
+default, three hypothetical values of x2 are selected (in this case
+the quantiles 25\%, 50\%, and 75\%). The second example in that figure
+illustrates user-selected values for the moderator.
+
+\noindent 
+\begin{lstlisting}
 plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuous Predictor")
+\end{lstlisting}
+
+
+\begin{figure}
+
+
+<<ps10, fig=T, echo=F, height=9, width=4>>=
+par(mfcol=c(2,1))
+m3psa <- plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous Predictor")
+m3psb <- plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuous Predictor")
+par(mfcol=c(1,1))
 @
 
-Suppose one does not like the default choice of values for the moderator
-variable, x2. If we want to plot lines for three particular values,
-a command like this
+\caption{plotSlopes In an Additive Model\label{fig:ps10}}
 
-<<results=hide>>=
-<<ps20>>
+
+\end{figure}
+
+
+<<>>=
+testSlopes(m3psa)
 @
 
-will produce Figure X. 
+That model is linear, so lines are parallel. We need to introduce
+some interaction effects in order to exploit the new functions proposed
+here. Suppose we generate a new dependent variable and fit a regression
+with an interaction: 
+
+<<ps15>>=
+dat$y4 <- with(dat, -3*x1 + 4*x2 - 0.17*x1*x2 + 5*rnorm(100))
+m4 <- lm (y4 ~ x1 * x2, data=dat)
+@
+
+A figure with lines for some values of the moderator x2, along with
+hypothesis test for those estimates, is obtained with the following.
+
+\begin{lstlisting}
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+testSlopes(m4ps)
+\end{lstlisting}
+
+
+The ``simple slope'' lines for the interactive model are presented
+in Figure \ref{fig:ps20}.
+
+\begin{figure}
+
+
+<<ps20, fig=T, echo=T>>=
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+@
+
+\caption{plotSlopes for an Interactive Model\label{fig:ps20}}
+
+
+\end{figure}
+
+
+Aiken and West (and later Cohen, Cohen, West, and Aiken) propose using
+the t test to find out if the effect of the ``plotx'' variable is
+statistically significant for each particular value of ``modx''
+the moderator variable. The testSlopes function delivers those t tests,
+along with some diagnostic plots, as illustrated in figure \ref{fig:ts10}.
+
+\begin{figure}
+<<ts10, fig=T, echo=T>>=
+testSlopes(m4ps)
+@
+
+\caption{testSlopes for an Interactive Model\label{fig:ts10}}
+\end{figure}
+
+
+The plotPlane function offers another way to visualize the mutual
+effect of two predictors in a regression model. See Figure \ref{fig:pp10}
+
+\begin{figure}
+
+
+\caption{plotPlane for the Interactive Model\label{fig:pp10}}
+
 
 <<pp10, fig=T>>=
-p10 <- plotPlane(m3, plotx1="x1", plotx2="x2")
+p10 <- plotPlane(m4, plotx1="x1", plotx2="x2")
+@
+\end{figure}
+
+
+At some point in the future, the ability to make plotSlopes and plotPlane
+work together will be introduced. So the user will be able to press
+the plane down into the 2 dimensional slopes plot, or the simple slopes
+can be depicted in the 3 dimensional plane. A preliminary rendering
+of what that might look like is presented in Figure \ref{fig:pp20}
+
+\begin{figure}
+
+
+\caption{A Planned Enhancement of plotPlane\label{fig:pp20}}
+
+
+<<pp20, fig=T, height=5>>=
+par(mfcol=c(1,2))
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor", ylim=c(-25, 35))
+p20 <- plotPlane(m4, plotx1="x1", plotx2="x2")
+for(j in unique(m4ps$newdata$x2)){
+subdat <- m4ps$newdata[m4ps$newdata$x2==j,]
+lines(trans3d(subdat$x1, subdat$x2, subdat$pred, pmat=p20$res), col="red", lwd=3)
+}
 @
 
-That model is linear, so the figures are not too pleasant to look
-at. If there is a nonlinearity, for example an interaction, then it
-is a little more fun. I create a new dependent variable y4 and then
-put the fitted model through the plotSlopes and plotPlane functions.
+\end{figure}
+
+
+If there is a nonlinearity, for example an interaction, then it is
+a little more fun. I create a new dependent variable y4 and then put
+the fitted model through the plotSlopes and plotPlane functions.
 
 <<>>=
 dat$y4 <- with(dat, -3*x1 + 4*x2 + 1.2 *x1 * x2 + 15*rnorm(100)) 

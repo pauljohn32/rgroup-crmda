@@ -132,7 +132,7 @@ plotSlopes <-
       modxVals <- cutByQuantile(modxVar)
     } else {
       if (is.numeric(modxVals)) { 
-        print("TODO: Insert some checks that modxVals are reasonable")
+        ;# print("TODO: Insert some checks that modxVals are reasonable")
       } else {
         if (is.character(modxVals)) {
           modxVals <- match.arg(tolower(modxVals),

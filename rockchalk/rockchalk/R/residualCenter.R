@@ -1,12 +1,12 @@
 ##' Calculates a "residual-centered" interaction regression.
 ##'
-##' Given a fitted lm, this function scans for coefficients
+##' Given a fitted \code{lm}, this function scans for coefficients
 ##' estimated from "interaction terms" by checking for colon
 ##' symbols. The function then calculates the "residual centered"
 ##' estimate of the interaction term and replaces the interaction
 ##' term with that residual centered estimate. It works for any
 ##' order of interaction, unlike other implementations of the same
-##' approach. See also function lmres in package pequod.
+##' approach. See also function \code{lmres} in package pequod.
 ##' @param model A fitted lm object
 ##' @export residualCenter
 ##' @rdname residualCenter

@@ -140,7 +140,7 @@ sweave
 \begin_body
 
 \begin_layout Title
-Using rockchalk Functions for Quick & Consistent Presentations
+Using rockchalk Functions for Quick & Consistent Regression Presentations
 \end_layout
 
 \begin_layout Author
@@ -1115,48 +1115,153 @@ At one time, I was working on a similar presentation for mixed models estimated
 \end_layout
 
 \begin_layout Section
-Plot Slopes and Plot Planes
+Plot and Test Simple Slopes
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
+In psychology, methodologists have recommended the analysis of 
+\begin_inset Quotes eld
+\end_inset
+
+simple slopes
+\begin_inset Quotes erd
+\end_inset
+
+ to depict the effect of several variables in a 2 dimensional plot.
+ The idea is to consider the effect of 
+\begin_inset Formula $x1$
+\end_inset
+
+ on 
+\begin_inset Formula $y$
+\end_inset
+
+ for several values of 
+\begin_inset Formula $x2$
+\end_inset
+
+, and then possibly test whether the plotted effects are statistically significa
+ntly different from zero.
+ 
+\end_layout
+
+\begin_layout Standard
+This is only truly interesting when there are interaction effects, of course,
+ but I begin with a simple linear model.
+ Recall that
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
 status open
 
 \begin_layout Plain Layout
 
-<<ps10, fig=T>>=
+m3 <- lm (y1 ~ x1 + x2, data=dat)
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ps10"
+
+\end_inset
+
+ illustrates the plotSlopes function for two use cases.
+ The first is
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
 
 \begin_layout Plain Layout
 
 plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous Predictor")
 \end_layout
 
-\begin_layout Plain Layout
-
-@
-\end_layout
-
 \end_inset
 
 
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
+\noindent
+The plotx argument is variable x1, meaning that x1 will be the horizontal
+ axis, and x2 serves as the moderator variable.
+ By default, three hypothetical values of x2 are selected (in this case
+ the quantiles 25%, 50%, and 75%).
+ The second example in that figure illustrates user-selected values for
+ the moderator.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset listings
+inline false
 status open
 
 \begin_layout Plain Layout
-
-<<ps20, fig=T, echo=F>>=
-\end_layout
-
-\begin_layout Plain Layout
+\noindent
 
 plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuous
  Predictor")
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ps10, fig=T, echo=F, height=9, width=4>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mfcol=c(2,1))
+\end_layout
+
+\begin_layout Plain Layout
+
+m3psa <- plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous
+ Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+m3psb <- plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Con
+tinuous Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mfcol=c(1,1))
+\end_layout
+
 \begin_layout Plain Layout
 
 @
@@ -1167,10 +1272,32 @@ plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuou
 
 \end_layout
 
-\begin_layout Standard
-Suppose one does not like the default choice of values for the moderator
- variable, x2.
- If we want to plot lines for three particular values, a command like this
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+plotSlopes In an Additive Model
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ps10"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1179,12 +1306,12 @@ status open
 
 \begin_layout Plain Layout
 
-<<results=hide>>=
+<<>>=
 \end_layout
 
 \begin_layout Plain Layout
 
-<<ps20>>
+testSlopes(m3psa)
 \end_layout
 
 \begin_layout Plain Layout
@@ -1198,11 +1325,275 @@ status open
 \end_layout
 
 \begin_layout Standard
-will produce Figure X.
- 
+That model is linear, so lines are parallel.
+ We need to introduce some interaction effects in order to exploit the new
+ functions proposed here.
+ Suppose we generate a new dependent variable and fit a regression with
+ an interaction: 
 \end_layout
 
 \begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ps15>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+dat$y4 <- with(dat, -3*x1 + 4*x2 - 0.17*x1*x2 + 5*rnorm(100))
+\end_layout
+
+\begin_layout Plain Layout
+
+m4 <- lm (y4 ~ x1 * x2, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A figure with lines for some values of the moderator x2, along with hypothesis
+ test for those estimates, is obtained with the following.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+testSlopes(m4ps)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Quotes eld
+\end_inset
+
+simple slope
+\begin_inset Quotes erd
+\end_inset
+
+ lines for the interactive model are presented in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ps20"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ps20, fig=T, echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+plotSlopes for an Interactive Model
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ps20"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Aiken and West (and later Cohen, Cohen, West, and Aiken) propose using the
+ t test to find out if the effect of the 
+\begin_inset Quotes eld
+\end_inset
+
+plotx
+\begin_inset Quotes erd
+\end_inset
+
+ variable is statistically significant for each particular value of 
+\begin_inset Quotes eld
+\end_inset
+
+modx
+\begin_inset Quotes erd
+\end_inset
+
+ the moderator variable.
+ The testSlopes function delivers those t tests, along with some diagnostic
+ plots, as illustrated in figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:ts10"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<ts10, fig=T, echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+testSlopes(m4ps)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+testSlopes for an Interactive Model
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:ts10"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The plotPlane function offers another way to visualize the mutual effect
+ of two predictors in a regression model.
+ See Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pp10"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+plotPlane for the Interactive Model
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pp10"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset ERT
 status open
 
@@ -1213,7 +1604,7 @@ status open
 
 \begin_layout Plain Layout
 
-p10 <- plotPlane(m3, plotx1="x1", plotx2="x2")
+p10 <- plotPlane(m4, plotx1="x1", plotx2="x2")
 \end_layout
 
 \begin_layout Plain Layout
@@ -1226,9 +1617,124 @@ p10 <- plotPlane(m3, plotx1="x1", plotx2="x2")
 
 \end_layout
 
+\end_inset
+
+
+\end_layout
+
 \begin_layout Standard
-That model is linear, so the figures are not too pleasant to look at.
- If there is a nonlinearity, for example an interaction, then it is a little
+At some point in the future, the ability to make plotSlopes and plotPlane
+ work together will be introduced.
+ So the user will be able to press the plane down into the 2 dimensional
+ slopes plot, or the simple slopes can be depicted in the 3 dimensional
+ plane.
+ A preliminary rendering of what that might look like is presented in Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:pp20"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+A Planned Enhancement of plotPlane
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:pp20"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<pp20, fig=T, height=5>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mfcol=c(1,2))
+\end_layout
+
+\begin_layout Plain Layout
+
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor",
+ ylim=c(-25, 35))
+\end_layout
+
+\begin_layout Plain Layout
+
+p20 <- plotPlane(m4, plotx1="x1", plotx2="x2")
+\end_layout
+
+\begin_layout Plain Layout
+
+for(j in unique(m4ps$newdata$x2)){
+\end_layout
+
+\begin_layout Plain Layout
+
+subdat <- m4ps$newdata[m4ps$newdata$x2==j,]
+\end_layout
+
+\begin_layout Plain Layout
+
+lines(trans3d(subdat$x1, subdat$x2, subdat$pred, pmat=p20$res), col="red",
+ lwd=3)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If there is a nonlinearity, for example an interaction, then it is a little
  more fun.
  I create a new dependent variable y4 and then put the fitted model through
  the plotSlopes and plotPlane functions.
@@ -1261,88 +1767,6 @@ m4 <- lm (y4 ~ x1 * x2, data=dat)
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-plotSlopes says:
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<ps50, fig=T, echo=F>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-plotPlane says:
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<pp50, fig=T>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-p50 <- plotPlane(m4, plotx1="x1", plotx2="x2")
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-I'd like to have a simple way to 
-\begin_inset Quotes eld
-\end_inset
-
-highlight
-\begin_inset Quotes erd
-\end_inset
-
- the lines on the plane, but the interface to plotSlopes now does not provide
- the required information.
- That's on my TODO list.
-\end_layout
-
-\begin_layout Standard
-#for(j in c(0.2, 0.5, 0.7)){
-\end_layout
-
-\begin_layout Standard
-#lines(trans3d(x1, rep(length(x1), j), p[,j], pmat=p10), col="yellow", lwd=3)
-\end_layout
-
-\begin_layout Standard
-#}
 \end_layout
 
 \end_body

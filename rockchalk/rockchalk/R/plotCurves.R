@@ -2,13 +2,13 @@
 ##' 
 ##'
 ##' This is similar to \code{plotSlopes}, but it accepts regressions
-##' in which there are transformed variables, such as "log(x1)". 
-##' Think of this as "termplot for interactions."  It creates a plot
-##' of the predicted dependent variable against one of the numeric
-##' predictors, \code{plotx}. It draws a predicted value line for
-##' several values of \code{modx}, a moderator variable. The
-##' moderator may be a numeric or categorical moderator
-##' variable.
+##' in which there are transformed variables, such as "log(x1)".
+##' Think of this a new version of R's \code{termplot}, but it allows
+##' for interactions.  It creates a plot of the predicted dependent
+##' variable against one of the numeric predictors, \code{plotx}. It
+##' draws a predicted value line for several values of \code{modx}, a
+##' moderator variable. The moderator may be a numeric or categorical
+##' moderator variable.
 ##'
 ##' The user may designate which particular values of the moderator
 ##' are used for calculating the predicted value lines.   That is,
@@ -18,9 +18,14 @@
 ##' If the user does not specify the parameter \code{modxVals},
 ##' built-in algorithms will select the "cut points". Three algorithms
 ##' have been prepared so far, \code{quantile}, \code{std.dev.}, and
-##' \code{table}. If the number of unique observed values is smaller than 6, the \code{table} method is used.  The 5 most frequently observed values of modx are selected. Otherwise, the quantile method is used. Predictive lines are plotted
-##' for the following percentiles {0.25,0.50,0.75}. The algorithm
-##' \code{std.dev.} plots three lines, one for the mean of modx, and one for the mean minus one standard deviation, and the other for the mean plus one standard deviation. 
+##' \code{table}. If the number of unique observed values is smaller
+##' than 6, the \code{table} method is used.  The 5 most frequently
+##' observed values of modx are selected. Otherwise, the quantile
+##' method is used. Predictive lines are plotted for the following
+##' percentiles {0.25,0.50,0.75}. The algorithm \code{std.dev.} plots
+##' three lines, one for the mean of modx, and one for the mean minus
+##' one standard deviation, and the other for the mean plus one
+##' standard deviation. 
 ##' 
 ##' 
 ##' @param model Fitted regression object. Must have a predict method
@@ -37,8 +42,8 @@
 ##' @export
 ##' @import car
 ##' @return A plot is created as a side effect, a list is returned including
-##' The call, a newdata object that includes information on the curves that were 
-##' plotted, along with a vector modxVals, the values for which curves were drawn.
+##' 1) the call, 2) a newdata object that includes information on the curves that were 
+##' plotted, 3) a vector modxVals, the values for which curves were drawn.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @example  inst/examples/plotCurves-ex.R
 
