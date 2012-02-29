@@ -140,11 +140,11 @@ parErrSSI <-function(bf.sim, res, re, nE) {
   essi14 <- abstheta14/se14
   ## Subscore Separation Index (SSI) - percent of essi > 1 
   tab12 <- table(essi12 > 1)
-  SSI12 <- unlist(tab12[[2]]/nE)
+  SSI12 <- sum(essi12 > 1)/nE
   tab13 <- table(essi13 > 1)
-  SSI13 <- unlist(tab13[[2]]/nE)
+  SSI13 <- sum(essi13 > 1)/nE
   tab14 <- table(essi14 > 1)
-  SSI14 <- unlist(tab14[[2]]/nE)
+  SSI14 <- sum(essi14 > 1)/nE
 
   parserrors <- cbind(aerr, berr, cerr, aabserr, babserr, cabserr,
                       aerr2, berr2, cerr2)
@@ -359,9 +359,9 @@ nD <- 4           ## Levels of discrimination in the secondary dimension
 mina <- 1.25      ## .25, .50, .75, 1.00, 1.25
 maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
-n.iter <- 8000
-n.burnin <- 4000
-n.thin <- 2 
+n.iter <- 3250
+n.burnin <- 1250
+n.thin <- 4 
 
 ## To test this out, run this. Does not require cluster framework.
 
@@ -388,9 +388,6 @@ clusterExport(cl, c("writeDataFiles", "writeBUGSModel",
 resultList <- snow:::clusterApplyLB(cl, 1:nReps, runOneSimulation, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
 
-library(snow)
-stopCluster(cl)
-
 
 sumry <- summarizeResultList(resultList)
 
@@ -399,8 +396,8 @@ save(sumry, file="resultSummary.rda")
 save(resultList, file="resultList.rda")
 
 
-## library(snow)
-## stopCluster(cl)
+library(snow)
+stopCluster(cl)
 mpi.quit()
 
 
