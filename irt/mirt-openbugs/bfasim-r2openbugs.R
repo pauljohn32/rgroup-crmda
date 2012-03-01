@@ -89,7 +89,7 @@ runOpenBUGS <- function(bf.sim, re, nD, n.chains, nE=NULL, n.iter=1000, n.burnin
   
  ## model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin,  codaPkg = TRUE, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD=TRUE )
 
-   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD = TRUE )
+   model <- bugs(data, inits, parameters, model.file = "bifactor.txt", n.chains = n.chains, n.iter = n.iter, n.burnin = n.burnin, n.thin = n.thin, OpenBUGS.pgm="/usr/bin/OpenBUGSCli",  working.directory = getwd(), clearWD = FALSE )
   
   #pdf("convergence", re,".pdf", sep = "")
   #plot(model)              ## Question: How to save this plot?
@@ -375,9 +375,11 @@ n.thin <- 4
 
 ## To test this out, run this. Does not require cluster framework.
 
-## res <- runOneSimulation(re = 1, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
+if (0){
+resultList <- lapply(1:5, runOneSimulation, nitems=nitems, nE = nE,  mina = mina, maxa = maxa, nD = nD, n.chains = n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
 
-## save(res, file="res1.rda")
+sumry <- summarizeResultList(resultList)
+}else{
 
 
 ##############################
@@ -409,6 +411,5 @@ save(resultList, file="resultList.rda")
 library(snow)
 stopCluster(cl)
 mpi.quit()
-
-
+}
 
