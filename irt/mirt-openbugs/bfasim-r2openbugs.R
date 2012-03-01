@@ -19,30 +19,33 @@ writeDataFiles <- function(bf.sim, re, nitems, mina, maxa ){
 
 
 writeBUGSModel <- function(re, nitems, nE, nD, mina, maxa){
- bug.model <- ' model
+  bug.model <- ' model
  {
     for (i in 1:nE) {
         theta[i, 1:nD] ~ dmnorm(mu[], SIG[, ])
     }
     for (j in 1:nitems) {
         strctr[j, 1] <- 1
-        b[j] ~ dnorm (0.00, pr.b) Trnct(-3,3)
+        b[j] ~ dnorm (0.00, pr.b) 
+        #d[j] ~ dnorm (0.00, pr.b) Trnct(-4.0, 4.0 )
         g[j] ~ dbeta(20, 80)
         for (k in 2:nD) {
             strctr[j, k] <- equals(k, st[j])
         }
         for (k in 1:nD) {
-            temp[j, k] ~ dnorm(0.00, pr.a)  Trnct(0.25, 1.75)
+            temp[j, k] ~ dnorm(0.00, pr.a) Trnct(0, )
             a[j, k] <- (strctr[j, k]+0.000001) * temp[j, k]
         }
+        #b[j] <- (-d[j])/sqrt(sum(pow(a[j, 1: nD], 2)))
     }
 
-    pr.b <- pow(1.0,-2)
+    pr.b <- pow(2.0,-2)
     pr.a <- pow(sig.a, -2)
     for (i in 1:nE) {
         for (j in 1:nitems) {
             for (k in 1:nD) {
                 pdim[i, j, k] <- a[j, k] * (theta[i, k] - b[j])
+                #pdim[i, j, k] <- a[j, k] * theta[i, k] + d[j]
             }
             p1[i, j] <- phi(sum(pdim[i, j, 1:4]))
             p[i, j] <- g[j] + (1 - g[j]) * p1[i, j]
@@ -52,20 +55,21 @@ writeBUGSModel <- function(re, nitems, nE, nD, mina, maxa){
  }
  
 '
-
- ## replace texts with values
- bug.model <- gsub( "nE", nE, bug.model)
- bug.model <- gsub( "nD", nD, bug.model)
- bug.model <- gsub( "nitems", nitems, bug.model)
- ##replace sig.a with uniform sd
- sigma <- round(sqrt(((maxa - mina)^2)/12), 3)
- bug.model <- gsub( "sig.a", sigma, bug.model)
- meana <- (maxa - mina)/2
- bug.model <- gsub( "m.a", meana, bug.model)
- bug.model <- gsub( "Trnct", "T", bug.model)
-
- cat(bug.model, file = "bifactor.txt")
-
+  
+  ## replace texts with values
+  bug.model <- gsub( "nE", nE, bug.model)
+  bug.model <- gsub( "nD", nD, bug.model)
+  bug.model <- gsub( "nitems", nitems, bug.model)
+  ##replace sig.a with uniform sd
+  #sigma <- round(sqrt(((maxa - mina)^2)/12), 3)
+  sigma <- 2.0
+  bug.model <- gsub( "sig.a", sigma, bug.model)
+  meana <- (maxa - mina)/2
+  bug.model <- gsub( "m.a", meana, bug.model)
+  bug.model <- gsub( "Trnct", "T", bug.model)
+  
+  cat(bug.model, file = "bifactor.txt")
+  
 }
 
 ##'
@@ -113,16 +117,19 @@ parErrSSI <-function(bf.sim, res, re, nE) {
   cerr2 <- (cerr)^2
   theterr2 <-(theterr)^2
   
-  ##deviance, pD, DIC and AIC
+  ##deviance, pD, DIC, AIC and BIC
   dev <- res$mean$deviance  ## Dbar
   pD <- res$pD    ##effective number of parameters 
+  LgL <- dev - pD  # -2logL
   DIC <- res$DIC    ##Deviance information criteria
   DIC2 <- res$mean$deviance + res$pD
   AIC <- dev + (2*pD) #approximation of AIC
+  BIC <- dev + pD*log(nE)
   pDlin1 <- res$sd$deviance
   pDlin <- (pDlin1^2)/2
   DIClin <- res$mean$deviance + pDlin
   AIClin <- res$mean$deviance + (2*pDlin)
+  BIClin <- dev + pDlin*log(nE)
   
   
   ## SSI
@@ -139,20 +146,20 @@ parErrSSI <-function(bf.sim, res, re, nE) {
   essi13 <- abstheta13/se13
   essi14 <- abstheta14/se14
   ## Subscore Separation Index (SSI) - percent of essi > 1 
-  tab12 <- table(essi12 > 1)
+  #tab12 <- table(essi12 > 1)
   SSI12 <- sum(essi12 > 1)/nE
-  tab13 <- table(essi13 > 1)
+  #tab13 <- table(essi13 > 1)
   SSI13 <- sum(essi13 > 1)/nE
-  tab14 <- table(essi14 > 1)
+  #tab14 <- table(essi14 > 1)
   SSI14 <- sum(essi14 > 1)/nE
-
+  
   parserrors <- cbind(aerr, berr, cerr, aabserr, babserr, cabserr,
                       aerr2, berr2, cerr2)
-
+  
   thetaerrors <- cbind(theterr, theterr2, abstheta12, abstheta13, abstheta14)
-
-  fit <- cbind(SSI12, SSI13, SSI14, dev, pD, DIC, DIC2, AIC, pDlin, DIClin, AIClin )
-
+  
+  fit <- cbind(SSI12, SSI13, SSI14, dev, pD, LgL, DIC, DIC2, AIC, BIC, pDlin, DIClin, AIClin, BIClin )
+  
   results <- list("parserrors"=parserrors, "thetaerrors"=thetaerrors, "fit"=fit)
 }
 
@@ -201,9 +208,9 @@ summarizeResultList <- function(aList){
   names(tsee) <- paste("t", 1:4, "see", sep="")
   
   ## SSI and model-fit (mean over replications)
-  bffit <- apply( fit[, 1:11], 2, mean)
-  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "DIC", "DIC2", "AIC", "pDlin", "DIClin", "AIClin")
-
+  bffit <- apply( fit[, 1:14], 2, mean)        
+  names(bffit) <- c("SSI12", "SSI13", "SSI14", "Dbar", "pD", "-2logL", "DIC", "DIC2", "AIC", "BIC", "pDlin", "DIClin", "AIClin", "BIClin" )
+  
   list(pbias, tbias, prmse, trmse,  psee, tsee, bffit)
 }
 
