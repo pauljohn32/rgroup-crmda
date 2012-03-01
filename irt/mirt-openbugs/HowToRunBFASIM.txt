@@ -1,0 +1,146 @@
+## Paul Johnson
+## 2012-02-01
+
+I'm testing the last changes to bfasim-r2openbugs on my PC now. It
+seems to run fine, it saves the res and rhat files for each batch.
+
+I'm going to go through the motions of running 2 batches of
+simulations. Below I'm pasting in a shell session.
+
+I have logged into hpc with an X11 server enabled, so I can run
+programs like Emacs from the hpc and they show point-and-click
+on my desktop.  If you don't install an X11 server on your
+system, there is an editor called "nano" that might be used
+for minor editing changes.
+
+
+ON hpc:
+
+~/SVN/rgroup $ ls
+HowToRunBFASIM.txt  README.txt  kylemdsim  rockchalk
+R-documentation     irt         msem       
+
+~/SVN/rgroup $ cd irt/mirt-openbugs/
+
+~/SVN/rgroup/irt/mirt-openbugs $ ls
+bfasim-r2openbugs.R  projSeeds.rda  sub-bfaopen.sh
+bfasim.R             seedCreator.R  sub-seeds.R
+
+~/SVN/rgroup/irt/mirt-openbugs $ svn update
+U    bfasim-r2openbugs.R
+A    bfasimvs-2.R
+Updated to revision 91.
+
+~/SVN/rgroup/irt/mirt-openbugs $ mkdir ~/deana/conditions-1
+
+~/SVN/rgroup/irt/mirt-openbugs $ cp * ~/deana/conditions-1/
+
+~/SVN/rgroup/irt/mirt-openbugs $ cd ~/deana/conditions-1/
+
+~/deana/conditions-1 $ emacs bfasim-r2openbugs.R &
+[emacs] 25536
+~/deana/conditions-1 $ emacs sub-bfaopen.sh
+
+~/deana/conditions-1 $ qsub sub-bfaopen.sh
+407995.rocky.local
+~/deana/conditions-1 $ qstat
+Job id            Name      User    Time Use S Queue
+---------------- ------------------ -------- - -----
+406211.rocky      STDIN      sjpa     00:00:00 R interactive    
+406752.rocky      STDIN      sjpa     15:27:28 R interactive    
+407344.rocky      STDIN      fgu      00:00:00 R interactive    
+407738.rocky      STDIN      sjpa     00:00:00 R interactive    
+407739.rocky      STDIN      sjpa     00:00:08 R interactive    
+407740.rocky      MODEL2     rkinai   24:29:25 R default            
+407994.rocky      MODEL4     t129j179 46:09:56 R default        
+407995.rocky      BifactorSim pauljohn       0 R default        
+
+~/deana/conditions-1 $ ls
+batch-30-1.25-1.75-1   batch-30-1.25-1.75-6  bfasimvs-2.R
+batch-30-1.25-1.75-10  batch-30-1.25-1.75-7  projSeeds.rda
+batch-30-1.25-1.75-2   batch-30-1.25-1.75-8  seedCreator.R
+batch-30-1.25-1.75-3   batch-30-1.25-1.75-9  sub-bfaopen.sh
+batch-30-1.25-1.75-4   bfasim-r2openbugs.R   sub-seeds.R
+batch-30-1.25-1.75-5   bfasim.R 
+             
+~/deana/conditions-1 $ cd ~/SVN/rgroup/irt/mirt-openbugs/
+
+~/SVN/rgroup/irt/mirt-openbugs $ mkdir ~/deana/conditions-2
+
+~/SVN/rgroup/irt/mirt-openbugs $ cp * ~/deana/conditions-2/
+
+~/SVN/rgroup/irt/mirt-openbugs $ cd ~/deana/conditions-2/
+
+~/deana/conditions-2 $ ls
+bfasim-r2openbugs.R  bfasimvs-2.R   seedCreator.R   sub-seeds.R
+bfasim.R             projSeeds.rda  sub-bfaopen.sh  
+
+~/deana/conditions-2 $ emacs sub-bfaopen.sh 
+
+~/deana/conditions-2 $ qsub sub-bfaopen.sh
+407996.rocky.local
+
+~/deana/conditions-2 $ qstat
+Job id        Name        User      Time Use S Queue
+------------------------- ------------------ - -----
+406211.rocky  STDIN        sjpa      00:00:00 R interactive    
+406752.rocky  STDIN        sjpa      15:27:28 R interactive    
+407344.rocky  STDIN        fgu       00:00:00 R interactive    
+407738.rocky  STDIN        sjpa      00:00:00 R interactive    
+407739.rocky  STDIN        sjpa      00:00:08 R interactive    
+407740.rocky  MODEL2       rkinai    24:32:25 R default           
+407994.rocky  MODEL4       t129j179  47:21:45 R default        
+407995.rocky  BifactorSim  pauljohn  00:16:45 R default        
+407996.rocky  BifactorSim  pauljohn         0 Q default        
+~/deana/conditions-2 $ qstat
+Job id      Name             User            Time Use S Queue
+---------------------------- --------------- -------- - -----
+406211.rocky STDIN         sjpa      00:00:00 R interactive    
+407995.rocky BifactorSim   pauljohn  00:24:44 R default        
+407996.rocky BifactorSim   pauljohn         0 Q default    
+    
+~/deana/conditions-2 $ qstat
+Job id      Name         User       Time Use S Queue
+----------------------- ----------- -------- - -----
+406211.rocky STDIN       sjpa       00:00:00 R interactive    
+407995.rocky BifactorSim pauljohn   00:24:44 R default        
+407996.rocky BifactorSim pauljohn            0 Q default        
+
+~/deana/conditions-2 $ qstat
+Job id      Name          User      Time Use S Queue
+------------------------------------------ - -----
+406211.rocky STDIN        sjpa      00:00:00 R interactive    
+ 
+407995.rocky BifactorSim  pauljohn  00:24:44 R default        
+407996.rocky BifactorSim  pauljohn         0 Q default        
+
+### Comment: I concluded I had made changes in the sub-bfaopen.sh file
+### that blocked the job from running. So 
+### 1) I deleted the job that was not getting started
+### 2)  I opened that sub script again and made another change.
+### 3) I re-submit the job after that.
+
+
+~/deana/conditions-2 $ qdel 407996
+
+~/deana/conditions-2 $ qstat
+Job id        Name          User       Time Use S Queue
+------------- ------------- -------- -------- - -----
+406211.rocky   STDIN        sjpa      00:00:00 R interactive    
+407995.rocky   BifactorSim  pauljohn  00:24:44 R default        
+
+~/deana/conditions-2 $ emacs sub-bfaopen.sh
+
+~/deana/conditions-2 $ qsub sub-bfaopen.sh
+407997.rocky.local
+
+~/deana/conditions-2 $ qstat
+Job id       Name         User      Time Use S Queue
+------------ ---------------------- -------- - -----
+406211.rocky  STDIN        sjpa      00:00:00 R interactive    
+407995.rocky  BifactorSim  pauljohn  00:41:14 R default        
+407997.rocky  BifactorSim  pauljohn         0 R default        
+~/deana/conditions-2 $ exit
+
+
+### After that, I stop because 2 conditions are running. 
