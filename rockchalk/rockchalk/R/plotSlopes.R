@@ -1,18 +1,20 @@
 ##' Assists creation of predicted value lines for values of a moderator variable.
 ##'
 ##' This is a "simple slope" plotter for linear regression.  The term
-##' "simple slopes" was coined by psychologists to refer to analysis
-##' of interaction effects for particular values of a moderating
-##' variable, be it continuous or categorical. To use this function,
-##' the user should estimate a regression (with as many variables as
-##' desired, including interactions) and the resulting regression
-##' object is then supplied to this function, along with user requests
-##' for plots of certain variables.
+##' "simple slopes" was coined by psychologists (Aiken and West, 1991;
+##' Cohen, et al 2002) to refer to analysis of interaction effects for
+##' particular values of a moderating variable, be it continuous or
+##' categorical. To use this function, the user should estimate a
+##' regression (with as many variables as desired, including
+##' interactions) and the resulting regression object is then supplied
+##' to this function, along with user requests for plots of certain
+##' variables.
 ##'
 ##' The variable \code{plotx} will be the horizontal plotting
 ##' variable; it must be numeric.  The variable \code{modx} is the
-##' moderator variable. A line will be drawn to represent the
-##' predicted value for select values of the moderator.
+##' moderator variable. It may be either a numeric or a factor
+##' variable.  A line will be drawn to represent the
+##' predicted value for selected values of the moderator.
 ##'
 ##' The parameter \code{modxVals} is optional.  It is used to
 ##' fine-tune the values of the moderator that are used to create the
@@ -58,6 +60,10 @@
 ##' @return The plot is drawn on the screen, and the return object includes the "newdata" object that was used to create the plot, along with the "modxVals" vector, the values of the moderator for which lines were drawn. It also includes the call that generated the plot.
 ##' @seealso plotCurves and testSlopes
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
+##' @references 
+##' Aiken, L. S. and West, S.G. (1991). Multiple Regression: Testing and Interpreting Interactions. Newbury Park, Calif: Sage Publications.
+##'
+##' Cohen, J., Cohen, P., West, S. G., and Aiken, L. S. (2002). Applied Multiple Regression/Correlation Analysis for the Behavioral Sciences (Third.). Routledge Academic.
 ##' @example inst/examples/plotSlopes-ex.R
 
 plotSlopes <-

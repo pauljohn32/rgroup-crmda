@@ -8,6 +8,7 @@
 \usepackage{listings}
 \usepackage{geometry}
 \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\usepackage{url}
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
@@ -93,7 +94,7 @@
 \usepackage{babel}
 \begin{document}
 
-\title{Using rockchalk Functions for Quick \& Consistent Regression Presentations}
+\title{Using rockchalk for Quick \& Consistent Regression Presentations}
 
 
 \author{Paul Johnson}
@@ -337,13 +338,68 @@ stable enough for a finalized presentation format. Eventually, I will
 include a method to display those mixed models. 
 
 
+\section{plotPlane and plotCurves}
+
+The goal of plotPlane and plotCurves is to speed up the process of
+visualization in regression analysis. plotPlane offers a 3 dimensional
+drawing that uses R's persp function to do the heavy lifting. plotCurves
+tries to press that same information into a two dimensional display
+by drawing curves for several different values of a moderator variable.
+Both plotPlane and plotCurves allow nonlinear terms in the regression
+model that is being plotted. In that sense, they are more similar
+to R's own termplot function than to other similar tools. 
+
+In this section, I create a new dependent variable y5 and then put
+the fitted model through the plotSlopes and plotPlane functions.
+
+<<>>=
+dat$y5 <- with(dat, -3*x1 + 0.5*log(x2^2) + 1.1*x2 + 2.2 *x1 * x2 + 3*rnorm(100)) 
+m5 <- lm (y5 ~ log(x2*x2) + x1 * x2, data=dat)
+@
+
+As illustrated in Figure \ref{fig:pcps10}, plotPlane allows the depiction
+of a 3 dimensional plane that ``sits'' in the cloud of data points.
+The variables that are not explicitly pictured in the plotPlane figure
+are set to reference values. As illustrated in Figure \ref{fig:pcps20},
+plotCurves is a 2 dimensional depiction of the same information. 
+
+\begin{figure}
+<<pcps10, fig=T, height=4, width=4>>=
+plotPlane(m5, plotx1="x1", plotx2="x2")
+@
+
+<<results=tex>>=
+outreg(m5, tight=FALSE)
+@
+
+\caption{plotPlane\label{fig:pcps10}}
+\end{figure}
+
+
+\begin{figure}
+<<pcps20, fig=T, height=6, width=6>>=
+plotCurves(m5, plotx="x1", modx="x2")
+@
+
+\caption{plotCurves\label{fig:pcps20}}
+\end{figure}
+
+
+
 \section{Plot and Test Simple Slopes}
 
 In psychology, methodologists have recommended the analysis of ``simple
 slopes'' to depict the effect of several variables in a 2 dimensional
-plot. The idea is to consider the effect of $x1$ on $y$ for several
-values of $x2$, and then possibly test whether the plotted effects
-are statistically significantly different from zero. 
+plot. This is most often of interest in the analysis of regression
+models with interactive terms. Suppse the fitted model is, 
+\begin{equation}
+\hat{y}_{i}=\hat{b}_{0}+\hat{b}_{1}x1_{i}+\hat{b}_{2}x2_{i}+\hat{b}_{3}x1_{i}x2_{i}+x3_{i}.As
+\end{equation}
+The idea is to consider the effect of $x1$ on $y$ for several values
+of $x2$, keeping $x3_{i}$ set at some reference value (the mean
+for numeric variables). As a follow-up, one wants to test whether
+the plotted effects are statistically significantly different from
+zero. 
 
 This is only truly interesting when there are interaction effects,
 of course, but I begin with a simple linear model. Recall that
@@ -369,13 +425,11 @@ illustrates user-selected values for the moderator.
 
 \noindent 
 \begin{lstlisting}
-plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(0.2, 0.5, 0.7), xlab="Continuous Predictor")
+plotSlopes(m3, plotx="x1", modx="x2", modxVals=c(-0.2, 0.5, 0.9), xlab="Continuous Predictor")
 \end{lstlisting}
 
 
 \begin{figure}
-
-
 <<ps10, fig=T, echo=F, height=9, width=4>>=
 par(mfcol=c(2,1))
 m3psa <- plotSlopes(m3, plotx="x1", modx="x2", xlab="x1 is a Continuous Predictor")
@@ -384,8 +438,6 @@ par(mfcol=c(1,1))
 @
 
 \caption{plotSlopes In an Additive Model\label{fig:ps10}}
-
-
 \end{figure}
 
 
@@ -399,21 +451,18 @@ here. Suppose we generate a new dependent variable and fit a regression
 with an interaction: 
 
 <<ps15>>=
-dat$y4 <- with(dat, -3*x1 + 4*x2 - 0.17*x1*x2 + 5*rnorm(100))
+dat$y4 <- with(dat, -3*x1 + 6*x2 - 0.17*x1*x2 + 5*rnorm(100))
 m4 <- lm (y4 ~ x1 * x2, data=dat)
 @
 
 A figure with lines for some values of the moderator x2, along with
 hypothesis test for those estimates, is obtained with the following.
+The ``simple slope'' lines that model are presented in Figure \ref{fig:ps20}.
 
 \begin{lstlisting}
 m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
-testSlopes(m4ps)
 \end{lstlisting}
 
-
-The ``simple slope'' lines for the interactive model are presented
-in Figure \ref{fig:ps20}.
 
 \begin{figure}
 
@@ -430,9 +479,40 @@ m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
 
 Aiken and West (and later Cohen, Cohen, West, and Aiken) propose using
 the t test to find out if the effect of the ``plotx'' variable is
-statistically significant for each particular value of ``modx''
-the moderator variable. The testSlopes function delivers those t tests,
-along with some diagnostic plots, as illustrated in figure \ref{fig:ts10}.
+statistically significant for each particular value of ``modx,''
+the moderator variable. The testSlopes function delivers those t tests.
+Each of the lines represents a test of the hypothesis that 
+\begin{equation}
+H_{0}:0=\hat{b}_{simple\, slope}=\hat{b}_{plotx}+b_{plotx\cdot modx}modx
+\end{equation}
+
+
+\noindent where $modx$ is the numeric value of the moderator variable
+and $plotx$ is the variable that is plotted on the horizontal axis
+in the plotSlopes output.
+
+Following a suggestion of Preacher, Curran, and Bauer (2006), the
+testSlopes function also tries to calculate the Johnson-Neyman (1936)
+interpretation of the same test. It presents 2 diagnostic plots, as
+illustrated in Figure \ref{fig:ts10}. Whereas West and Aiken would
+have us test the hypothesis that $\hat{b}_{simple\, slope}=\hat{b}_{plotx}+b_{plotx\cdot modx}modx$
+is different from 0, J-N would have us ask ``for which values of
+the moderator would the value $\hat{b}_{simple\, slope}$ be statistically
+significantly different from zero? The J-N calculation requires the
+solution an equation that is quadratic in the value of the moderator
+variable, $modx$. The interval of values of $modx$ associated with
+a statistically significant effect of $plotx$ on the outcome is determined
+from the computation of a T statistic for $\hat{b}_{simple\, slope}$.
+The J-N interval is the set of values of $modx$ for which the following
+holds:
+\begin{equation}
+\hat{t}=\frac{\hat{b}_{simple\, slope}}{std.err(\hat{b}_{simple\, slope})}=\frac{\hat{b}_{simple\, slope}}{\sqrt{\widehat{Var(\hat{b}_{plotx})}+modx^{2}\widehat{Var(\hat{b}_{plotx\cdot modx})}+2modx\widehat{Cov(\hat{b}_{plotx},\hat{b}_{plotx\cdot modx})}}}\geq T_{\frac{\alpha}{2},df}
+\end{equation}
+
+
+\noindent I am not entirely convinced that the J-N interpretation
+is useful, but calculating it was interesting. Nevertheless, the output
+of testSlopes(m4ps) is displayed in Figure \ref{fig:ts10}.
 
 \begin{figure}
 <<ts10, fig=T, echo=T>>=
@@ -443,18 +523,15 @@ testSlopes(m4ps)
 \end{figure}
 
 
-The plotPlane function offers another way to visualize the mutual
-effect of two predictors in a regression model. See Figure \ref{fig:pp10}
+The plotPlane function offers another visualization of the mutual
+effect of two predictors in m4. See Figure \ref{fig:pp100}
 
 \begin{figure}
-
-
-\caption{plotPlane for the Interactive Model\label{fig:pp10}}
-
-
-<<pp10, fig=T>>=
-p10 <- plotPlane(m4, plotx1="x1", plotx2="x2")
+<<pp100, fig=T>>=
+p100 <- plotPlane(m4, plotx1="x1", plotx2="x2")
 @
+
+\caption{plotPlane for the Interactive Model\label{fig:pp100}}
 \end{figure}
 
 
@@ -462,56 +539,369 @@ At some point in the future, the ability to make plotSlopes and plotPlane
 work together will be introduced. So the user will be able to press
 the plane down into the 2 dimensional slopes plot, or the simple slopes
 can be depicted in the 3 dimensional plane. A preliminary rendering
-of what that might look like is presented in Figure \ref{fig:pp20}
+of what that might look like is presented in Figure \ref{fig:pp110}
+
+\begin{figure}
+<<pp110, fig=T, echo=F, width=5, height=4>>=
+m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor", ylim=c(-25, 35))
+@
+<<pp111, fig=T, echo=F, height=5>>=
+p110 <- plotPlane(m4, plotx1="x1", plotx2="x2", x1lab="Continuous Predictor")
+for(j in unique(m4ps$newdata$x2)){
+subdat <- m4ps$newdata[m4ps$newdata$x2==j,]
+lines(trans3d(subdat$x1, subdat$x2, subdat$pred, pmat=p110$res), col="red", lwd=3)
+}
+@
+
+\caption{Making plotSlopes and plotPlane work Together\label{fig:pp110}}
+\end{figure}
+
+
+
+\section{Standardized, Mean-Centered, and Residual-Centered Regressions }
+
+
+\subsection{Standardized regression}
+
+Many of us learned to conduct regression analysis with SPSS, which
+(historically, at least) reported both the ordinary regression coefficients
+as well as a column of coefficients obtained from a regression in
+which each of the predictors in the design matrix had been ``standardized.''
+That is to say, each variable, for example $x1_{i}$, was replaced
+by an estimated $Z-score$ $(x1_{i}-\overline{x1})/std.dev.(x1_{i}$).
+A regression fitted with those standardized variables is said to produce
+``standardized coefficients.'' These standardized coefficients,
+dubbed ``beta weights'' in common parlance, were thought to set
+different kinds of variables onto a common metric. While this idea
+appears to have been in error (see, for example, King 1986), it still
+is of interest to many scholars who want to standardize their variables
+in order to compare them more easily. 
+
+The function standardize was included in rockchalk to facilitate lectures
+about what a researcher ought not do. standardize performs the complete,
+mindless standardization of all predictors, no matter whether they
+are categorical, interaction terms, or transformed values (such as
+logs). Each column of the design matrix is scaled to a new variable
+with mean 0 and standard deviation 1. The input to standardize should
+be a fitted regression model. For example:
+
+<<>>=
+m4 <- lm (y4 ~ x1 * x2, data=dat)
+m4s <- standardize(m4)
+@
+
+It does seem odd to me that a person would actually want a standardized
+regression of that sort, and the commentary included with the summary
+method for the standardized regression object probably makes that
+clear.
+
+<<>>=
+summary(m4s)
+@
+
+\begin{table}
+\caption{Comparing Ordinary and Standardized Regression\label{tab:stdreg10}}
+
+
+<<stdreg10, results=tex, echo=F>>=
+outreg(list(m4,m4s), tight=F, modelLabels=c("Not Standardized","Standardized"))
+@
+\end{table}
+
+
+
+\subsection{Mean-centering}
+
+In contrast with a standardized regression, a mean-centered regression
+is one in which one or more of the predictors has been ``mean centered''
+before the design matrix is constructed. The rockchalk package includes
+a meanCenter function that can, center some or all of the predictors
+before the design matrix is constructed. It can also standardize those
+variables \emph{before} the design matrix is constructed.
+
+Does a regression model with mean-centered predictors have better
+statistical properties than a regression that uses the variables as
+they are originally presented. Some, most notably Aiken and West (1991)
+and Cohen, et al. (2002) argued that the answer is an emphatic ``yes.''
+In retrospect, it appears this advice was mistaken, especially where
+the amelioration of multicollinearity is the primary purpose (Echambadi
+and Hess (2007)). Nevertheless, the issue is of more than passing
+interest to many applied researchers, who have experienced the frustration
+of having their results ``destroyed'' by the inclusion of additional
+terms involving products of variables that are already in their models.
+
+It is often noted (by researchers and students alike) that the estimates
+of the ordinary linear regression are affected in surprising ways
+by the introduction of nonlinear expressions. Suppose we begin with
+an ordinary linear model.
+
+\begin{equation}
+y_{i}=b_{0}+b_{1}x1_{i}+b_{2}x2_{i}+e_{i}\label{eq:linear}
+\end{equation}
+
+
+\noindent Then we add, for example, a squared term, 
+\begin{equation}
+y_{i}=b_{0}+b_{1}x1_{i}+b_{2}x2_{i}+b3x2_{i}^{2}+e_{i}
+\end{equation}
+
+
+\noindent or an ``interaction effect'', 
+
+\begin{equation}
+y_{i}=b_{0}+b_{1}x1_{i}+b_{2}x2_{i}+b3(x1_{i}\cdot x2_{i})+e_{i}
+\end{equation}
+
+
+In both of these cases, practitioners have long been bothered by the
+fact that the estimate of $b_{1}$ or $b_{2}$ in model (\ref{eq:linear})
+might be ``statistically significant'' (significantly different
+from 0, that is), but when the last term is added, the standard errors
+of the estimates grow larger and ``nothing is significant anymore.'' 
+
+Aiken and West (1991) and Cohen, et. al (2002) contended that the
+apparent instability of the coefficients is a reflection of ``inessential
+collinearity'' among the predictors, due to the fact that $x1$ and
+$x2$ are in fact correlated with the new terms, $x2^{2}$ or $x1\cdot x2$.
+Their recommendation is that practitioners ought to mean-center those
+predictors, to replace $x1$ by $(x1_{i}-\overline{x1})$ and $(x2_{i}-\overline{x2})$.
+In some cases, it appears as though the use of mean-centered variables
+does indeed address the multicollinearity problem, making the t-statistics
+look ``bigger'' and the p values are smaller.
+
+While the superficial evidence for mean-centering seemed compelling,
+it turns out to be a complete mirage. Mean-centering does not solve
+the problem of multicollinearity, it merely changes the point at which
+we evaluate it. This point is made most emphatically by Echambadi
+and Hess (2007), who argue that mean-centering has no effect (not
+one ``iota'' of an effect!) on multicollinearity. 
+
+In order to help students and researchers explore this controversy,
+the rockchalk includes the function meanCenter. Mean-centering makes
+it easier to tell, at a glance, the model's predicted value for the
+case that is situated at the mean.
+
+For this example, I use a function to generate data called genCorrelatedData.
+It is included with rockchalk. The ``true model'' from which the
+data is produced is
+\begin{equation}
+y_{i}=2+0.1x1_{i}+0.1x2_{i}+0.2\cdot(x1_{i}\times x2_{i})+e_{i}
+\end{equation}
+
+
+The usual ``course of affairs'' would observe the following sequence
+of events. Three regressions will be estimated, they are summarized
+in Table \ref{tab:meancenter10-1}. First (the first column), the
+researcher ``explores'' a linear specification,
+
+\begin{lstlisting}
+lm(y ~ x1 + x2, data=dat2)
+\end{lstlisting}
+
+
+\noindent The coefficients of $x1$ and $x2$ appear to be statistically
+significant, a very gratifying regression indeed. 
+
+\noindent Second (the second column in Table \ref{tab:meancenter10-1}),
+an interaction term is added to the model. That interaction term,
+the product variables $x1\times x2$, is estimated in R with
+
+\begin{lstlisting}
+lm(y ~ x1 * x2, data=dat2)
+\end{lstlisting}
+
+
+\noindent This specification leads to a model that includes the main
+effect variables $x1$ and $x2$, as well as their product, which
+is labeled $x1:x2$ in the output. When most of us see that second
+column for the first time, we think ``Holy Cow! My regression went
+to hell!'' The situation does appear dire. While the coefficients
+for the variables $x1$ and $x2$ did seem to be substantial in the
+first model, the introduction of the interactive effect renders everything
+statistically insignificant. 
+
+Now comes the ``magic'' of mean centering. If we replace $x1$ and
+$x2$ with their mean centered counterparts, and then calculate the
+interaction variable as the product of those two centered variables,
+we get a ``great'' regression, which is presented in the third column
+of Table \ref{tab:meancenter10-1}. Everything appears to be significant,
+order has been restored in the land of the more-or-less linear model.
+
+<<echo=F, include=F>>=
+dat2 <- genCorrelatedData(N=400, rho=.4, stde=300, beta=c(2,0.1,0.1,0.2))
+m4linear <- lm (y ~ x1 + x2, data=dat2)
+m4int <- lm (y ~ x1 * x2, data=dat2)
+m4mc <- meanCenter(m4int)
+@
+
+\begin{table}
+\caption{Comparing Ordinary and Mean-Centered Regression\label{tab:meancenter10-1}}
+
+
+<<mcenter10, results=tex, echo=F>>=
+outreg(list(m4linear, m4int,m4mc), tight=F, modelLabels=c("Linear", "Not Centered","Mean Centered"))
+@
+\end{table}
+
+
+There is a good argument (actually an invincible argument), that the
+mean-centering effect is a complete and total illusion. The first
+piece of evidence should be that the coefficient of the interactive
+effect in columns 2 and 3 is identical. The root mean square and $R^{2}$
+estimates are identical. And, if we look into the situation a little
+more closely, we find that the models produce identical predicted
+values! The 3 dimensional plots of the predicted values of the two
+models are compared in Figure \ref{fig:mcenter30}. 
+\begin{figure}
+<<mcenter50, fig=T,echo=FALSE, height=5, width=7>>=
+op <- par()
+par(mfcol=c(1,2))
+par(mar=c(2,2,2,1))
+plotPlane(m4int, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Not Centered", ticktype="detailed")
+plotPlane(m4mc, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Mean Centered", ticktype="detailed")
+par(op)
+@
+
+\caption{Mean Centered and Uncentered Fits Identical\label{fig:mcenter30}}
+\end{figure}
+
+
+The curves in Figure \ref{fig:mcenter30} are identical, of course.
+The only difference is that the one on the left, the one for the original
+non-transformed data, has the ``y axis'' positioned at the front-left
+edge of the graph, while the centered one re-positions the y axis
+into the center of the data. There are two reasons why the mean-centering
+``seems to'' help multicollinearity, when in fact it has no effect
+at all. First, an interaction model is a nonlinear model. The slope
+of an effect is different at every point in the X1,X2 plane. This,
+of course, means that multicollinearity is not a global attribute
+of the data, but rather it is a local attribute, so that the effect
+of multicollinearity is more obvious when the slope is flat than when
+it is steep. Since the regression fit measures multicollinearity at
+the origin, where the y axis is ``stuck into the ground,'' it only
+makes sense that re-positioning the axis would affect our assessment
+of collinearity. Second, the standard error of predicted values is
+hour-glass shaped--smaller in the center of the data cloud, wider
+at the edges. Students of elementary regression have no-doubt seen
+the confidence interval plot similar to Figure \ref{fig:Hourglass}.
+The ``mean centered'' regression is a snapshot of the standard errors
+in the small part of the hourglass, while the non-centered regression
+is a snapshot at the outer edge. They are, of course, the exact same
+model, and the results differ only superficially. 
 
 \begin{figure}
 
 
-\caption{A Planned Enhancement of plotPlane\label{fig:pp20}}
-
-
-<<pp20, fig=T, height=5>>=
-par(mfcol=c(1,2))
-m4ps <- plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor", ylim=c(-25, 35))
-p20 <- plotPlane(m4, plotx1="x1", plotx2="x2")
-for(j in unique(m4ps$newdata$x2)){
-subdat <- m4ps$newdata[m4ps$newdata$x2==j,]
-lines(trans3d(subdat$x1, subdat$x2, subdat$pred, pmat=p20$res), col="red", lwd=3)
-}
+<<fig=T, echo=F, height=5, width=5>>=
+x <- rnorm(100, m=50, s=20)
+y <- 3 + 0.2 * x + 15 * rnorm(100)
+plot(x,y)
+mp1 <- lm(y ~ x)
+abline(mp1)
+ndf <- data.frame(x=plotSeq(x,40))
+p1 <- as.data.frame(predict(mp1, interval="conf", newdata = ndf))
+lines(ndf$x, p1$fit, col="black", lwd=2)
+lines(ndf$x, p1$lwr, col="red", lwd=2, lty=4)
+lines(ndf$x, p1$upr, col="red", lwd=2, lty=3)
+legend("topleft", legend=c("predicted","conf. lower", "conf. upper"), col=c("black","red","red"), lty=c(1,4,3))
 @
+
+\caption{The Hourglass\label{fig:Hourglass}}
+
 
 \end{figure}
 
 
-If there is a nonlinearity, for example an interaction, then it is
-a little more fun. I create a new dependent variable y4 and then put
-the fitted model through the plotSlopes and plotPlane functions.
+Included with the rockchalk package, in the examples folder, one can
+find a file called ``residualCentering.R'' that walks through this
+argument step by step. In addition, I have several lectures for an
+intermediate regression class on this issue and they can be found
+under \url{http://pj.freefaculty.org/guides/stat}. 
 
-<<>>=
-dat$y4 <- with(dat, -3*x1 + 4*x2 + 1.2 *x1 * x2 + 15*rnorm(100)) 
-m4 <- lm (y4 ~ x1 * x2, data=dat)
+
+\subsection{Residual Centering as an Alternative}
+
+The argument against mean-centering is that it makes absolutely no
+difference. The same cannot be said of mean-centering's cousin, ``residual
+centering.'' 
+
+Residual-centering is another way to deal with the problem that the
+constructed variable representing the interaction, ``$x1\times x2$,''
+will sometimes cause multicollinearity, exaggerating standard errors,
+making t-statistics small and p-values big. Nobody wants that, it
+seems.
+
+We would still like to estimate a model
+
+\begin{equation}
+y_{i}=b_{0}+b_{1}x1_{i}+b_{2}x2_{i}+b3(x1_{i}\times x2_{i})+e_{i},\label{eq:rc10}
+\end{equation}
+
+
+\noindent but we can't. More accurately, we don't like the standard
+errors we get when we fit that model. 
+
+So here's the plan. If we fit the linear model--with no interaction
+
+\begin{equation}
+y=c_{0}+c_{1}x1+c_{2}x2+e2_{i}\label{eq:rc20}
+\end{equation}
+
+
+\noindent we get parameter estimates that we like for the effects
+of $x1$ and $x2$. We will proceed by constraining the fitted coefficients
+in the full, interactive model so that the main effects remain the
+same. That is to say, fit \ref{eq:rc10}, but force the fit so that
+the coefficients of $x1$ and $x2$ match equation \ref{eq:rc20}.
+Effectively, we impose the restriction that $\hat{b}_{1}=\hat{c}_{1}$
+and $\hat{b}_{2}=\hat{c}_{2}$.
+
+How can this be done in a convenient, practical way? Estimate the
+following regression, in which the left hand side is the interaction
+product term:
+\begin{equation}
+(x1_{i}\times x2_{i})=d_{0}+d_{1}x1_{i}+d_{2}x2+u_{i}\label{eq:residCentered}
+\end{equation}
+
+
+The residuals from that regression are, by definition, orthogonal
+to (uncorrelated with) both $x1$ and $x2$. Let's use that residual
+as a new indicator of the interaction effect. Call it $(x1Xx2).$
+Then we fit an equation like (\ref{eq:rc10}), but instead of the
+actual product term $(x1_{i}\times x2_{i})$, we include the residual
+from the fitted regression (\ref{eq:residCentered}). 
+
+\begin{equation}
+y_{i}=b_{0}+b_{1}x1_{i}+b_{2}x2_{i}+b3(x1Xx2)+e_{i},\label{eq:rc10-1}
+\end{equation}
+
+
+\noindent In essence, we have taken the interaction $(x1_{i}\times x2_{i})$,
+and purged it of its parts that are linearly related to $x1_{i}$
+and $x2_{i}$ separately. The ``residual centered'' regression adds
+the new variable, $(x1Xx2)$, and it leaves the effect coefficients
+for variables $x1$ and $x2$ unchanged. 
+
+<<echo=F, include=F>>=
+dat2 <- genCorrelatedData(N=400, rho=.4, stde=300, beta=c(2,0.1,0.1,0.8))
+m4linear <- lm (y ~ x1 + x2, data=dat2)
+m4int <- lm (y ~ x1 * x2, data=dat2)
+m4mc <- meanCenter(m4int)
+m4rc <- residualCenter(m4int)
 @
 
-plotSlopes says:
+\begin{table}
+\caption{Comparing Ordinary and Residual-Centered Regression\label{tab:residcenter10}}
 
-<<ps50, fig=T, echo=F>>=
-plotSlopes(m4, plotx="x1", modx="x2", xlab="Continuous Predictor")
+
+<<rcenter10, results=tex, echo=F>>=
+outreg(list(m4linear, m4int, m4rc), tight=F, modelLabels=c("Linear", "Not Centered","Resid Centered"))
 @
+\end{table}
 
-plotPlane says:
 
-<<pp50, fig=T>>=
-p50 <- plotPlane(m4, plotx1="x1", plotx2="x2")
-@
-
-I'd like to have a simple way to ``highlight'' the lines on the
-plane, but the interface to plotSlopes now does not provide the required
-information. That's on my TODO list.
-
-\#for(j in c(0.2, 0.5, 0.7))\{
-
-\#lines(trans3d(x1, rep(length(x1), j), p{[},j{]}, pmat=p10), col=\textquotedbl{}yellow\textquotedbl{},
-lwd=3)
-
-\#\}
+Little, T. D., Bovaird, J. A., and Widaman, K. F. (2006). On the Merits
+of Orthogonalizing Powered and Product Terms: Implications for Modeling
+Interactions Among Latent Variables. Structural Equation Modeling,
+13(4), 497-519.
 \end{document}

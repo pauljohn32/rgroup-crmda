@@ -50,24 +50,12 @@ standardize.lm <- function(model){
 ##' @author <pauljohn@@ku.edu>
 ##' @S3method summary stdreg
 summary.stdreg <- function(object, ...){
-  cat("All variables in the model matrix and the dependent variable were centered.\n")
-  cat("Even though the variables here have the same names \n
-  as their non-centered counterparts, I assure you these are \n
-  centered, even variables like `x1:x2` and poly(x1,2)1. \n
-  Here are the summary statistics of the variables in the design matrix. \n")
-  dm <- model.matrix(object)
-  dm <- dm[ , which(attr(dm, "assign") != 0)] #remove intercept, if any
-  dm <- cbind( model.frame(object)[ , deparse(terms(object)[[2]])], dm)
-  colnames(dm)[1] <- deparse(terms(object)[[2]])
-  dmmeans <- apply(dm, 2, mean)
-  dmstds <- apply(dm, 2, sd)
-  summstat <- zapsmall(data.frame("mean"=dmmeans, "std.dev."=dmstds))
-  print(summstat)
   NextMethod(generic = "summary", object = object, ...)
 }
 NULL
 
 ##' @author <pauljohn@@ku.edu>
+##' @method   print stdeg
 ##' @S3method print stdreg
 print.stdreg <- function(x, ...){
   cat("Even though the variables here have the same names \n
@@ -77,6 +65,30 @@ print.stdreg <- function(x, ...){
 }
 NULL
 
+
+
+##' @author <pauljohn@@ku.edu>
+##' @method   print summary stdreg
+##' @S3method print summary stdreg
+print.summary.stdreg <- function (x, digits = max(3, getOption("digits") - 3),
+                                    symbolic.cor = x$symbolic.cor,
+                                    signif.stars= getOption("show.signif.stars"),     ...){
+    cat("All variables in the model matrix and the dependent variable were centered.\n")
+    cat("Even though the variables here have the same names 
+  as their non-centered counterparts, I assure you these are 
+  centered, even variables like `x1:x2` and poly(x1,2)1. \n
+  Here are the summary statistics of the variables in the design matrix. \n")
+    dm <- model.matrix(x)
+    dm <- dm[ , which(attr(dm, "assign") != 0)] #remove intercept, if any
+    dm <- cbind( model.frame(x)[ , deparse(terms(x)[[2]])], dm)
+    colnames(dm)[1] <- deparse(terms(x)[[2]])
+    dmmeans <- apply(dm, 2, mean)
+    dmstds <- apply(dm, 2, sd)
+    summstat <- zapsmall(data.frame("mean"=dmmeans, "std.dev."=dmstds))
+    print(summstat)
+    NextMethod(generic = "print", x = x, ...)
+}
+NULL
 
 
 
@@ -136,7 +148,7 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
     if( !is.numeric(x) ){
       stop("meanCenter tried to center a factor variable. No Can Do!")
     } else {
-      scale(x, center = TRUE, scale = standardize)
+      as.numeric(scale(x, center = TRUE, scale = standardize))
     }
   }
   
@@ -224,26 +236,9 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
 ##' @author <pauljohn@@ku.edu>
 ##' @S3method summary mcreg
 summary.mcreg <- function(object, ...){
-  nc <- attr(object, "centeredVars")
-  cat("The centered variables were: \n")
-  print(nc)
-  cat("Even though the variables here have the same names as their \n
-  non-centered counterparts, I assure you these are centered.
-  Here are the summary statistics of the variables in the design matrix. \n")
-  dm <- model.matrix(object)
-  dm <- dm[ , which(attr(dm, "assign") != 0)] #remove intercept, if any
-  dm <- cbind( model.frame(object)[ , deparse(terms(object)[[2]])], dm)
-  colnames(dm)[1] <- deparse(terms(object)[[2]])
-  dmmeans <- apply(dm, 2, mean)
-  dmstds <- apply(dm, 2, sd)
-  summstat <- zapsmall(data.frame("mean"=dmmeans, "std.dev."=dmstds))
-  print(summstat)
-  mc <- attr(object, "centerCall")
-  cat("These results were produced from: \n")
-  print(mc)
   NextMethod(generic = "summary", object = object, ...)
 }
-
+NULL
 
 ##' @author <pauljohn@@ku.edu>
 ##' @S3method print mcreg
@@ -260,3 +255,36 @@ as their non-centered counterparts, I assure you these are centered.
   NextMethod(generic = "print", object = x, ...)
 }
 NULL
+
+
+##' @author <pauljohn@@ku.edu>
+##' @method   print summary mcreg
+##' @S3method print summary mcreg
+print.summary.mcreg <- function (x, digits = max(3, getOption("digits") - 3),
+                                 symbolic.cor = x$symbolic.cor,
+                                 signif.stars= getOption("show.signif.stars"),     ...){
+  nc <- attr(x, "centeredVars")
+  cat("The centered variables were: \n")
+  print(nc)
+  cat("Even though the variables here have the same names as their \n
+  non-centered counterparts, I assure you these are centered.
+  Here are the summary statistics of the variables in the design matrix. \n")
+  nc <- attr(x, "centeredVars")
+  cat("The centered variables were: \n")
+  print(nc)
+  cat("Even though the variables here have the same names as their \n
+  non-centered counterparts, I assure you these are centered.
+  Here are the summary statistics of the variables in the design matrix. \n")
+  dm <- model.matrix(x)
+  dm <- dm[ , which(attr(dm, "assign") != 0)] #remove intercept, if any
+  dm <- cbind( model.frame(x)[ , deparse(terms(x)[[2]])], dm)
+  colnames(dm)[1] <- deparse(terms(x)[[2]])
+  dmmeans <- apply(dm, 2, mean)
+  dmstds <- apply(dm, 2, sd)
+  summstat <- zapsmall(data.frame("mean"=dmmeans, "std.dev."=dmstds))
+  print(summstat)
+  mc <- attr(x, "centerCall")
+  cat("These results were produced from: \n")
+  print(mc)
+  NextMethod(generic = "print.summary", x = x, ...)
+}

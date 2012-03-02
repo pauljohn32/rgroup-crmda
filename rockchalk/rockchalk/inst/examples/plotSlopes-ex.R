@@ -32,6 +32,11 @@ plotSlopes(m2, plotx="x1", modx="x2", modxVals=c( -2, -1, 0, 1))
 plotSlopes(m2, plotx="x2", modx="x1", modxVals="std.dev.")
 plotSlopes(m2, plotx="x2", modx="x1", modxVals="std.dev.", xlab="Any label You Want")
 
+## Catch output, send to testSlopes
+
+m2ps1 <- plotSlopes(m2, plotx="x1", modx="x2")
+testSlopes(m2ps1)
+
 ### Examples with categorical Moderator variable
 
 stde <- 8
