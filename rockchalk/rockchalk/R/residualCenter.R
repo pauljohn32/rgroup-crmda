@@ -75,4 +75,28 @@ residualCenter.default <- function (model)
   res$rcRegressions <- rcRegressions
   res
 }
+NULL
+
+##' predict method for rcreg objects
+##'
+##' Calculates predicted values of
+##' residual centered interaction regressions estimated in
+##' any type of regression framework (lm, glm, etc).
+##' @method predict rcreg
+##' @S3method predict rcreg
+##' @rdname residualCenter
+##' @example inst/examples/predict.rcreg-ex.R
+##' @param object Fitted residual-centered regression from residualCenter
+##' @param newdata A dataframe of values of the predictors for which predicted values are sought. Needs to include values for all predictors individually; need not include the interactions, since those are re-calculated inside this function.
+##' @param ... Other parameters that will be passed to the predict method of the model. 
+predict.rcreg <- function (object, newdata, ...){
+  if ( ! c("rcreg") %in% class(object) ) stop("predict.rcreg is intended for rcreg objects, which are created by residualCenter in the rockchalk package") 
+
+  rcRegs <- object$rcRegressions
   
+  rcPreds <- sapply(rcRegs, predict.lm, newdata )
+  
+  newdat2 <- cbind (rcPreds, newdata)
+  
+  NextMethod(object, newdata=newdat2, ...)
+}

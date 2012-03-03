@@ -1,12 +1,19 @@
+2012-03-03  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* examples/predict.rcreg-ex.R: new file to demo predict
+
+	* ../R/residualCenter.R (predict.rcreg): new method handles
+	by re-calcuating predictions for each auxiliary regression.
+
 2012-03-01  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/meanCenter.R (std): Found really bad bug where
 	plotPlane(meanCenter) returned error about predict being
 	used for wrong type of data. Problem traced back to fact
 	that "scale" returns a matrix with 1 column, rather than
-	a numeric vector, so dataClasses was mismatched. 
+	a numeric vector, so dataClasses was mismatched.
 	attr(,"dataClasses")
-          y         xxx         x22 
+          y         xxx         x22
 	"numeric" "nmatrix.1" "nmatrix.1".  The "newdata" I'd
 	generate did not have "nmatrix.1" as the type, and so
 	predict's use of .MFCheckClass resulted in failure.
