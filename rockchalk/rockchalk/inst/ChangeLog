@@ -1,3 +1,13 @@
+2012-03-09  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* examples/meanCenter-ex.R: remove references to centerContrasts
+
+	* ../R/meanCenter.R (std): predict.mcreg centers all variable in the
+	"centeredVars" list.
+	* ../R/meanCenter.R: Cut "centerContrasts" option in meanCenter and tons of
+	beautiful code because it is impossible to manage re-centering in
+	predict.mcreg if there are centered congrasts. 
+
 2012-03-03  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* examples/predict.rcreg-ex.R: new file to demo predict

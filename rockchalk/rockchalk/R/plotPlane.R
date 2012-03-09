@@ -51,7 +51,7 @@ plotPlane <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawArrows = 
 
 
 
-##' @return  The main point is the plot that is drawn, but for record keeping the return object is a list including 1) res: the transformation matrix that was created by persp (this allows the user to add additional details to the plot, 2) the call that was issued). 
+##' @return  The main point is the plot that is drawn, but for record keeping the return object is a list including 1) res: the transformation matrix that was created by persp 2) the call that was issued, 3) x1seq, the "plot sequence" for the x1 dimension, 4) x2seq, the "plot sequence" for the x2 dimension, 5) zplane, the values of the plane corresponding to locations x1seq and x2seq. 
 ##' 
 ##' @rdname plotPlane
 ##' @method plotPlane default
@@ -157,5 +157,5 @@ plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawA
     if (drawArrows) 
         arrows(mypoints4$x, mypoints4$y, mypoints2s$x, mypoints2s$y, 
             col = "red", lty = 4, lwd = 0.3, length = 0.1)
-    invisible(list(res=res, call=cl))
+    invisible(list(res=res, call=cl, "x1seq"=x1seq, "x2seq"=x2seq, "zplane"=zplane))
 }

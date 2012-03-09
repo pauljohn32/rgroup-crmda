@@ -124,7 +124,6 @@ NULL
 ##' conducted.
 ##' @param centerDV Should the dependent variable be centered? 
 ##' @param standardize Instead of simply mean-centering the variables, should they also be "standardized" by first mean-centering and then dividing by the estimated standard deviation.
-##' @param centerContrasts This function was originally intended only to center numeric variables. However, this option will ask centering of the numeric contrasts that are created in the fitting process. 
 ##' @export meanCenter
 ##' @rdname meanCenter
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
@@ -136,7 +135,7 @@ NULL
 ##'
 ##' Echambadi, R., and Hess, J. D. (2007). Mean-Centering Does Not Alleviate Collinearity Problems in Moderated Multiple Regression Models. Marketing Science, 26(3), 438-445.
 ##' @example inst/examples/meanCenter-ex.R
-meanCenter <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE, standardize=FALSE, centerContrasts = F){
+meanCenter <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE, standardize=FALSE){
   UseMethod("meanCenter")
 }
 
@@ -146,7 +145,7 @@ meanCenter <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE, standa
 ##' @export
 ##' @method meanCenter default
 ##' @S3method meanCenter default
-meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE, standardize=FALSE, centerContrasts = F){
+meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE, standardize=FALSE){
 
   std <- function(x) {
     if( !is.numeric(x) ){
@@ -191,42 +190,10 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
   mc <- model$call
   # run same model call, replacing non centered data with centered data.  
   ## 
-  if (!centerContrasts)
-    {
-      stddat <- rdf
-      for (i in nc) stddat[ , i] <- std( stddat[, i])
-      mc$data <- quote(stddat)
-    }else{
-      ##dm: design matrix, only includes intercept and predictors
-      dm <- model.matrix(model, data=rdf, contrasts.arg = model$contrasts, xlev = model$xlevels)
-      ##contrastIdx: indexes of contrast variables in dm
-      contrastIdx <- which(attr(dm, "assign")== match(isFac, tl))
-      contrastVars <- colnames(dm)[contrastIdx]
-      nc <- c(nc, contrastVars)
-
-      dm <- as.data.frame(dm)
-
-      hasIntercept <- attr(t, "intercept")
-      if (hasIntercept) dm <- dm[ , -1] # removes intercept, column 1
-      
-      dv <- rdf[ ,names(tmdc)[1]] #tmdc[1] is response variable name
-      dm <- cbind(dv, dm)
-      colnames(dm)[1] <- names(tmdc)[1] #put colname for dv
-
-      dmnames <- colnames(dm)
-      hasColon <- dmnames[grep(":", dmnames)]
-      dm <- dm[ , -match(hasColon, dmnames)] ##remove vars with colons (lm will recreate)
-
-      ##Now, standardise the variables that need standardizing
-      for (i in nc) dm[ , i] <- std( dm[, i])
-
-
-      fmla <- formula(paste(dmnames[1], " ~ ",  paste(dmnames[-1], collapse=" + ")))
-      cat("Model-constructed interactions such as \"x1:x3\" are built from centered variables\n")
-      mc$formula <- formula(fmla)
-      mc$data <-  quote(dm)
-    }
-    
+  stddat <- rdf
+  for (i in nc) stddat[ , i] <- std( stddat[, i])
+  mc$data <- quote(stddat)
+  cat("Model-constructed interactions such as \"x1:x3\" are built from centered variables\n")
   res <- eval(mc)
   class(res) <- c("mcreg", class(model))
   attr(res, "centeredVars") <- nc
@@ -283,5 +250,34 @@ print.summary.mcreg <- function (x, ...){
   print(x$mc)
   ##NextMethod(generic = "print", x = x, ...)
   NextMethod()
+}
+NULL
+
+
+##' @author <pauljohn@@ku.edu>
+##' @method predict mcreg
+##' @S3method predict mcreg
+predict.mcreg <- function (object, newdata, ...){
+
+  originalCall <- object$call
+  nc <- attr(object, "centeredVars")
+
+  call <- attr(object, "centerCall")
+
+  standardize <- ifelse(is.null(call$standardize), FALSE, call$standardize)
+
+  std <- function(x) {
+    if( !is.numeric(x) ){
+      stop("meanCenter tried to center a factor variable. No Can Do!")
+    } else {
+      as.numeric(scale(x, center = TRUE, scale = standardize))
+    }
+  }
+
+  if(missing(newdata)) newdata <- model.frame(object)
+  newmf <- newdata
+  for (i in nc) newmf[ , i] <- std( newmf[, i])  
+
+  NextMethod(object, newdata=newmf, ...)
 }
 NULL

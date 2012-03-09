@@ -3037,16 +3037,16 @@ http://pj.freefaculty.org/guides/stat
 \end_layout
 
 \begin_layout Subsection
-Residual Centering as an Alternative
+Residual-centering
 \end_layout
 
 \begin_layout Standard
 The argument against mean-centering is that it makes absolutely no difference.
- The same cannot be said of mean-centering's cousin, 
+ Perhaps the same cannot be said of mean-centering's cousin, 
 \begin_inset Quotes eld
 \end_inset
 
-residual centering.
+residual-centering.
 \begin_inset Quotes erd
 \end_inset
 
@@ -3069,7 +3069,7 @@ Residual-centering is another way to deal with the problem that the constructed
 
  will sometimes cause multicollinearity, exaggerating standard errors, making
  t-statistics small and p-values big.
- Nobody wants that, it seems.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -3090,9 +3090,8 @@ y_{i}=b_{0}+b_{1}x1_{i}+b_{2}x2_{i}+b3(x1_{i}\times x2_{i})+e_{i},\label{eq:rc10
 \begin_layout Standard
 \noindent
 but we can't.
- More accurately, we don't like the standard errors we get when we fit that
- model.
- 
+ More accurately, we can estimate it, but we don't like the results we get.
+ We don't like the large standard errors and huge p-values.
 \end_layout
 
 \begin_layout Standard
@@ -3159,8 +3158,20 @@ reference "eq:rc20"
 \end_layout
 
 \begin_layout Standard
-How can this be done in a convenient, practical way? Estimate the following
- regression, in which the left hand side is the interaction product term:
+How can this be done in a convenient, practical way? We need an estimate
+ of the interaction effect that is orthogonal to (uncorrelated with) both
+ 
+\begin_inset Formula $x1$
+\end_inset
+
+ and 
+\begin_inset Formula $x2$
+\end_inset
+
+.
+ That's where residual-centering comes into the picture.
+ Estimate the following regression, in which the left hand side is the interacti
+on product term:
 \begin_inset Formula 
 \begin{equation}
 (x1_{i}\times x2_{i})=d_{0}+d_{1}x1_{i}+d_{2}x2+u_{i}\label{eq:residCentered}
@@ -3172,8 +3183,8 @@ How can this be done in a convenient, practical way? Estimate the following
 \end_layout
 
 \begin_layout Standard
-The residuals from that regression are, by definition, orthogonal to (uncorrelat
-ed with) both 
+The residuals from that regression are, by definition, orthogonal to both
+ 
 \begin_inset Formula $x1$
 \end_inset
 
@@ -3260,6 +3271,29 @@ residual centered
 \end_layout
 
 \begin_layout Standard
+Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:residcenter10"
+
+\end_inset
+
+ compares the parameter estimates of the models with interaction terms.
+ One is the usual, non-centered, model, and the others are the mean-centered
+ and residual-centered estimates.
+ One peculiar, important, fact is that the estimate of the interaction coefficie
+nt is the same in all three models.
+ They are not just similar.
+ They are identical.
+ The fact that the usual and mean-centered estimates are the same has, of
+ course, been noted in Cohen, et al (2002), but the significance was missed.
+ As argued in the previous section of this essay, the two models have more
+ in common than just that one coefficient.
+ The models--all three of them-- are actually identical.
+ 
+\end_layout
+
+\begin_layout Standard
 \begin_inset ERT
 status open
 
@@ -3339,8 +3373,8 @@ status open
 
 \begin_layout Plain Layout
 
-outreg(list(m4linear, m4int, m4rc), tight=F, modelLabels=c("Linear", "Not
- Centered","Resid Centered"))
+outreg(list(m4linear, m4int, m4mc, m4rc), tight=T, modelLabels=c("Linear",
+ "Not Centered","Mean Centered", "Resid Centered"))
 \end_layout
 
 \begin_layout Plain Layout
@@ -3356,6 +3390,279 @@ outreg(list(m4linear, m4int, m4rc), tight=F, modelLabels=c("Linear", "Not
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+Does the identicality of the interaction estimates indicate that the residual-ce
+ntered regression is also equivalent to the mean-centered and usual specificatio
+ns? It appears the answer is, 
+\begin_inset Quotes eld
+\end_inset
+
+yes.
+\begin_inset Quotes erd
+\end_inset
+
+ Emphatically.
+ In order to make this perfectly clear, we need to calculate predicted values
+ for a residual-centered regression model.
+ In rockchalk-1.5.1, a predict method was introduced for that purpose.
+ To calculate a prediction, it is necessary to specify the values of all
+ of the predictors, and then the fitted models for each of the interactions
+ is used to calculate residuals that can be used as interaction terms in
+ the final model.
+ 
+\end_layout
+
+\begin_layout Standard
+With predicted values in hand, we can demonstrate the fact that the predicted
+ values from all three methods of estimating interactions are identical.
+ In Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rcenter30"
+
+\end_inset
+
+, the three dimensional plots of the three models are presented together.
+ For a given pair of input values 
+\begin_inset Formula $x1_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $x2_{i}$
+\end_inset
+
+, all three models offere the same prediction.
+ From that, one must conclude that the three regression specifications are,
+ despite the superficial differences among their estimated coefficients,
+ actually the same.
+ 
+\end_layout
+
+\begin_layout Standard
+Why do the coefficients differ if the models are actually the same? Recall
+ that we are estimating the slopes of a curving plane, and so estimates
+ of the marginal effects of 
+\begin_inset Formula $x1$
+\end_inset
+
+ and 
+\begin_inset Formula $x2$
+\end_inset
+
+ will depend on the point at which we are calculating the slopes.
+ Mean-centering and residual-centering are simply competing methods for
+ re-positioning the 
+\begin_inset Formula $y$
+\end_inset
+
+ axis.
+ The interactive model has a constant mixed partial derivative, so the estimate
+ of the interaction coefficient is the same in all three models.
+ The similarity of the three plots in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rcenter30"
+
+\end_inset
+
+ was, in all honesty, a surprise.
+ Intuitively, it seems as though the residual-centered approach is different
+ because the data that represents the interaction is drawn from the residuals
+ of a preliminary regression.
+ We have methodically re-calculated the predicted values from the residual
+ centered regression.
+ Through whatever method one chooses, the results are the same.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<rcenter30, fig=T,echo=FALSE, height=9, width=6>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+op <- par()
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mfrow=c(2,2))
+\end_layout
+
+\begin_layout Plain Layout
+
+par(mar=c(2,2,2,1))
+\end_layout
+
+\begin_layout Plain Layout
+
+plotPlane(m4int, plotx1="x1", plotx2="x2", plotPoints=TRUE, main="Not Centered",
+ ticktype="detailed", theta=-20)
+\end_layout
+
+\begin_layout Plain Layout
+
+plotPlane(m4mc, plotx1="x1", plotx2="x2", plotPoints=TRUE, main="Mean Centered",
+ ticktype="detailed", theta=-20)
+\end_layout
+
+\begin_layout Plain Layout
+
+plotPlane(m4rc, plotx1="x1", plotx2="x2", plotPoints=TRUE, main="Residual
+ Centered", ticktype="detailed", theta=-20)
+\end_layout
+
+\begin_layout Plain Layout
+
+par(op)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Mean Centered and Uncentered Fits Identical
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rcenter30"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<rcenter40, fig=T,echo=FALSE, height=4, width=6>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+m4mcpred <- predict(m4mc, newdata=dat2)
+\end_layout
+
+\begin_layout Plain Layout
+
+m4rcpred <- predict(m4rc, newdata=dat2)
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(m4mcpred, m4rcpred, main="", xlab="Predictions of Mean-centered Regression"
+,ylab="Predictions from Residual-centered Regression")
+\end_layout
+
+\begin_layout Plain Layout
+
+predcor <- round(cor(m4mcpred, m4rcpred),3)
+\end_layout
+
+\begin_layout Plain Layout
+
+legend("topleft", legend=c(paste("Correlation=", predcor)))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Predicted Values of Mean and Residual-centered Models
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rcenter40"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rcenter40"
+
+\end_inset
+
+, the predicted values of the mean-centered and residual-centered regressions
+ are plotted against one another.
+ They are perfectly co-incident, as evidenced by the fact that the correlation
+ between them is 1.0.
+ 
+\end_layout
+
+\begin_layout Standard
+The conclusion is this.
+ One can code a nonlinear model in various ways, all of which are theoretically
+ and analytically identical.
+ There are superficial differences in the estimates of the coefficients
+ of the various specifications, but these differences are understandable
+ in light of the changes in the design matrix.
+ The connection between the observed values of the predictors and the predicted
+ values remains the same in all of these specifications.
 \end_layout
 
 \begin_layout Standard

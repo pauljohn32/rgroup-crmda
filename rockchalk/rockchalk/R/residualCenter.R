@@ -91,12 +91,19 @@ NULL
 ##' @param ... Other parameters that will be passed to the predict method of the model. 
 predict.rcreg <- function (object, newdata, ...){
   if ( ! c("rcreg") %in% class(object) ) stop("predict.rcreg is intended for rcreg objects, which are created by residualCenter in the rockchalk package") 
-
+  objectTerms <- terms(object)
+  dvname <- names(attr(objectTerms, "dataClasses"))[1]
   rcRegs <- object$rcRegressions
-  
-  rcPreds <- sapply(rcRegs, predict.lm, newdata )
-  
-  newdat2 <- cbind (rcPreds, newdata)
-  
-  NextMethod(object, newdata=newdat2, ...)
+  nams <- names(rcRegs)
+  ## remove user's residual centered variables, if any
+  ## for(i in nams)  newdata[[i]] <- NULL
+  for( i in seq_along(rcRegs) ){
+     aReg <- rcRegs[[i]]
+     prodVars <-  unlist(strsplit(nams[i], ".X."))
+     predvals <-  predict.lm( aReg, newdata = newdata )
+     actualProduct <- apply(newdata[ ,prodVars], 1, prod)
+     myresids <-  actualProduct - predvals
+     newdata[[nams[i]]] <- myresids
+   }
+  NextMethod(object, newdata=newdata, ...)
 }
