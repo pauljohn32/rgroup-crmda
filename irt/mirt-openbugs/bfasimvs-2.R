@@ -189,7 +189,7 @@ runOpenbugs <- function(script, n.chains)
   #--------Execute a BUGS Srcipt from R and run it------ (NEW)
   bfcommirt.sim <- runOBugs(bugs = "/usr/bin/OpenBUGS",
                   script = script, n.chains = n.chains,
-                  workingDir = getwd(), OpenBugs = TRUE, Windows=TRUE,
+                  workingDir = getwd(), OpenBugs = TRUE, Windows=FALSE,
                   verbose = FALSE)
   
   #---windows---
@@ -265,28 +265,25 @@ bfgena <- function(re = 1, nE = 100, nitems = 30, nD = 4, mina = .75,
 ################################you should look at
 ################################when this gets used
 
-runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=NULL, n.chains=NULL, n.iter=1000, n.burnin = 300, n.thin= 1){
+runOneSimulation <- function(re, nitems=NULL, nE=NULL, mina=NULL, maxa=NULL, nD=NULL, n.chains=NULL){
   initSeedStreams(re)
   olddir <- getwd()
   workdir <- paste("batch", nitems, mina, maxa, re, sep="-")
   dir.create(workdir, showWarnings = TRUE, recursive = TRUE)
   setwd(workdir)
-  
-  bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa, currentSeeds=currentSeeds)
-  writeBUGSModel(re, nitems, nE, nD, mina, maxa )
-  writeDataFiles(bf.sim, re, nitems, mina, maxa )
-  bugsfiles <- writeBUGSFiles(bf.sim, re, nD, n.chains, nE , n.iter, 
-                              n.burnin, n.thin )
-  res <- runOpenbugs(bugsfiles$script, n.chains)
-  
-  #t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
-  
-  #runBugs( script=  bugsfiles$script )
-  
-  setwd(olddir)
-  #t1
-}
 
+  bf.sim <- bfgena(re = re, nE = nE, nitems = nitems, nD = nD, mina = mina, maxa = maxa, currentSeeds=currentSeeds)
+  writeDataFiles( bf.sim, re = re, nitems = nitems, mina = mina, maxa = maxa )
+  writeBUGSModel(re, nitems, nE, nD, mina, maxa)
+  bugsfiles <- writeBUGSFiles(bf.sim, re, nD, n.chains, nE = nE )
+
+  t1 <- try(system(paste("OpenBUGS ", bugsfiles$script, " > results.txt && gzip *.txt")))
+
+  # runBugs( script=  bugsfiles$script )
+
+  setwd(olddir)
+  t1
+}
 
 library(parallel)
 
