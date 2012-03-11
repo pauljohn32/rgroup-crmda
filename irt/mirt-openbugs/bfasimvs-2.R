@@ -188,9 +188,9 @@ runOpenbugs <- function(script, n.chains)
 
   #--------Execute a BUGS Srcipt from R and run it------ (NEW)
   bfcommirt.sim <- runOBugs(bugs = "/usr/bin/OpenBUGS",
-                  script = script, n.chains = n.chains,
-                  workingDir = getwd(), OpenBugs = TRUE, Windows=FALSE,
-                  verbose = FALSE)
+                      script = script, n.chains = n.chains,
+                      workingDir = getwd(), OpenBugs = TRUE, Windows=TRUE,
+                      verbose = FALSE)
   
   #---windows---
   #bfcommirt.sim <- runOBugs(bugs="C:/OpenBUGS/OpenBUGS321/OpenBugs.exe",
@@ -339,19 +339,19 @@ initSeedStreams <- function(rep = NULL){
 
 
 nE <- 1500
-nitems <- 30
+nitems <- 60
 nD <- 4           ## Levels of discrimination in the secondary dimension
 mina <- 1.25      ## .25, .50, .75, 1.00, 1.25
 maxa <- 1.75      ## .75, 1.00, 1.25, 1.50, 1.75
 n.chains <- 2
-n.iter <- 10000
-n.burnin <- 3000
-n.thin <- 1
+n.iter <- 7500
+n.burnin <- 5500
+n.thin <- 2
 
 ## To test this out, run this. Does not require cluster framework.
-for (re in 1: 2) {
-res <- runOneSimulation(re = re, nitems=nitems, nE=nE, mina=mina, maxa=maxa, nD=nD, n.chains=n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
-}
+#for (re in 1: 2) {
+#res <- runOneSimulation(re = re, nitems=nitems, nE=nE, mina=mina, maxa=maxa, nD=nD, n.chains=n.chains, n.iter=n.iter, n.burnin=n.burnin, n.thin=n.thin)
+#}
 
 
 
