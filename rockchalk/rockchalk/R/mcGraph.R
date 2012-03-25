@@ -182,8 +182,8 @@ mcGraph3 <- function(x1, x2, y, interaction = FALSE, drawArrows = TRUE, x1lab, x
   if (interaction) m1 <- lm(y ~ x1 * x2)
   else m1 <- lm(y ~ x1 + x2)
  
-  x1seq <- plotSeq (x1range, length = 20)
-  x2seq <- plotSeq (x2range , length = 20)
+  x1seq <- plotSeq (x1range, length.out = 20)
+  x2seq <- plotSeq (x2range, length.out = 20)
   
   zplane <- outer ( x1seq, x2seq, function(a, b) { predict(m1,
     newdata = data.frame( x1 = a, x2 = b ))} )

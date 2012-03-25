@@ -120,8 +120,8 @@ plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawA
     }
   }
   
-  x1seq <- plotSeq(x1range, length = npp)
-  x2seq <- plotSeq(x2range, length = npp)
+  x1seq <- plotSeq(x1range, length.out = npp)
+  x2seq <- plotSeq(x2range, length.out = npp)
   zplane <- outer(x1seq, x2seq, function(a, b) { myPredict(a,b) } )
   
   yrange <- magRange(c(zplane,y), 1.15)

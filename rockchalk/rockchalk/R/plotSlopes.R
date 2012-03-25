@@ -124,7 +124,7 @@ plotSlopes <-
   ylab <- colnames(model$model)[1]
   plotyRange <- magRange(depVar, mult=c(1,1.2))
   plotxRange <- range(mm[, plotx], na.rm = TRUE)
-  plotxSeq <- plotSeq(plotxRange, l = 40)
+  plotxSeq <- plotSeq(plotxRange, length.out = 40)
 
   if (is.factor(modxVar)) { ## modxVar is a factor
     if (is.null(modxVals)) {

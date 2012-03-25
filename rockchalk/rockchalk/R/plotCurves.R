@@ -133,7 +133,7 @@ plotCurves <-
   ##ylab <- varnames[1] ## returns untransformed carrier DV
   plotyRange <- magRange(depVar, mult=c(1,1.2))
   plotxRange <- range(plotxVar, na.rm=TRUE)
-  plotxSeq <- plotSeq(plotxRange, l = 40)
+  plotxSeq <- plotSeq(plotxRange, length.out = 40)
 
   if (is.factor(modxVar)) { ## modxVar is a factor
     if (is.null(modxVals)) {

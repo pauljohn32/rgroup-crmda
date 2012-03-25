@@ -32,7 +32,7 @@ genCorrelatedData <- function(N = 100, means = c(50,50), sds = c(10,10), rho = 0
   corr.mat <- matrix(c(1,rho,rho,1), nrow = 2)
   sigma <- diag(sds) %*% corr.mat %*% diag(sds)
   x.mat <-  mvrnorm(n = N, mu = means, Sigma = sigma)
-  y = beta[1] + beta[2] * x.mat[,1] + beta[3] * x.mat[,2] + beta[4] * x.mat[,1] * x.mat[ ,2] +  stde*rnorm (N, m = 0, s = 1)
+  y = beta[1] + beta[2] * x.mat[,1] + beta[3] * x.mat[,2] + beta[4] * x.mat[,1] * x.mat[ ,2] +  stde*rnorm (N, mean = 0, sd = 1)
   dat <- data.frame(x.mat, y)
   names(dat) <- c("x1", "x2", "y")
   dat

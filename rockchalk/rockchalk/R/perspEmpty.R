@@ -36,7 +36,7 @@ perspEmpty <- function(x1, x2, y, x1lab, x2lab, ylab, ... ){
   x2range <- range(x2, na.rm = TRUE)
   yrange <- range(y, na.rm = TRUE)
  
-  zZero <- outer( plotSeq(x1range, l=5), plotSeq(x2range, l=5), function( a,b) { a*b*0 + yrange[1] } )
+  zZero <- outer( plotSeq(x1range, length.out = 5), plotSeq(x2range, length.out = 5), function( a,b) { a*b*0 + yrange[1] } )
 
   dotargs <- list(...)
    if (missing(x1lab)) {dotargs[["xlab"]] <-"x1"
@@ -53,7 +53,7 @@ perspEmpty <- function(x1, x2, y, x1lab, x2lab, ylab, ... ){
                         dotargs[["zlab"]] <-ylab
                       }
   
-  myDefaults <- list(x=plotSeq(x1range, l=5), y= plotSeq(x2range, l=5), z=zZero, zlim=yrange, lwd=1, theta=0, phi=15)
+  myDefaults <- list(x=plotSeq(x1range, length.out = 5), y= plotSeq(x2range, length.out = 5), z=zZero, zlim=yrange, lwd=1, theta=0, phi=15)
   
   myargs <- modifyList(myDefaults, dotargs)
   res <- do.call("persp", myargs)
