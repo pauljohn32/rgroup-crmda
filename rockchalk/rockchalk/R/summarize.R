@@ -1,8 +1,8 @@
-##' Extracts numeric variables and presents a alphabetized summary in
+##' Extracts numeric variables and presents an alphabetized summary in
 ##' a workable format.
 ##'
 ##' This function finds the numeric variables and ignores the
-##' others. (See \link{\code{summarizeFactors}} for a function that
+##' others. (See \code{summarizeFactors} for a function that
 ##' handles non-numeric variables.). It calculates the quantiles for
 ##' each variable, as well as the mean, standard deviation, and
 ##' variance, and then packs those results into a matrix. The main
@@ -16,7 +16,7 @@
 ##' @param alphaSort If TRUE (default), the columns are re-organized in alphabetical order. If FALSE, they are presented in the original order.
 ##' @param digits integer, used for number formatting output.
 ##' @export
-##' @return
+##' @return a matrix with one column per variable and the rows representing the quantiles as well as the mean, standard deviation, and variance.
 ##' @seealso summarize and summarizeFactors
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 summarizeNumerics <- function(dat, alphaSort = TRUE,
@@ -77,11 +77,11 @@ summary.factor <- function(y, maxLevels) {
 }
 
 
-##' Extracts non-numeric variables presents summary information,
+##' Extracts non-numeric variables, calculates summary information,
 ##' including entropy as a diversity indicator.
 ##'
 ##' This function finds the non- numeric variables and ignores the
-##' others. (See \link{\code{summarizeNumerics}} for a function that
+##' others. (See \code{summarizeNumerics} for a function that
 ##' handles numeric variables.)  It then treats all non-numeric
 ##' variables as if they were factors, and summarizes each. The main
 ##' benefits from this compared to R's default summary are 1) more
@@ -95,7 +95,7 @@ summary.factor <- function(y, maxLevels) {
 ##' values. The lowest possible value for entropy is 0, while the
 ##' maximum value is dependent on the number of categories. Entropy is
 ##' also called Shannon's information index in some fields of study
-##' (Balch, ; Shannon, ).
+##' (Balch, 2000 ; Shannon, 1949 ).
 ##'
 ##' Concerning the use of entropy as a diversity index, the user might
 ##' consult Balch(). For each possible outcome category, let p
@@ -122,16 +122,21 @@ summary.factor <- function(y, maxLevels) {
 ##' @param alphaSort If TRUE (default), the columns are re-organized in alphabetical order. If FALSE, they are presented in the original order.
 ##' @param digits  integer, used for number formatting output.
 ##' @export
-##' @return
+##' @return A list of factor summaries
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-##' @references
-##' Balch. ()
+##' @seealso \code{\link[rockchalk]{summarizeFactors}} and \code{\link[rockchalk]{summarizeNumerics}}
 ##'
-##' Shannon, Claude. ()
+##' @references
+##'
+##' Balch, T. (2000). Hierarchic Social Entropy: An Information
+##' Theoretic Measure of Robot Group Diversity. Auton. Robots, 8(3),
+##' 209-238.
+##'
+##' Shannon, Claude. E. (1949). The Mathematical Theory of Communication. Urbana: University of Illinois Press.
 ##' @examples
 ##' set.seed(21234)
 ##' x <- runif(1000)
-##' xn <- ifelse(x < 0.2, 0, ifelse(x < 0.6, 1), 2)
+##' xn <- ifelse(x < 0.2, 0, ifelse(x < 0.6, 1, 2))
 ##' xf <- factor(xn, levels=c(0,1,2), labels("A","B","C"))
 ##' dat <- data.frame(xf, xn, x)
 ##' summarizeFactors(dat)
@@ -213,9 +218,9 @@ summarize <- function(dat, ...) {
     keepnames <- dotnames %in% nnames
     if (sum(keepnames) > 0) {
         argList <- modifyList(list(dat = quote(dat)), dots[keepnames])
-        datn <- do.call("rockchalk::summarizeNumerics", argList)
+        datn <- do.call("summarizeNumerics", argList)
     } else {
-        datn <- do.call("rockchalk::summarizeNumerics", args = list(dat = quote(dat)))
+        datn <- do.call("summarizeNumerics", args = list(dat = quote(dat)))
     }
 
     ## all ... can go to summarizeFactors
