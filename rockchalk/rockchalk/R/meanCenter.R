@@ -193,7 +193,6 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
   stddat <- rdf
   for (i in nc) stddat[ , i] <- std( stddat[, i])
   mc$data <- quote(stddat)
-  cat("Model-constructed interactions such as \"x1:x3\" are built from centered variables\n")
   res <- eval(mc)
   class(res) <- c("mcreg", class(model))
   attr(res, "centeredVars") <- nc

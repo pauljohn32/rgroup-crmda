@@ -16,13 +16,13 @@
 
 
 #' outreg
-#' 
+#'
 #' Creates a publication quality regression result table for models fitted by
 #' lm and glm. Can be called within Sweave documents.
-#' 
+#'
 #' Uses a bunch of tedious "cat" statements to display the regression model in
 #' LaTeX output.
-#' 
+#'
 #' @param incoming A single regression model or an R list of regression models.
 #' @param title A title to be displayed on the top of the LaTeX regression
 #' table.
@@ -41,7 +41,7 @@
 #' a floating table object, set this to TRUE. Otherwise, the value of FALSE causes the
 #' output to include the output that creates more of the LaTeX table
 #' boilerplate.
-#' @export outreg 
+#' @export outreg
 #' @return None
 #' @keywords regression
 #' @note There are many R packages that can be used to create LaTeX regression
@@ -50,38 +50,38 @@
 #' development. It is not intended as a competitor, it is just a slightly
 #' different version of the same that is more suited to our needs.
 #' @author Paul E. Johnson \email{<pauljohn@@ku.edu>}
-#' @references Citation: 
+#' @references Citation:
 #' @examples
 #' x1 <- rnorm(100)
 #' x2 <- rnorm(100)
 #' y1 <- 5*rnorm(100)+3*x1 + 4*x2
-#' 
+#'
 #' y2 <- rnorm(100)+5*x2
 #' m1 <- lm (y1~x1)
 #' m2 <- lm (y1~x2)
 #' m3 <- lm (y1 ~ x1 + x2)
 #' gm1 <- glm(y1~x1)
-#' 
+#'
 #' outreg(m1,title="My One Tightly Printed Regression", lyx=FALSE )
-#' 
+#'
 #' outreg(m1,tight=FALSE,modelLabels=c("Fingers"), title="My Only Spread Out Regressions" ,lyx=FALSE)
-#'  
+#'
 #' outreg(list(m1,m2),modelLabels=c("Mine","Yours"),varLabels=list(x1="Billie"), title="My Two Linear Regressions Tightly Printed" ,lyx=FALSE)
-#' 
+#'
 #' outreg(list(m1,m2),modelLabels=c("Whatever","Whichever"), title="My Two Linear Regressions Not Tightly  Printed", showAIC=FALSE, lyx=FALSE)
-#' 
+#'
 #' outreg(list(m1,m2,m3),title="My Three Linear Regressions", lyx=FALSE)
-#'         
+#'
 #' outreg(list(m1,m2,m3),tight=FALSE,modelLabels=c("I Love love love really long titles","Hate Long","Medium"), lyx=FALSE)
-#' 
+#'
 #' outreg(list(gm1),modelLabels=c("GLM"), lyx=FALSE)
-#' 
+#'
 #' outreg(list(m1,gm1),modelLabels=c("OLS","GLM"), lyx=FALSE)
-#' 
-outreg <- function(incoming, title="My Regression", label="", modelLabels=NULL, varLabels=NULL, tight=TRUE, showAIC=FALSE, lyx=TRUE){
+#'
+outreg <- function(incoming, title, label, modelLabels=NULL, varLabels=NULL, tight=TRUE, showAIC=FALSE, lyx=TRUE){
 
   modelList <- NULL
-  
+
   ## was input just one model, or a list of models?  ###
   if ( "lm" %in% class(incoming)) { ##just one model input
     nmodels <- 1
@@ -89,34 +89,36 @@ outreg <- function(incoming, title="My Regression", label="", modelLabels=NULL, 
   } else {
     nmodels <- length(incoming)
     modelList <- incoming
-  } 
-  
+  }
+
   ##TODO modelLabels MUST have same number of items as "incoming"
 
-  
+
   ## Get a regression summary object for each fitted model
   summaryList <- list()
   fixnames <- vector()
   myModelClass <- vector()
-  
+
   i <-  1
   for (model in modelList){
     summaryList[[i]] <- summary(model)
-    
+
     fixnames <- unique( c( fixnames, names(coef(model))))
     myModelClass[i] <- class(model)[1]
     i <- i+1
   }
-  
 
-  
+
+
   ###If you are just using LaTeX, you need these
-if (lyx == FALSE){
+if (lyx == FALSE || !missing(title) || !missing(label)){
  cat("\\begin{table}\n ")
-  cat("\\caption{",title,"}\\label{",label,"}\n ")
+   if (missing(title)) title <- "A Regression"
+   if (missing(label)) label <- "regrlabl"
+   cat("\\caption{",title,"}\\label{",label,"}\n ")
  }
   cat("\\begin{center}\n ")
-  nColumns <- ifelse(tight, 1+nmodels, 1 + 2*nmodels) 
+  nColumns <- ifelse(tight, 1+nmodels, 1 + 2*nmodels)
   cat(paste("\\begin{tabular}{*{",nColumns,"}{l}}\n ", sep=""))
   cat("\\hline\n ")
 
@@ -132,24 +134,24 @@ if (lyx == FALSE){
     }
     cat (" \\\\\n ")
   }
-  
-  ### Print the headers "Estimate" and "(S.E.)", output depends on tight or other format 
+
+  ### Print the headers "Estimate" and "(S.E.)", output depends on tight or other format
   if (tight == TRUE){
     cat("             ")
     for (i in 1:nmodels) { cat (" & Estimate ") }
     cat(" \\\\\n")
-    
+
     cat("             ")
     for (i in 1:nmodels) {  cat (" & (S.E.) ") }
     cat(" \\\\\n")
   }else{
-    
+
     cat("             ")
     for (i in 1:nmodels) { cat (" & Estimate & S.E.") }
     cat(" \\\\\n")
   }
 
-  
+
   cat("\\hline \n \\hline\n ")
 
 
@@ -157,7 +159,7 @@ if (lyx == FALSE){
   for (regname in fixnames){
     if ( !is.null(varLabels[[regname]]) ) { cat(paste("",varLabels[[regname]]), sep="")}
     else {cat(paste("", regname), sep="")}
-   
+
     for (model in modelList) {
       est <- coef(model)[regname]
       se <- sqrt(diag(vcov(model)))[regname]
@@ -165,7 +167,7 @@ if (lyx == FALSE){
         cat (paste("   &   ", round(est,3)))
         pval <- pt(abs(est/se), lower.tail=FALSE, df = model$df.residual)
         if (pval < 0.025) cat("*")
-        
+
         if (tight == FALSE) {
           cat (paste("   &   (", round(se,3),")",sep=""))
         }
@@ -175,7 +177,7 @@ if (lyx == FALSE){
       }
     }
     cat (" \\\\\n ")
-    
+
     if (tight == TRUE){
       for (model in modelList) {
         est <- coef(model)[regname]
@@ -207,8 +209,8 @@ if (lyx == FALSE){
        }
        cat ("  \\\\\n ")
      }
-  
- 
+
+
   ### Print a row for the R-square
   if ("lm" %in% myModelClass) {
      cat(paste("$R^2$"),sep="")
@@ -218,7 +220,7 @@ if (lyx == FALSE){
      }
      cat ("  \\\\\n ")
    }
-  
+
 #"adj.r.squared"
 
     ### Print a row for the adj-R-square
@@ -230,8 +232,8 @@ if (lyx == FALSE){
      }
      cat ("  \\\\\n ")
    }
-  
- 
+
+
   ## Print a row for the model residual deviance
    if ("glm" %in% myModelClass) {
     cat(paste("$Deviance$"),sep="")
@@ -243,17 +245,17 @@ if (lyx == FALSE){
   }
 
   ### Print a row for the model's fit, as -2LLR
-  if ("glm" %in% myModelClass) {    
+  if ("glm" %in% myModelClass) {
     cat (paste("$-2LLR (Model \\chi^2)$"),sep="")
     for (model in modelList) {
       if (is.numeric(model$deviance)){
-        n2llr <- model$null.deviance - model$deviance 
+        n2llr <- model$null.deviance - model$deviance
         cat (paste("      &", round(n2llr,3)))
         gmdf <- model$df.null - model$df.residual + 1
-       
+
         if (pchisq(n2llr, df= gmdf, lower.tail=FALSE) < 0.05) {cat ("*")}
       }
-    
+
       else {
         cat ("    &")
       }
@@ -266,7 +268,7 @@ if (lyx == FALSE){
 
   ## Print a row for the model's fit, as -2 LLR
   ### Can't remember why I was multiplying by -2
-  
+
   if (showAIC == TRUE) {
     cat(paste("$AIC$"),sep="")
     for (model in modelList) {
@@ -277,12 +279,12 @@ if (lyx == FALSE){
   }
 
 
-  
+
    cat("\\hline\\hline\n")
    cat ("* $p \\le 0.05$")
    cat("\\end{tabular}\n")
    cat("\\end{center}\n")
-   if (lyx == FALSE){ 
+   if (lyx == FALSE){
       cat("\\end{table}\n")
    }
  }

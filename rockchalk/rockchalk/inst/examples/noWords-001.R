@@ -84,20 +84,61 @@ xy[ x<3 & !z, ]
 
 
 
+xs1 <- seq(5, 20, by=1)
+xs2 <- seq(5, 20, length.out=16)
+xs1 == xs2
+identical(xs1, xs2)
+
+xs3 <- 5:20
+xs1 == xs3
+identical(xs1, xs3) ##hmmm. huh?
+is.vector(xs3)
+is.vector(xs1)
+dim(xs1)
+dim(xs3)
+all.equal(xs1, xs3) #ok!
+identical(xs1, xs3) ##hmmm. puzzler
+which( xs1 != xs3 )
+which( xs1 == xs3 )
+
+for( i in seq_along(xs3)){
+  print(xs1[i]-xs3[i])
+}
+## hmmm. again
+is.integer(xs1)
+is.numeric(xs1)
+is.numeric(xs3)
+is.integer(xs3) ## aha!
+
+identical(xs3, as.integer(xs1)) ##well. maybe
+
+## appears bugish
+## > identical(seq(1,10), 1:10)
+## [1] TRUE
+## > identical(seq(1L, 10L,  by=1), 1:10)
+## [1] FALSE
+## > identical(seq(1,10,  by=1), 1:10)
+## [1] FALSE
+## > identical(seq(1L, 10L,  by=1L), 1:10)
+## [1] TRUE
+
+x1 <- c(1,1,1,1,1,1,1,1,1,1)
+x2 <- rep(1, times = 10)
+x2
+x2 <- rep(1, 10)
+x1 == x2
+identical(x1, x2)
 
 
 
-##inner product
-x %*% y
-t(x) %*% y
-y %*% x
+rep(c(1, 5, 8), length.out=9)
 
-outer(x,y)
-outer(x,y, FUN="*")
-outer(x,y, FUN="+")
-outer(x,y, FUN="/")
-outer(x,y, FUN=function(a, b) {b - 2*a})
+rep(c(1, 5, 8), each=3)
 
-xym <- as.matrix(xy)
-xym
-crossprod(xy,xy)
+rep(c(1, 5, 8), each=3, length.out=9)
+
+rep(c(1, 5, 8), each=3, length.out=10)
+
+rep(c(1, 5, 8), times=3)
+
+rep(c(1, 5, 8), each=3, times=3)

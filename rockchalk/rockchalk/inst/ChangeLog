@@ -1,3 +1,19 @@
+2012-04-02  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotCurves.R (cutBySD): insert "col" option, similar to plotSlopes
+
+2012-03-31  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotSlopes.R: allow user to specify colors in plot. add
+	option plotLegend.
+
+	* ../R/outreg.R (outreg): fixing problem that title did not print
+	unless LyX=FALSE
+
+2012-03-29  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/summarize.R (ncw): new method print.factorSummaries
+
 2012-03-09  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* examples/meanCenter-ex.R: remove references to centerContrasts

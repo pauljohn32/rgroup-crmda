@@ -68,11 +68,11 @@ text(datsummNT$mean, datsummNT$var, labels = rownames(datsummNT),
 
 ## We could brute force the names outside the edges like
 ##  this
-par(xpd = T)
+par(xpd = TRUE)
 text(datsummNT$mean, datsummNT$var, labels = rownames(datsummNT),
     cex = 0.8)
 ## but that is not much better
-par(xpd = F)
+par(xpd = FALSE)
 
 ## Here is one fix. Make the unused space inside the plot
 ##  larger by
@@ -104,7 +104,7 @@ plot(datsummNT$mean, datsummNT$var, xlab = "The Means",
 ##  there were lots of variables, we'd have to get smarter about
 ##  positioning labels on above, below, left, or right.
 labelPos <- ifelse(datsummNT$mean - mean(datsummNT$mean,
-    na.rm = T) > 0, 2, 4)
+    na.rm = TRUE) > 0, 2, 4)
 text(datsummNT$mean, datsummNT$var, labels = rownames(datsummNT),
     cex = 0.8, pos = labelPos)
 
@@ -126,24 +126,29 @@ dat <- data.frame(x = rnorm(N), y = gl(50, 2), z = factor(rep(1:4,
 
 summarize(dat)
 
-dat <- read.table(url("http://pj.freefaculty.org/guides/stat/DataSets/USNewsCollege/USNewsCollege.csv"),
-    sep = ",")
+## Run this if you have internet access
 
-colnames(dat) <- c("fice", "name", "state", "private",
-    "avemath", "aveverb", "avecomb", "aveact", "fstmath", "trdmath",
-    "fstverb", "trdverb", "fstact", "trdact", "numapps", "numacc",
-    "numenr", "pctten", "pctquart", "numfull", "numpart", "instate",
-    "outstate", "rmbrdcst", "roomcst", "brdcst", "addfees", "bookcst",
-    "prsnl", "pctphd", "pctterm", "stdtofac", "pctdonat", "instcst",
-    "gradrate")
+## dat <- read.table(url("http://pj.freefaculty.org/guides/stat/DataSets/USNewsCollege/USNewsCollege.csv"),
+## sep = ",")
 
-dat$private <- factor(dat$private, labels = c("public",
-    "private"))
-sumry <- summarize(dat, digits = 2)
-sumry
+## colnames(dat) <- c("fice", "name", "state", "private", "avemath",
+##                    "aveverb", "avecomb", "aveact", "fstmath",
+##                    "trdmath", "fstverb", "trdverb", "fstact",
+##                    "trdact", "numapps", "numacc", "numenr",
+##                    "pctten", "pctquart", "numfull", "numpart",
+##                    "instate", "outstate", "rmbrdcst", "roomcst",
+##                    "brdcst", "addfees", "bookcst", "prsnl",
+##                    "pctphd", "pctterm", "stdtofac", "pctdonat",
+##                    "instcst", "gradrate")
 
-sumry[[1]]
-sumry[[2]]
+## dat$private <- factor(dat$private, labels = c("public",
+##                                    "private"))
+## sumry <- summarize(dat, digits = 2)
+## sumry
 
-summarize(dat[, c("fice", "name", "private", "fstverb",
-    "avemath")], digits = 4)
+## sumry[[1]]
+## sumry[[2]]
+
+## summarize(dat[, c("fice", "name", "private", "fstverb",
+##                   "avemath")], digits = 4)
+

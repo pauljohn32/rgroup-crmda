@@ -1,5 +1,5 @@
-##' Assists creation of predicted value curves for regression models. 
-##' 
+##' Assists creation of predicted value curves for regression models.
+##'
 ##'
 ##' This is similar to \code{plotSlopes}, but it accepts regressions
 ##' in which there are transformed variables, such as "log(x1)".
@@ -25,9 +25,9 @@
 ##' percentiles {0.25,0.50,0.75}. The algorithm \code{std.dev.} plots
 ##' three lines, one for the mean of modx, and one for the mean minus
 ##' one standard deviation, and the other for the mean plus one
-##' standard deviation. 
-##' 
-##' 
+##' standard deviation.
+##'
+##'
 ##' @param model Fitted regression object. Must have a predict method
 ##' @param plotx String with name of IV to be plotted on x axis
 ##' @param modx String for moderator variable name. May be either numeric or factor.
@@ -37,34 +37,35 @@
 ##' line for each level, but the user can supply a vector of levels if
 ##' a subset is desired.
 ##' @param plotPoints Should the plot include the scatterplot points along with the lines.
-##' @param envir environment to search for variables. 
+##' @param col An optional color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
+##' @param envir environment to search for variables.
 ##' @param ... further arguments that are passed to plot.
 ##' @export
 ##' @import car
 ##' @return A plot is created as a side effect, a list is returned including
-##' 1) the call, 2) a newdata object that includes information on the curves that were 
+##' 1) the call, 2) a newdata object that includes information on the curves that were
 ##' plotted, 3) a vector modxVals, the values for which curves were drawn.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @example  inst/examples/plotCurves-ex.R
 
 plotCurves <-
-  function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL, 
-            plotPoints = TRUE, envir = environment(formula(model)), ...) 
+  function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL,
+            plotPoints = TRUE, col, envir = environment(formula(model)), ...)
 {
-  if (is.null(model)) 
+  if (is.null(model))
     stop("plotCurves requires a fitted regression model.")
-  if (is.null(plotx)) 
+  if (is.null(plotx))
     stop("plotCurves requires the name of the variable to be drawn on the x axis")
-  if (is.null(modx)) 
+  if (is.null(modx))
     stop("plotCurves requires the name of moderator variable for which several slopes are to be drawn")
 
   carrier <- function(term, data, enc = NULL) {
-    if (length(term) > 1L) 
+    if (length(term) > 1L)
       carrier(term[[2L]])
     else eval(term, envir = data, enclos = enc)
   }
   carrier.name <- function(term) {
-    if (length(term) > 1L) 
+    if (length(term) > 1L)
       carrier.name(term[[2L]])
     else as.character(term)
   }
@@ -76,7 +77,7 @@ plotCurves <-
     names(qs) <- names(table1sort[1:n])
     invisible(qs)
   }
-  
+
   cutByQuantile <- function(x){
     uniqueVals <- unique(x)
     if (length(uniqueVals) < 6) {
@@ -87,7 +88,7 @@ plotCurves <-
       invisible(qs)
     }
   }
-  
+
   cutBySD <- function(x){
     uniqueVals <- unique(x)
     if (length(uniqueVals) < 6) {
@@ -105,11 +106,11 @@ plotCurves <-
     }
   }
 
-  
+
   cl <- match.call()
   mf <- model.frame(model)
   tt <- terms(model)
-    
+
   cn <- parse(text = colnames(mf))
   varnames <- unlist(lapply(cn, carrier.name))
 
@@ -117,18 +118,18 @@ plotCurves <-
 
   ## experimenting with another way to gather variables.
   ## data <- eval(model$call$data, envir) ##grabs nothing unless data option was used
-  ## if (is.null(data)) 
+  ## if (is.null(data))
   ##   data <- mf
   ## ## if (plotx %in% varnames) plotxVar <- emf[, plotx] else stop("plotx missing")
   ## data <- data[row.names(emf) , ]
-  
+
   plotxVar <- carrier(parse(text = plotx), emf, enc=envir)
-  if (!is.numeric(plotxVar)) 
+  if (!is.numeric(plotxVar))
     stop(paste("plotCurves: The variable", plotx, "should be a numeric variable"))
 
   modxVar <- carrier(parse(text = modx), emf, enc=envir)
   depVar <- model.response(mf)
- 
+
   ylab <- names(mf)[1]  ## returns transformed DV
   ##ylab <- varnames[1] ## returns untransformed carrier DV
   plotyRange <- magRange(depVar, mult=c(1,1.2))
@@ -146,7 +147,7 @@ plotCurves <-
     if (is.null(modxVals)) {
       modxVals <- cutByQuantile(modxVar)
     } else {
-      if (is.numeric(modxVals)) { 
+      if (is.numeric(modxVals)) {
       ##TODO: Insert some checks that modxVals are reasonable
       } else {
         if (is.character(modxVals)) {
@@ -162,8 +163,10 @@ plotCurves <-
       }
     }
   }
-  lmx <- length(modxVals)                            
-  
+  lmx <- length(modxVals)
+  if (missing(col)) col <- 1:lmx
+  if (length(col) < lmx) rep(col, length.out = lmx)
+
   predictors <- colnames(emf)[-1]
   predictors <- setdiff(predictors, c(modx, plotx))
   newdf <- data.frame(expand.grid(plotxSeq, modxVals))
@@ -182,7 +185,7 @@ plotCurves <-
   } else {
     if (is.factor(modxVar)) {
       parms <- list(plotxVar, depVar, xlab = plotx, ylab = ylab, ylim = plotyRange,
-           col = modxVar)
+           col = col)
       parms <- modifyList(parms, dotargs)
       do.call("plot", parms)
     }
@@ -194,7 +197,7 @@ plotCurves <-
   }
   for (i in 1:lmx) {
     pdat <- newdf[newdf[, modx] %in% modxVals[i], ]
-    lines(pdat[, plotx], pdat$pred, lty = i, col = i, lwd = 2)
+    lines(pdat[, plotx], pdat$pred, lty = i, col = col[i], lwd = 2)
   }
   if (is.null(names(modxVals))) {
     legnd <- paste(modxVals, sep = "")
@@ -202,7 +205,7 @@ plotCurves <-
   else {
     legnd <- paste(names(modxVals), sep = "")
   }
-  legend("topleft", legend = legnd, lty = 1:lmx, col = 1:lmx, 
+  legend("topleft", legend = legnd, lty = 1:lmx, col = 1:lmx,
          bg = "white", title= paste("moderator:", modx))
 
   invisible(list(call=cl, newdata=newdf, modxVals = modxVals))

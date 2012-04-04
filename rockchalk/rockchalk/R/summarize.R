@@ -34,7 +34,7 @@ summarizeNumerics <- function(dat, alphaSort = TRUE,
     sumdat <- rbind(sumdat, `NA's` = apply(datn, 2, function(x) sum(is.na(x))))
     signif(sumdat, digits)
 }
-
+NULL
 
 ##' Tabulates observed values and calculates entropy
 ##'
@@ -75,7 +75,7 @@ summary.factor <- function(y, maxLevels) {
     props <- prop.table(tbl)
     tt <- c(tt, entropy = entropy(props), normedEntropy = normedEntropy(props))
 }
-
+NULL
 
 ##' Extracts non-numeric variables, calculates summary information,
 ##' including entropy as a diversity indicator.
@@ -124,7 +124,7 @@ summary.factor <- function(y, maxLevels) {
 ##' @export
 ##' @return A list of factor summaries
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-##' @seealso \code{\link[rockchalk]{summarizeFactors}} and \code{\link[rockchalk]{summarizeNumerics}}
+##' @seealso \code{\link{summarizeFactors}} and \code{\link{summarizeNumerics}}
 ##'
 ##' @references
 ##'
@@ -141,59 +141,85 @@ summary.factor <- function(y, maxLevels) {
 ##' dat <- data.frame(xf, xn, x)
 ##' summarizeFactors(dat)
 ##' ##see help for summarize for more examples
-summarizeFactors <- function(dat = NULL, maxLevels = 10,
-    alphaSort = TRUE, digits = max(3, getOption("digits") - 3)) {
-
-    ##copies from R base::summary.R summary.data.frame
-    ncw <- function(x) {
-        z <- nchar(x, type = "w")
-        if (any(na <- is.na(z))) {
-            # FIXME: can we do better
-            z[na] <- nchar(encodeString(z[na]), "b")
-        }
-        z
-    }
-
+summarizeFactors <-
+    function (dat = NULL, maxLevels = 10, alphaSort = TRUE, digits = max(3,
+              getOption("digits") - 3))
+{
     if (!is.data.frame(dat))
         dat <- as.data.frame(dat)
-    ##treat any nonnumeric as a factor
     factors <- sapply(dat, function(x) {
         !is.numeric(x)
     })
-    ##If only one factor, need drop=FALSE.
     datf <- dat[, factors, drop = FALSE]
     if (alphaSort)
         datf <- datf[, sort(colnames(datf)), drop = FALSE]
     z <- lapply(datf, rockchalk:::summary.factor, maxLevels = maxLevels)
-    nv <- length(datf)
-    nm <- names(datf)
+    attr(z, "class") <- c("factorSummaries")
+    z
+}
+NULL
+
+##' Prints out the contents of an object created by summarizeFactors
+##' in the style of base::summary
+##'
+##' An object with class "factorSummaries" is the input. Such an
+##' object should be created with the function
+##' rockchalk::summarizeFactors. Each element in that list is then
+##' organized for printing in a tabular summary.  This should look
+##' almost like R's own summary function, except for the additional
+##' information that these factor summaries include.
+##'
+##' @method print factorSummaries
+##' @S3method print factorSummaries
+##' @param x A factorSummaries object produced by summarizeFactors
+##' @param ... optional arguments. Only value currently used is digits.
+##' @return A table of formatted output
+##' @author Paul E. Johnson <pauljohn@@ku.edu>
+##' @seealso \code{\link[base]{summary}} and
+##' \code{\link{summarize}},
+##' \code{\link{summarizeFactors}}
+print.factorSummaries <- function(x, ...){
+    ncw <- function(x) {
+        z <- nchar(x, type = "w")
+        if (any(na <- is.na(z))) {
+            z[na] <- nchar(encodeString(z[na]), "b")
+        }
+        z
+    }
+    dots <- list(...)
+    if (!is.null(dots$digits)) digits = dots$digits
+    else digits = max(3, getOption("digits") - 3)
+    nv <- length(x)
+    nm <- names(x)
     lw <- numeric(nv)
-    nr <- max(unlist(lapply(z, NROW)))
+    nr <- max(unlist(lapply(x, NROW)))
     for (i in 1L:nv) {
-        sms <- z[[i]]
+        sms <- x[[i]]
         lbs <- format(names(sms))
         sms <- paste(lbs, ":", format(sms, digits = digits),
-            "  ", sep = "")
+                     "  ", sep = "")
         lw[i] <- ncw(lbs[1L])
         length(sms) <- nr
-        z[[i]] <- sms
+        x[[i]] <- sms
     }
-    z <- unlist(z, use.names = TRUE)
-    dim(z) <- c(nr, nv)
+    x <- unlist(x, use.names = TRUE)
+    dim(x) <- c(nr, nv)
     if (any(is.na(lw)))
         warning("probably wrong encoding in names(.) of column ",
-            paste(which(is.na(lw)), collapse = ", "))
+                paste(which(is.na(lw)), collapse = ", "))
     blanks <- paste(character(max(lw, na.rm = TRUE) + 2L), collapse = " ")
     pad <- floor(lw - ncw(nm)/2)
     nm <- paste(substring(blanks, 1, pad), nm, sep = "")
-    dimnames(z) <- list(rep.int("", nr), nm)
-    attr(z, "class") <- c("table")
-    z
+    dimnames(x) <- list(rep.int("", nr), nm)
+    attr(x, "class") <- c("table")
+    print(x)
+    invisible(x)
 }
+NULL
 
 
-##' sorts numeric from factor variables and returns separate
-##' summaries.
+##' Sorts numeric from factor variables and returns separate
+##' summaries for those types of variables.
 ##'
 ##' The work is done by the functions \code{summarizeNumerics} and
 ##' \code{summarizeFactors}.  Please see the help pages for those
@@ -229,3 +255,4 @@ summarize <- function(dat, ...) {
     value <- list(numerics = datn, factors = datf)
     value
 }
+NULL

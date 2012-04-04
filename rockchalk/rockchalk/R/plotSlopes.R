@@ -35,7 +35,7 @@
 ##' are the "standard deviations about the mean of \code{modx}" lines,
 ##' at which modx is set at mean - k* standard deviation, and k takes
 ##' on values -2, -1, 0, 1, 2.
-##' 
+##'
 ##' Here is a wrinkle. There can be many variables in a regression
 ##' model, and we are plotting only for the \code{plotx} and
 ##' \code{modx} variables. How should we calculate predicted values
@@ -52,29 +52,31 @@
 ##' string, "quantile", "std.dev.", or "table", or a vector of values
 ##' for which plotted lines are sought. If modx is a factor, the
 ##' default approach will create one line for each level, but the user
-##' can supply a vector of levels if a subset is desired.. 
+##' can supply a vector of levels if a subset is desired..
 ##' @param plotPoints TRUE or FALSE: Should the plot include the scatterplot points along with the lines.
+##' @param plotLegend TRUE or FALSE: Include a default legend. Set to FALSE if use wants to run a different legend command after the plot has been drawn.
+##' @param col An optional color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
 ##' @param ... further arguments that are passed to plot
 ##' @export
 ##' @import car
 ##' @return The plot is drawn on the screen, and the return object includes the "newdata" object that was used to create the plot, along with the "modxVals" vector, the values of the moderator for which lines were drawn. It also includes the call that generated the plot.
 ##' @seealso plotCurves and testSlopes
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-##' @references 
+##' @references
 ##' Aiken, L. S. and West, S.G. (1991). Multiple Regression: Testing and Interpreting Interactions. Newbury Park, Calif: Sage Publications.
 ##'
 ##' Cohen, J., Cohen, P., West, S. G., and Aiken, L. S. (2002). Applied Multiple Regression/Correlation Analysis for the Behavioral Sciences (Third.). Routledge Academic.
 ##' @example inst/examples/plotSlopes-ex.R
 
 plotSlopes <-
-  function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL, 
-            plotPoints = TRUE, ...) 
+  function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL,
+            plotPoints = TRUE, plotLegend = TRUE, col, ...)
 {
-  if (is.null(model)) 
+  if (is.null(model))
     stop("plotSlopes requires a fitted regression model.")
-  if (is.null(plotx)) 
+  if (is.null(plotx))
     stop("plotSlopes requires the name of the variable to be drawn on the x axis")
-  if (is.null(modx)) 
+  if (is.null(modx))
     stop("plotSlopes requires the name of moderator variable for which several slopes are to be drawn")
 
   cutByTable <- function(x, n = 5) {
@@ -84,7 +86,7 @@ plotSlopes <-
     names(qs) <- names(table1sort[1:n])
     invisible(qs)
   }
-  
+
   cutByQuantile <- function(x){
     uniqueVals <- unique(x)
     if (length(uniqueVals) < 6) {
@@ -95,7 +97,7 @@ plotSlopes <-
       invisible(qs)
     }
   }
-   
+
   cutBySD <- function(x){
     uniqueVals <- unique(x)
     if (length(uniqueVals) < 6) {
@@ -113,13 +115,13 @@ plotSlopes <-
     }
   }
 
- 
+
   cl <- match.call()
   mm <- model.matrix(model)
   depVar <- model$model[, 1]
   modxVar <- model$model[, modx]
   plotxVar <- model$model[, plotx]
-  if (!is.numeric(plotxVar)) 
+  if (!is.numeric(plotxVar))
     stop(paste("plotSlopes: The variable", plotx, "should be a numeric variable"))
   ylab <- colnames(model$model)[1]
   plotyRange <- magRange(depVar, mult=c(1,1.2))
@@ -137,7 +139,7 @@ plotSlopes <-
     if (is.null(modxVals)) {
       modxVals <- cutByQuantile(modxVar)
     } else {
-      if (is.numeric(modxVals)) { 
+      if (is.numeric(modxVals)) {
         ;# print("TODO: Insert some checks that modxVals are reasonable")
       } else {
         if (is.character(modxVals)) {
@@ -154,7 +156,8 @@ plotSlopes <-
     }
   }
   lmx <- length(modxVals)
-  
+  if (missing(col)) col <- 1:lmx
+  if (length(col) < lmx) rep(col, length.out = lmx)
   predictors <- colnames(model$model)[-1]
   predictors <- setdiff(predictors, c(modx, plotx))
   newdf <- data.frame(expand.grid(plotxRange, modxVals))
@@ -166,14 +169,14 @@ plotSlopes <-
   newdf$pred <- predict(model, newdata = newdf)
   dotargs <- list(...)
   if (!plotPoints){
-    parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab, 
+    parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab,
          type = "n")
     parms <- modifyList(parms, dotargs)
     do.call("plot", parms)
   } else {
     if (is.factor(modxVar)) {
-      parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab, 
-           col = modxVar)
+      parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab,
+           col = col)
       parms <- modifyList(parms, dotargs)
       do.call("plot", parms)
     }
@@ -185,7 +188,7 @@ plotSlopes <-
   }
   for (i in 1:lmx) {
     pdat <- newdf[newdf[, modx] %in% modxVals[i], ]
-    lines(pdat[, plotx], pdat$pred, lty = i, col = i, lwd = 2)
+    lines(pdat[, plotx], pdat$pred, lty = i, col = col[i], lwd = 2)
   }
   if (is.null(names(modxVals))) {
     legnd <- paste(modx, " = ", modxVals, sep = "")
@@ -193,7 +196,7 @@ plotSlopes <-
   else {
     legnd <- paste(modx, " = ", names(modxVals), sep = "")
   }
-  legend("topleft", legend = legnd, lty = 1:lmx, col = 1:lmx, 
+  if(plotLegend) legend("topleft", legend = legnd, lty = 1:lmx, col = col,
          bg = "white")
 
   invisible(list(call=cl, newdata=newdf, modxVals = modxVals))
