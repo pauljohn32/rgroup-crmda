@@ -197,7 +197,7 @@ plotSlopes <-
     legnd <- paste(modx, " = ", names(modxVals), sep = "")
   }
   if(plotLegend) legend("topleft", legend = legnd, lty = 1:lmx, col = col,
-         bg = "white")
+         bg = "white", title= paste("moderator:", modx))
 
   invisible(list(call=cl, newdata=newdf, modxVals = modxVals))
 }

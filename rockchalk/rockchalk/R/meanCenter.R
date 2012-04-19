@@ -3,8 +3,8 @@
 ##' This is brain-dead standardization of all variables in the design matrix.
 ##' It mimics the silly output of SPSS, which standardizes all regressors,
 ##' even if they represent categorical variables.
-##'  
-##' @param model a fitted lm object 
+##'
+##' @param model a fitted lm object
 ##' @return an lm fitted with the standardized variables
 ##' @export
 ##' @author Paul Johnson <pauljohn@@ku.edu>
@@ -23,7 +23,7 @@ standardize.lm <- function(model){
   mdata <- model.frame(model)
   y  <- mdata[, 1]
   #dm = design matrix, columns of predictors as numerically coded
-  dm <- model.matrix(model)[ , -1] #no intercept
+  dm <- model.matrix(model)[ , -1, drop=FALSE] #no intercept
   dmnames <- colnames(dm)
   dmnamesticked <- paste("`",dmnames,"`", sep="")
   dmnamesticked <- gsub("``","`", dmnamesticked)
@@ -81,11 +81,11 @@ NULL
 ##' @method print summary.stdreg
 ##' @S3method print summary.stdreg
 print.summary.stdreg <- function (x, ...){
-  
+
     cat("All variables in the model matrix and the dependent variable
-were centered. The variables here have the same names as their 
-non-centered counterparts, but they are centered, even constructed 
-variables like `x1:x2` and poly(x1,2). We agree, that's probably 
+were centered. The variables here have the same names as their
+non-centered counterparts, but they are centered, even constructed
+variables like `x1:x2` and poly(x1,2). We agree, that's probably
 ill-advised, but you asked for it by running standardize().\n
 Observe, the summary statistics of the variables in the design matrix. \n")
     print(x$summstat)
@@ -116,19 +116,19 @@ NULL
 ##' should be set to FALSE. The dependent variable will not be
 ##' centered, unless the user explicitly requests it by setting
 ##' centerDV = TRUE. The centered variables can be standardized
-##' (optionally, of course). 
-##' @title meanCenter 
-##' @param model a fitted regression model (presumably from lm) 
+##' (optionally, of course).
+##' @title meanCenter
+##' @param model a fitted regression model (presumably from lm)
 ##' @param centerOnlyInteractors If false, all predictors in the
 ##' regression data frame are centered before the regression is
 ##' conducted.
-##' @param centerDV Should the dependent variable be centered? 
+##' @param centerDV Should the dependent variable be centered?
 ##' @param standardize Instead of simply mean-centering the variables, should they also be "standardized" by first mean-centering and then dividing by the estimated standard deviation.
 ##' @export meanCenter
 ##' @rdname meanCenter
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @seealso \code{\link[pequod]{lmres}}
-##' @references 
+##' @references
 ##' Aiken, L. S. and West, S.G. (1991). Multiple Regression: Testing and Interpreting Interactions. Newbury Park, Calif: Sage Publications.
 ##'
 ##' Cohen, J., Cohen, P., West, S. G., and Aiken, L. S. (2002). Applied Multiple Regression/Correlation Analysis for the Behavioral Sciences (Third.). Routledge Academic.
@@ -154,7 +154,7 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
       as.numeric(scale(x, center = TRUE, scale = standardize))
     }
   }
-  
+
   rdf <- get_all_vars(formula(model), model$model) #raw data frame
   t <- terms(model)
   tl <- attr(t, "term.labels")
@@ -188,8 +188,8 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
 
 
   mc <- model$call
-  # run same model call, replacing non centered data with centered data.  
-  ## 
+  # run same model call, replacing non centered data with centered data.
+  ##
   stddat <- rdf
   for (i in nc) stddat[ , i] <- std( stddat[, i])
   mc$data <- quote(stddat)
@@ -206,7 +206,7 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
 summary.mcreg <- function(object, ...){
   nc <- attr(object, "centeredVars")
   dm <- model.matrix(object)
-  dm <- dm[ , which(attr(dm, "assign") != 0)] #remove intercept, if any
+  dm <- dm[ , which(attr(dm, "assign") != 0), drop=FALSE] #remove intercept, if any
   dm <- cbind( model.frame(object)[ , deparse(terms(object)[[2]])], dm)
   colnames(dm)[1] <- deparse(terms(object)[[2]])
   dmmeans <- apply(dm, 2, mean)
@@ -275,7 +275,7 @@ predict.mcreg <- function (object, newdata, ...){
 
   if(missing(newdata)) newdata <- model.frame(object)
   newmf <- newdata
-  for (i in nc) newmf[ , i] <- std( newmf[, i])  
+  for (i in nc) newmf[ , i] <- std( newmf[, i])
 
   NextMethod(object, newdata=newmf, ...)
 }

@@ -194,17 +194,25 @@ testSlopes <- function(plotSlopesObject) {
 
 
       ##print("A plot of the quadratic equation should appear now, just for fun")
-      xps <- plotSeq(magRange(mm[, modx], 1.5), length.out=100)
+
+      if (jna > 0) {
+          xps <- plotSeq(magRange(roots, 1.3), length.out=100)
+         # cat(paste("Values of modx OUTSIDE this interval:\n"))
+      }else{
+          xps <- plotSeq(magRange(mm[, modx], 1.5), length.out=100)
+      }
+
       y <- jna * xps^2 + jnb*xps + jnc
       plot(xps, y, type="l", xlab=paste("Values of the Moderator:", modx), ylab="slope/se - Tcrit")
       if( !is.null(roots) ){
-        if(jna < 0 ){
-          arrows( roots[1], 0, roots[2], 0, col="red", angle=90, lwd=3, code=3, length=0.1)
-          text( mean(range(xps)), range(y)[1], pos=3, label=expression(paste((b[plotx] + b[modx:plotx]*modx)*plotx, " is significant in the red zone")))
-        } else {
-          arrows(min(xps), 0, roots[1], 0, col="red", angle=90, lwd=3, code=3, length=0.1)
-          arrows(roots[1], 0, max(xps), 0, col="red", angle=90, lwd=3, code=3, length=0.1)
-        }
+          if(jna < 0 ){
+              arrows( roots[1], 0, roots[2], 0, col="red", angle=90, lwd=3, code=3, length=0.1)
+              text( mean(range(xps)), range(y)[1], pos=3, label=expression(paste((b[plotx] + b[modx:plotx]*modx)*plotx, " is significant in the red zone")))
+          } else {
+              arrows(min(xps), 0, roots[1], 0, col="red", angle=90, lwd=3, code=2, length=0.1)
+              arrows(roots[2], 0, max(xps), 0, col="red", angle=90, lwd=3, code=1, length=0.1)
+              text( mean(range(xps)), range(y)[2], pos=1, label=expression(paste((b[plotx] + b[modx:plotx]*modx)*plotx, " is significant in the red zone")))
+          }
       }
       abline(h=0, col="gray80")
 
