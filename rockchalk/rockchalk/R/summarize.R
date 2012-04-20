@@ -14,12 +14,13 @@
 ##' alphaSort = FALSE.
 ##' @param dat a data frame or a matrix
 ##' @param alphaSort If TRUE (default), the columns are re-organized in alphabetical order. If FALSE, they are presented in the original order.
+##' @param sumstat If TRUE (default), include mean, standard deviation, and count of NAs.
 ##' @param digits integer, used for number formatting output.
 ##' @export
 ##' @return a matrix with one column per variable and the rows representing the quantiles as well as the mean, standard deviation, and variance.
 ##' @seealso summarize and summarizeFactors
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-summarizeNumerics <- function(dat, alphaSort = TRUE,
+summarizeNumerics <- function(dat, alphaSort = TRUE, sumstat = TRUE,
     digits = max(3, getOption("digits") - 3)) {
     if (!is.data.frame(dat))
         dat <- as.data.frame(dat)
@@ -28,10 +29,12 @@ summarizeNumerics <- function(dat, alphaSort = TRUE,
     if (alphaSort)
         datn <- datn[, sort(colnames(datn)), drop = FALSE]
     sumdat <- apply(datn, 2, stats::quantile, na.rm = TRUE)
-    sumdat <- rbind(sumdat, mean = apply(datn, 2, mean, na.rm = TRUE))
-    sumdat <- rbind(sumdat, sd = apply(datn, 2, sd, na.rm = TRUE))
-    sumdat <- rbind(sumdat, var = apply(datn, 2, var, na.rm = TRUE))
-    sumdat <- rbind(sumdat, `NA's` = apply(datn, 2, function(x) sum(is.na(x))))
+    if (sumstat) {
+        sumdat <- rbind(sumdat, mean = apply(datn, 2, mean, na.rm = TRUE))
+        sumdat <- rbind(sumdat, sd = apply(datn, 2, sd, na.rm = TRUE))
+        sumdat <- rbind(sumdat, var = apply(datn, 2, var, na.rm = TRUE))
+        sumdat <- rbind(sumdat, `NA's` = apply(datn, 2, function(x) sum(is.na(x))))
+    }
     signif(sumdat, digits)
 }
 NULL
@@ -47,7 +50,7 @@ NULL
 ##' @return a vector of named elements including the summary
 ##' table as well as entropy and normed entropy.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-summary.factor <- function(y, maxLevels) {
+summary.factor <- function(y, maxLevels, sumstat = TRUE) {
     ## 5 nested functions to be used later
 
     divr <- function(p = 0) {
@@ -65,6 +68,7 @@ summary.factor <- function(y, maxLevels) {
     tt <- c(tbl)
     names(tt) <- dimnames(tbl)[[1L]]
     o <- sort.list(tt, decreasing = TRUE)
+    if (!sumstat) return(tt)
     if (length(ll) > maxLevels) {
         toExclude <- maxLevels:length(ll)
         tt <- c(tt[o[-toExclude]], `(All Others)` = sum(tt[o[toExclude]]),
@@ -120,6 +124,7 @@ NULL
 ##' @param dat A data frame
 ##' @param maxLevels The maximum number of levels that will be reported.
 ##' @param alphaSort If TRUE (default), the columns are re-organized in alphabetical order. If FALSE, they are presented in the original order.
+##' @param sumstat If TRUE (default), report indicators of dispersion and the number of missing cases (NAs).
 ##' @param digits  integer, used for number formatting output.
 ##' @export
 ##' @return A list of factor summaries
@@ -142,18 +147,15 @@ NULL
 ##' summarizeFactors(dat)
 ##' ##see help for summarize for more examples
 summarizeFactors <-
-    function (dat = NULL, maxLevels = 10, alphaSort = TRUE, digits = max(3,
+    function (dat = NULL, maxLevels = 10, alphaSort = TRUE, sumstat= FALSE, digits = max(3,
               getOption("digits") - 3))
 {
-    if (!is.data.frame(dat))
-        dat <- as.data.frame(dat)
-    factors <- sapply(dat, function(x) {
-        !is.numeric(x)
-    })
+    if (!is.data.frame(dat)) dat <- as.data.frame(dat)
+    factors <- sapply(dat, function(x) {!is.numeric(x)})
     datf <- dat[, factors, drop = FALSE]
     if (alphaSort)
         datf <- datf[, sort(colnames(datf)), drop = FALSE]
-    z <- lapply(datf, rockchalk:::summary.factor, maxLevels = maxLevels)
+    z <- lapply(datf, rockchalk:::summary.factor, maxLevels = maxLevels, sumstat = sumstat)
     attr(z, "class") <- c("factorSummaries")
     z
 }

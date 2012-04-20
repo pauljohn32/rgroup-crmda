@@ -46,7 +46,7 @@
 ##' z2 <- combineLevels(z, levs=c("A","B"), "AorB")
 ##' attributes(z2)
 ##' ## Should fail:
-##' z2 <- combineLevels(z, levs=c("A","C"), "Whoops!")
+##' ## z2 <- combineLevels(z, levs=c("A","C"), "Whoops!")
 ##'
 combineLevels <- function(fac, levs, newLabel){
     ##internal fn to discern connected sequence
@@ -55,7 +55,7 @@ combineLevels <- function(fac, levs, newLabel){
         identical(xfull, as.integer(x))
     }
 
-    if(is.missing(newLabel)) stop("newLabel is required for the newly combined observations")
+    if(missing(newLabel)) stop("newLabel is required for the newly combined observations")
 
     facl <- levels(fac)
     if (is.character(levs)){

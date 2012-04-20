@@ -91,8 +91,10 @@ outreg <- function(incoming, title, label, modelLabels=NULL, varLabels=NULL, tig
   }
   nmodels <- length(modelList)
   ##TODO modelLabels MUST have same number of items as "incoming"
-  if( length(modelLabels) != nmodels ) stop("the number of elements in modelLabels must match the the number of models in the incoming model list")
-
+  ## but following crashes
+  ## if(modelLabels != NULL){
+  ##     if (length(modelLabels) != nmodels ) stop("the number of elements in modelLabels must match the the number of models in the incoming model list")
+  ## }
   ## Get a regression summary object for each fitted model
   summaryList <- list()
   fixnames <- vector()
@@ -101,7 +103,7 @@ outreg <- function(incoming, title, label, modelLabels=NULL, varLabels=NULL, tig
 
   i <-  1
   for (model in modelList){
-    summaryList[[i]] <- summary(model)
+    summaryList[[i]] <- ssm <- summary(model)
     coefsum[[i]] <- coef(ssm)
     fixnames <- unique( c( fixnames, names(coef(model))))
     myModelClass[i] <- class(model)[1]
