@@ -1,3 +1,26 @@
+2012-04-28  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/summarize.R (summarizeFactors): if no factors found, return NULL
+	(summarizeNumerics): if no numerics, return NULL
+
+2012-04-20  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/summarize.R: sumstat: new paramter to restrict diagnostic output
+	(summarizeNumerics): fix crash when data frame does not includes
+	only factors or only numerics. Returns NULL in summarizeNumerics
+	or summarizeFactors.
+
+2012-04-15  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/meanCenter.R (standardize.lm): drop=FALSE for dm, keeps it
+	a matrix
+	(summary.mcreg): drop=FALSE for dm
+
+2012-04-04  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/testSlopes.R (testSlopes): fixing plots. red intervals on "either
+	side" result. Labels too.
+
 2012-04-02  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/plotCurves.R (cutBySD): insert "col" option, similar to plotSlopes

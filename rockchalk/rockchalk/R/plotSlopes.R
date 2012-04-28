@@ -79,43 +79,6 @@ plotSlopes <-
   if (is.null(modx))
     stop("plotSlopes requires the name of moderator variable for which several slopes are to be drawn")
 
-  cutByTable <- function(x, n = 5) {
-    table1 <- table(x)
-    table1sort <-  sort(table1, decreasing = T)
-    qs <- table1sort[1:n]
-    names(qs) <- names(table1sort[1:n])
-    invisible(qs)
-  }
-
-  cutByQuantile <- function(x){
-    uniqueVals <- unique(x)
-    if (length(uniqueVals) < 6) {
-      qs <- cutByTable(x, 5)
-      invisible(qs)
-    } else {
-      qs <- quantile(x, probs = c(0.25, 0.50, 0.75), na.rm = TRUE)
-      invisible(qs)
-    }
-  }
-
-  cutBySD <- function(x){
-    uniqueVals <- unique(x)
-    if (length(uniqueVals) < 6) {
-      qs <- cutByTable(x, 5)
-      invisible(qs)
-    } else {
-      mx <- round(mean(x, na.rm=T),2)
-      sdx <- round(sd(x, na.rm=T),2)
-      ##qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
-      ##suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
-      qs <- c(mx - sdx, mx, mx + sdx)
-      suffix <- c("(m-sd)","(m)","(m+sd)")
-      names(qs) <-  paste(qs, suffix)
-      invisible(qs)
-    }
-  }
-
-
   cl <- match.call()
   mm <- model.matrix(model)
   depVar <- model$model[, 1]

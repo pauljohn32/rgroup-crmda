@@ -25,6 +25,7 @@ summarizeNumerics <- function(dat, alphaSort = TRUE, sumstat = TRUE,
     if (!is.data.frame(dat))
         dat <- as.data.frame(dat)
     nums <- sapply(dat, is.numeric)
+    if (sum(nums) == 0) return(NULL)
     datn <- dat[, nums, drop = FALSE]
     if (alphaSort)
         datn <- datn[, sort(colnames(datn)), drop = FALSE]
@@ -47,6 +48,7 @@ NULL
 ##' @param y a factor (non-numeric variable)
 ##' @param maxLevels The maximum number of levels that will
 ##' be presented in the tabulation.
+##' @param sumstat If TRUE (default), entropy (diversity) estimate and the number of NAs will be returned.
 ##' @return a vector of named elements including the summary
 ##' table as well as entropy and normed entropy.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
@@ -152,6 +154,7 @@ summarizeFactors <-
 {
     if (!is.data.frame(dat)) dat <- as.data.frame(dat)
     factors <- sapply(dat, function(x) {!is.numeric(x)})
+    if (sum(factors) == 0) return(NULL)
     datf <- dat[, factors, drop = FALSE]
     if (alphaSort)
         datf <- datf[, sort(colnames(datf)), drop = FALSE]
