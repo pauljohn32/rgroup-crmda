@@ -35,6 +35,7 @@ summarizeNumerics <- function(dat, alphaSort = TRUE, sumstat = TRUE,
         sumdat <- rbind(sumdat, sd = apply(datn, 2, sd, na.rm = TRUE))
         sumdat <- rbind(sumdat, var = apply(datn, 2, var, na.rm = TRUE))
         sumdat <- rbind(sumdat, `NA's` = apply(datn, 2, function(x) sum(is.na(x))))
+        sumdat <- rbind(sumdat, N = apply(datn, 2, function(x) length(x)))
     }
     signif(sumdat, digits)
 }
@@ -79,7 +80,7 @@ summary.factor <- function(y, maxLevels, sumstat = TRUE) {
         tt <- c(tt[o], `NA's` = sum(nas))
     }
     props <- prop.table(tbl)
-    tt <- c(tt, entropy = entropy(props), normedEntropy = normedEntropy(props))
+    tt <- c(tt, entropy = entropy(props), normedEntropy = normedEntropy(props), N= length(y))
 }
 NULL
 

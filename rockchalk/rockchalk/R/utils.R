@@ -84,18 +84,38 @@ NULL
 ##'
 ##' If the numeric variable has fewer than 6 unique observed values,
 ##' this will send the data to cutByTable.
+##' The default return will find dividing points at three quantiles:
+##'            c(0.25, 0.50, 0.75)
+##' If n=4, the dividing points will be c(0.20, 0.40, 0.60, 0.80)
+##' If n=5, c(0.10, 0.30, 0.50, 0.70, 0.90)
+##' Larger n that are odd will include 0.5 and evenly spaced points
+##' out to 0 and 1. Larger n that is even will return evenly spaced
+##' points calculated by R's \code{pretty} function.
 ##' @param x A numeric vector.
-##' @param n Currently ignored, will be the number of quantile points
+##' @param n The number of quantile points. See details.
 ##' @return A vector
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 cutByQuantile <- function(x, n = 3){
     uniqueVals <- unique(x)
     if (length(uniqueVals) < 6) {
-        qs <- cutByTable(x, 5)
+        qs <- cutByTable(x, n)
         invisible(qs)
     } else {
-        cutVector <-
-        qs <- quantile(x, probs = c(0.25, 0.50, 0.75), na.rm = TRUE)
+        cutVector <- if(n < 4){
+            c(0.25, 0.50, 0.75)
+        }else if(n == 4){
+            c(0.20, 0.40, 0.60, 0.80)
+        }else if(n == 5){
+            c(0.10, 0.30, 0.50, 0.70, 0.90)
+        }else if(n > 5) {
+            if(n %% 2 == 0) {
+                g <- 0.5 / n %/% 2
+                c(seq(0, 0.5-g, by=g), 0.5, seq(0.5+g, 1.0, by=g))
+            } else {
+                pretty(c(0, 1), n = n-1)
+            }
+        }
+        qs <- quantile(x, probs = cutVector, na.rm = TRUE)
         invisible(qs)
     }
 }
@@ -108,19 +128,23 @@ cutByQuantile <- function(x, n = 3){
 ##' @return A named vector
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @param x A numeric variable
-cutBySD <- function(x){
+##' @param n Should be either 3 or 5. If 3, values that divide the data at c(m-sd, m, m+sd) are returned. If 5, the returned values are c(m-2sd, m-sd, m, m+sd, m+2sd). Other values of n will be rounded to 3 or 5.
+cutBySD <- function(x, n = 3){
     uniqueVals <- unique(x)
     if (length(uniqueVals) < 6) {
-        qs <- cutByTable(x, 5)
+        qs <- cutByTable(x, n)
         invisible(qs)
     } else {
         mx <- round(mean(x, na.rm=T),2)
         sdx <- round(sd(x, na.rm=T),2)
-        ##qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
-        ##suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
-        qs <- c(mx - sdx, mx, mx + sdx)
-        suffix <- c("(m-sd)","(m)","(m+sd)")
-        names(qs) <-  paste(qs, suffix)
+        if (n <= 4) {
+            qs <- c(mx - sdx, mx, mx + sdx)
+            suffix <- c("(m-sd)","(m)","(m+sd)")
+        } else {
+            qs <- c(mx - 2*sdx, mx - sdx, mx, mx + sdx, mx + 2*sdx)
+            suffix <- c("(m-2sd)","(m-sd)","(m)","(m+sd)","(m+2sd)")
+        }
+        names(qs) <-  paste(suffix)
         invisible(qs)
     }
 }

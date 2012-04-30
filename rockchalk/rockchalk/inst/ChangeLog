@@ -1,4 +1,12 @@
+2012-04-29  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/summarize.R (summarizeNumerics): insert N output for summarize
+
 2012-04-28  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/utils.R (cutByQuantile): work out n to divide interval
+	according to a special scheme
+	(cutBySD): choose between n=3 and 4
 
 	* ../R/summarize.R (summarizeFactors): if no factors found, return NULL
 	(summarizeNumerics): if no numerics, return NULL

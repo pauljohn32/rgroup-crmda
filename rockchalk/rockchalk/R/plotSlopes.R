@@ -107,7 +107,7 @@ plotSlopes <-
       } else {
         if (is.character(modxVals)) {
           modxVals <- match.arg(tolower(modxVals),
-                                c("quantile", "std.dev."))
+                                c("quantile", "std.dev.","table"))
           print(modxVals)
           modxVals <- switch(modxVals,
                          table = cutByTable(modxVar),
