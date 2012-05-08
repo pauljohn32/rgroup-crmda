@@ -44,6 +44,7 @@ summarize(m0.data)
 
 m1 <- lm(y ~ log(10+x1) + sin(x2) + x3, data=dat)
 m1.data <- model.data(m1)
+summarize(m1.data)
 
 (newdata(m1))
 (newdata(m1, fl = list(x1=c(6, 8, 10))))

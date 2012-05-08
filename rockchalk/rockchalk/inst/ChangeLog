@@ -1,3 +1,23 @@
+2012-05-07  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R (myPredict): move draw arrows before points, so
+	arrows sit under, not over points
+
+	* ../R/mcGraph.R (mcGraph3): name elements in returned list
+
+2012-05-06  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotSlopes.R (plotSlopes): llwd: lwd to pass through to
+	lines. lwd controls darkness of points only.
+
+	* ../R/outreg.R (outreg): fix conditional at end to insert
+	\end{table} to match previous changes to top of function
+
+2012-05-05  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/magRange.R (magRange): work to allow mult smaller than
+	1. Range can shrink to (center, center) point when mult reaches 0.
+
 2012-04-29  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/summarize.R (summarizeNumerics): insert N output for summarize

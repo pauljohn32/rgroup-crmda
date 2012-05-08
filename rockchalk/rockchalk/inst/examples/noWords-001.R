@@ -1,15 +1,41 @@
+print("Basics")
 
 1 + 4
 exp(7)
 sqrt(81)
 log(4)
+4^2
 
 x <- c(1,2,3,4,5,6)
 x
+ls()
+objects() #same
+
+x2 <- seq(1, 6, by = 1)
+x2
+x3 <- seq(1, 6)
+x3
+x4 <- 1:6
+x4
+identical(x, x2, x3, x4)
+
+## caution
+## class(x)
+## class(x2)
+## class(x3)
+## class(x4)
+
+
+ls()
+rm(x2, x3, x4)
+ls()
+
+x^2
 exp(x)
 sqrt(x)
 log(x)
 1/x
+
 
 x[4]
 x[4:6]
@@ -35,6 +61,15 @@ x * y
 y^x
 3*x + 4*y
 
+w <- 2*x + sqrt(y)
+w
+mxyw <- cbind(x,y,w)
+class(mxyw)
+mxyw[ , 2:3]
+mxyw[ , "w"]
+mxyw[ , c("y", "w")]
+mxyw[ 2:3, "w"]
+
 
 z <- c(TRUE, FALSE, TRUE, TRUE, TRUE, FALSE)
 is.logical(z)
@@ -47,36 +82,47 @@ print("Exclamation mark (!) means NOT")
 cat("Exclamation mark (!) means NOT \n")
 
 
-zTrueIndex <- which(z == TRUE) 
+zTrueIndex <- which(z == TRUE)
 x[zTrueIndex]
 y[zTrueIndex]
 x[zTrueIndex] + y[zTrueIndex]
 
-xy <- data.frame(x, y, z)
+xy <- data.frame(x, y, w, z)
 xy
 colnames(xy)
 dim(xy)
 fix(xy)
 
-xy[1,]
+xy[1, ]
 xy[ ,2]
 xy[1:3, ]
 xy[c(1,4,6), ]
-xy[xy$z, ]
-xy[!xy$z, ]
 xy[ , -3]
 xy[-c(1,2), ]
+xy[ , "w"]
 xy[ , c("x","y")]
 xy[ , c("z")]
 xy[["z"]]
+xy[xy$z, ]
+xy[!xy$z, ]
 
 
 newx <- xy[ , "x"]
+is.data.frame(newx)
+is.vector(newx)
+all.equal(newx, x)
+identical(newx, x)
+is.matrix(newx)
+
+newx <- xy[ , "x", drop=F] # drop: R magic/curse?
+is.data.frame(newx)
+is.vector(newx)
 all.equal(newx, x)
 identical(newx, x)
 
 
-subset(xy, subset= x < 3)
+
+subset(xy, subset = x < 3)
 xy[ x<3, ]
 xy[ x<3 & z == TRUE, ]
 xy[ x<3 & z, ]
@@ -84,8 +130,60 @@ xy[ x<3 & !z, ]
 
 
 
-xs1 <- seq(5, 20, by=1)
-xs2 <- seq(5, 20, length.out=16)
+
+
+x1 <- c(1,1,1,1,1,1,1,1,1,1)
+x2 <- rep(1, times = 10)
+x2
+x2 <- rep(1, 10)
+x1 == x2
+identical(x1, x2)
+
+
+
+rep(c(1, 5, 8), length.out = 9)
+rep(c(1, 5, 8), each = 3)
+rep(c(1, 5, 8), each = 3, length.out = 9)
+rep(c(1, 5, 8), each = 3, length.out = 10)
+rep(c(1, 5, 8), times = 3)
+rep(c(1, 5, 8), each = 3, times = 3)
+
+
+
+
+
+rm(x)
+x <- vector(12, mode="integer")
+x
+x[4] <- 13L
+class(x)
+is.integer(x)
+x[5] <- -5L
+is.integer(x)
+x[9] <- -11
+is.integer(x) # ?promotion
+class(x)
+x <- as.integer(x)
+is.integer(x)
+class(x)
+rm(x)
+
+x <- vector(12, mode="integer")
+x
+x[4] <- 13
+class(x)
+is.integer(x)
+x[5] <- -5L
+is.integer(x)
+x[9] <- -11.1
+is.integer(x)
+x <- as.integer(x) #rounds
+is.integer(x)
+class(x)
+
+
+xs1 <- seq(from = 5, to = 20, by=1)
+xs2 <- seq(from = 5, to = 20, length.out=16)
 xs1 == xs2
 identical(xs1, xs2)
 
@@ -94,8 +192,8 @@ xs1 == xs3
 identical(xs1, xs3) ##hmmm. huh?
 is.vector(xs3)
 is.vector(xs1)
-dim(xs1)
-dim(xs3)
+length(xs1)
+length(xs3)
 all.equal(xs1, xs3) #ok!
 identical(xs1, xs3) ##hmmm. puzzler
 which( xs1 != xs3 )
@@ -109,36 +207,33 @@ is.integer(xs1)
 is.numeric(xs1)
 is.numeric(xs3)
 is.integer(xs3) ## aha!
+class(xs1)
+class(xs3)
 
-identical(xs3, as.integer(xs1)) ##well. maybe
+identical(xs3, as.integer(xs1)) ##solved. well. maybe
+
+
+
+xs1 <- seq.int(from = 5, to = 20, by=1)
+xs2 <- seq.int(from = 5, to = 20, length.out=16)
+xs1 == xs2
+xs3 <- 5:20
+identical(xs1, xs2, xs3) ##mystery solved
 
 ## appears bugish
 ## > identical(seq(1,10), 1:10)
 ## [1] TRUE
 ## > identical(seq(1L, 10L,  by=1), 1:10)
 ## [1] FALSE
-## > identical(seq(1,10,  by=1), 1:10)
+## > identical(seq(1, 10,  by=1), 1:10)
 ## [1] FALSE
 ## > identical(seq(1L, 10L,  by=1L), 1:10)
 ## [1] TRUE
-
-x1 <- c(1,1,1,1,1,1,1,1,1,1)
-x2 <- rep(1, times = 10)
-x2
-x2 <- rep(1, 10)
-x1 == x2
-identical(x1, x2)
-
-
-
-rep(c(1, 5, 8), length.out=9)
-
-rep(c(1, 5, 8), each=3)
-
-rep(c(1, 5, 8), each=3, length.out=9)
-
-rep(c(1, 5, 8), each=3, length.out=10)
-
-rep(c(1, 5, 8), times=3)
-
-rep(c(1, 5, 8), each=3, times=3)
+## > identical(seq.int(1,10), 1:10)
+## [1] TRUE
+## > identical(seq.int(1,10, by=1), 1:10)
+## [1] FALSE
+## > identical(seq.int(1,10, by=1L), 1:10)
+## [1] FALSE
+## > identical(seq.int(1L, 10L, by=1L), 1:10)
+## [1] TRUE

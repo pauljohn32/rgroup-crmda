@@ -1,5 +1,5 @@
 ##Paul Johnson
-## 2012-04-28
+## 2012-05-04
 
 ## This is a proposed new & improved back end for regression users who
 ## want to calculate predicted values for selected values of inputs in
@@ -35,18 +35,18 @@
 ##' frame. Instead, use output from function \code{model.data}). It is
 ##' UNTRANSFORMED variables ("x" as opposed to poly(x,2).1 and
 ##' poly(x,2).2).
-##' @return A data frame
+##' @return A data frame of x values that could be used as the data= argument in the original regression model. The attribute "varNamesRHS" is a vector of the predictor values.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @export
 ##' @seealso \code{predictOMatic}
 ##' @example inst/examples/predictOMatic-ex.R
 newdata <- function (model = NULL, fl = NULL, emf = NULL){
     if (is.null(emf)) emf <- model.data(model = model)
-    ivnames <- attr(emf, "ivnames")
-    emf <- emf[ , ivnames]
+    varNamesRHS <- attr(emf, "varNamesRHS")
+    emf <- emf[ , varNamesRHS]
     modelcv <- centralValues(emf)
     if (is.null(fl)) return(modelcv)
-    if (sum(!names(fl) %in% ivnames) > 0) stop(cat(c("Error. The focus list:  fl requests variables that are not included in the original model. The names of the variables in the focus list be drawn from this list: ",  ivnames, "\n")))
+    if (sum(!names(fl) %in% varNamesRHS) > 0) stop(cat(c("Error. The focus list:  fl requests variables that are not included in the original model. The names of the variables in the focus list be drawn from this list: ",  varNamesRHS, "\n")))
     ## TODO: Consider "padding" range of fl for numeric variables so that we
     ## get newdata objects including the min and max values.
 
@@ -73,22 +73,39 @@ newdata <- function (model = NULL, fl = NULL, emf = NULL){
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @example inst/examples/model.data-ex.R
 model.data <- function(model){
+    #from nls, returns -1 for missing variables
+    lenVar <- function(var, data) tryCatch(length(eval(as.name(var),
+                         data, env)), error = function(e) -1)
     fmla <- formula(model)
-    allnames <- all.vars(fmla) ## all variable names
-    ## indep variables, includes d in poly(x,d)
-    ivnames <- all.vars(formula(delete.response(terms(model))))
-    ## dat: original data frame
-    datOrig <-  eval(model$call$data, environment(formula(model)))
-    if (is.null(datOrig))stop("model.data: input model has no data frame")
-    ## dat: almost right, but includes d in poly(x, d)
-    dat <- get_all_vars(fmla, datOrig)
-    ## Get rid of "d" and other "non variable" variable names that are not in datOrig:
-    keepnames <- intersect(names(dat), names(datOrig))
-    ## Keep only rows actually used in model fit, and the correct columns
-    dat <- dat[ row.names(model$model) , keepnames]
-    ## keep ivnames that exist in datOrig
-    attr(dat, "ivnames") <- intersect(ivnames, names(datOrig))
-    invisible(dat)
+    varNames <- all.vars(fmla) ## all variable names
+    ## varNames includes d in poly(x,d), possibly other "constants"
+    ## varNamesRHS <- all.vars(formula(delete.response(terms(model))))
+    ## previous same as nls way?
+    fmla2 <- fmla
+    fmla2[[2L]] <- 0
+    varNamesRHS <- all.vars(fmla2)
+    varNamesLHS <- setdiff(varNames, varNamesRHS)
+    env <- environment(fmla)
+    if (is.null(env))
+        env <- parent.frame()
+
+    dataOrig <-  eval(model$call$data, environment(formula(model)))
+    rndataOrig <- row.names(dataOrig)
+    n <- sapply(varNames, lenVar, data=dataOrig)
+    targetLength <- length(eval(as.name(varNamesLHS[1]), dataOrig, env))
+    varNames <- varNames[ n == targetLength ]
+    ldata <- lapply(varNames, function(x) eval(as.name(x), dataOrig, env))
+    names(ldata) <- varNames
+    data <- data.frame(ldata[varNames])
+    if (!is.null(rndataOrig)) row.names(data) <- rndataOrig
+    ## remove rows listed in model's na.action
+    ## TODO: question: what else besides OMIT might be called for?
+    if ( !is.null(model$na.action)){
+        data <- data[ -as.vector(model$na.action),  , drop=FALSE]
+    }
+    ## keep varNamesRHS that exist in datOrig
+    attr(data, "varNamesRHS") <- setdiff(colnames(data), varNamesLHS)
+    invisible(data)
 }
 
 
@@ -151,11 +168,11 @@ predictOMatic <- function(model = NULL, fl = NULL, divider = "quantile", n = 3, 
     keepnames <- dotnames %in% nnames
 
     emf <- model.data(model = model)
-    ivnames <- attr(emf, "ivnames")
+    varNamesRHS <- attr(emf, "varNamesRHS")
 
     if(missing(fl) || is.null(fl)){
         flxxx <- list()
-        nd <- lapply (ivnames, function(x) {
+        nd <- lapply (varNamesRHS, function(x) {
             if (is.numeric(emf[ ,x])) {
                 divider <- match.arg(tolower(divider),
                                   c("quantile", "std.dev.","table"))
@@ -174,7 +191,7 @@ predictOMatic <- function(model = NULL, fl = NULL, divider = "quantile", n = 3, 
             row.names(ndnew) <- names(flxxx[[x]])
             ndnew
         } )
-       names(nd) <- ivnames
+       names(nd) <- varNamesRHS
     }else{
         flnames <- names(fl)
         nd <- newdata(model, fl, emf = emf)
@@ -239,230 +256,4 @@ predictOMatic <- function(model = NULL, fl = NULL, divider = "quantile", n = 3, 
 ##     emf
 ## }
 
-
-
-## library(rockchalk)
-
-## x1 <- rpois(100, l=6)
-## x2 <- rnorm(100, m=50, s=10)
-## x3 <- rnorm(100)
-## y <- rpois(100, l=10)
-
-## x1[sample(100, 5)] <- NA
-## y[sample(100, 5)] <- NA
-
-## m0 <- lm(y ~ log(10+x1) + x2)
-## m0.data <- model.data(m0) # should fail
-
-## df <- data.frame(x1, x2, x3, y)
-## rm(x1,x2,x3, y)
-
-
-## m0 <- lm(y ~ log(10+x1) + x2, data=df)
-## m0.data <- model.data(m0) # should work
-## summarize(m0.data)
-
-
-## m1 <- lm(y ~ log(10+x1) + sin(x2) +x3, data=df)
-## m1.data <- model.data(m1)
-## summarize(m1.data)
-## attr(m1.data, "ivnames")
-
-
-## (newdata(m1))
-## (newdata(m1, fl=list(x1=c(6, 8, 10))))
-## (newdata(m1, fl=list(x1=c(6, 8, 10), x3=c(-1,0,1))))
-## (newdata(m1, fl=list(x1=c(6, 8, 10), x2=quantile(m1.data$x2), x3=c(-1,0,1))))
-
-## (m1.p1 <- predictOMatic(m1))
-## (m1.p1 <- predictOMatic(m1, divider="std.dev", n=5))
-## (m1.p1 <- predictOMatic(m1))
-
-
-## m1.p1 <- predictOMatic(m1, fl=list(x1=c(6, 8, 10), x2=median(m1.data$x2,na.rm=TRUE)))
-## predictOMatic(m1, fl=list(x1=c(6, 8, 10), x2=quantile(df$x2)))
-
-## predictOMatic(m1, interval="confidence")
-
-
-## ## repeat, test poly. poly does not allow NA
-## x <- rpois(100, l=6)
-## y <- rpois(100, l=10)
-## df <- data.frame(x,y)
-## rm(x,y)
-
-## m1 <- lm(y ~ poly(x, 2), data=df)
-## m1.data <- model.data(m1)
-## summarize(m1.data)
-## attr(m1.data, "ivnames")
-
-
-## d <- 2
-## m2 <- lm(y ~ poly(x, d), data=df)
-## m2.data <- model.data(m2)
-## summarize(m2.data)
-## attr(m2.data, "ivnames")
-## predictOMatic(m2)
-
-
-
-## m3 <- lm(y ~ log(10+x) + poly(x, d), data=df)
-## m3.data <- model.data(m3)
-## summarize(m3.data)
-## attr(m3.data, "ivnames")
-
-
-## m4 <- lm(log(y) ~ log(d+10+x) + poly(x, 2), data=df)
-## m4.data <- model.data(m4)
-## summarize(m4.data)
-## attr(m4.data, "ivnames")
-
-## m4 <- lm(y ~ x*x, data=df)
-## m4.data <- model.data(m4)
-## summarize(m4.data)
-## attr(m4.data, "ivnames")
-
-## m4 <- lm(y ~ x + I(x^2), data=df)
-## m4.data <- model.data(m4)
-## summarize(m4.data)
-## attr(m4.data, "ivnames")
-
-
-
-
-## set.seed(12345)
-## STDE <- 2
-## x1 <- rnorm(100)
-## x2 <- rnorm(100)
-## x3 <- rnorm(100)
-## x4 <- rnorm(100, m=100)
-## x5 <- rpois(100, 5)
-## x6 <- rgamma(100, 2,1)
-## xcat1 <- gl(2,50, labels=c("M","F"))
-## xcat2 <- cut(rnorm(100), breaks=c(-Inf, 0, 0.4, 0.9, 1, Inf), labels=c("R", "M", "D", "P", "G"))
-## dat <- data.frame(x1, x2, x3, x4, x5, x6, xcat1, xcat2)
-## rm(x1, x2, x3, x4, x5, x6, xcat1, xcat2)
-## xcat1n <- with(dat, contrasts(xcat1)[xcat1, ,drop=FALSE])
-## xcat2n <- with(dat, contrasts(xcat2)[xcat2, ])
-
-## y <- with(dat, 0.03 + 0.8*x1 + 0.1*x2 + 0.7*x3 -0.1*x4 + 0.01*x5 + 1.1*x6) + xcat1n %*% c(2) + xcat2n %*% c(0.1,-2,0.3, 0.1) + STDE*rnorm(100)
-## rownames(y) <- row.names(dat)
-## y2 <- ifelse(rnorm(100) > 0.3, 1, 0)
-
-## dat <- cbind(dat, y, y2)
-
-## m1 <- lm(y ~ x1 + x2, data=dat)
-## model.data(m1)
-
-
-## ## regression.
-## d <- 2
-## m1 <- lm(log(1000+y) ~ x1 + poly(x2,2) + poly(x3,d) + log(10+x4) + exp(x4) + x6 + xcat1 + xcat2, data=dat)
-## summary(m1)
-
-
-## ##  has only columns and rows used in model fit
-## (m1.data <- model.data(m1))
-## summarize(m1.data)
-
-## ## First, overview for values of xcat1
-## newdata(m1, fl = list(xcat1 = levels(m1.data$xcat1)))
-
-## ## mix and match all combinations of xcat1 and xcat2
-## newdata(m1, fl = list(xcat1 = levels(m1.data$xcat2), xcat2 = levels(m1.data$xcat2)))
-
-## ## Pick some particular values for focus
-## newdata(m1, fl = list(x1 = c(1,2,3), xcat2 = c("M","D")))
-
-## ## Generate a newdata frame and predictions in one step
-## predictOMatic(m1, fl = list(x2 = c(0.25, 1.0), xcat2 = c("M","D")))
-
-## predictOMatic(m1, fl = list(x2 = plotSeq(m1.data$x2, 10) , xcat2 = c("M","D")))
-
-## predictOMatic(m1, fl = list(x2 = c(0.25, 1.0), xcat2 = c("M","D")), interval="conf")
-
-## predictOMatic(m1, interval="conf")
-
-## newdf <- predictOMatic(m1, fl = list(x2 = c(0.25, 1.0), xcat2 = c("M","D"), x1=plotSeq(dat$x1)))
-
-## plot(y ~ x1, data= datc)
-## by(newdf, list(newdf$x2, newdf$xcat2), function(x) {lines(x$x1, x$fit)})
-
-## newdata(m1, fl = list(x2 = c(-1,0, 1), xcat2 = c("M","D")))
-
-## predictOMatic(m1, fl = list(x2 = range(dat$x2), xcat2 = c("M","D")))
-
-## newdf <- predictOMatic(m1, fl = list(x2 = quantile(dat$x2), xcat2 = c("M","D")))
-## plot(y ~ x2 , data=model.frame(m1))
-
-## lines(y ~ x2,  newdf)
-
-
-## predictOMatic(m1, fl = list(x2 = c(50, 60), xcat2 = c("M","D")), interval="conf")
-
-## ## just gets the new data
-## nd <- newdata(m1, fl = list(x2 = c(50, 60), xcat2 = c("M","D")))
-
-## pr <- predictOMatic(m1, fl = list(x2 = c(50, 60), xcat2 = c("M","D")), interval="conf")
-
-
-
-
-
-## ##
-## m2 <- glm(y2 ~ x1 + x2 + x3 + xcat1, data=dat, family=binomial(logit))
-## summary(m2)
-## dat2c <- extractRawDataFrame(m2)
-## summarize(dat2c)
-
-
-## predictOMatic(m2, divider="response")
-
-## predictOMatic(m2, fl = list(x2 = c(-1, 1), xcat1 = c("M","F")), interval="conf", divider="response")
-
-
-## predictOMatic(m2, fl = list(x2 = unique(dat2c$x2), xcat1 = c("M","F")), interval="conf", divider="response")
-
-
-
-## ## Now examples with real data
-## library(car)
-
-## m5 <- lm(statusquo ~ region * income + sex + age, data= Chile)
-## summary(m5)
-## plotSlopes(m5, modx = "region", plotx = "income")
-
-## m6 <- lm(statusquo ~ income * age + education + sex + age, data=Chile)
-## summary(m6)
-## plotSlopes(m6, modx = "income", plotx = "age")
-
-## plotSlopes(m6, modx = "income", plotx = "age", plotPoints=FALSE)
-
-
-## Chile$educationn <- as.numeric(Chile$education)
-## m9 <- lm(statusquo ~ income * age + educationn + sex + age, data=Chile)
-## summary(m9)
-## plotSlopes(m9, modx = "income", plotx = "educationn")
-
-
-
-
-
-## ###Grabs original data from environment, only works if data frame
-## ### still exists in the environment, and if there was a data frame.
-## dat <- eval(model$call$data, environment(formula(model)))
-## ## is NULL if data is NULL.
-
-
-
-## m1.p1 <- predictOMatic(m1)
-
-## for (i in names(m1.p1)){
-##     dns <- cbind(m1.p1[[i]][i], m1.p1[[i]]$fit)
-##     colnames(dns) <- c(i, "predicted")
-##     print(dns)
-## }
-
-
-## m1.p1[ , c("fit", attr(m1.p1, "flnames")]
 

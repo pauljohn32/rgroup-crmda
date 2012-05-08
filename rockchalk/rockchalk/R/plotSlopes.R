@@ -56,6 +56,7 @@
 ##' @param plotPoints TRUE or FALSE: Should the plot include the scatterplot points along with the lines.
 ##' @param plotLegend TRUE or FALSE: Include a default legend. Set to FALSE if use wants to run a different legend command after the plot has been drawn.
 ##' @param col An optional color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
+##' @param llwd An optional vector of line widths used while plotting the lines that represent the values of the factor. This applies only to the lines in the plot. The ... argument will also allow one to pass options that are parsed by plot, such as lwd. That deterimine the thickness of points in the plot.
 ##' @param ... further arguments that are passed to plot
 ##' @export
 ##' @import car
@@ -70,7 +71,7 @@
 
 plotSlopes <-
   function (model = NULL, plotx = NULL, modx = NULL, modxVals = NULL,
-            plotPoints = TRUE, plotLegend = TRUE, col, ...)
+            plotPoints = TRUE, plotLegend = TRUE, col, llwd, ...)
 {
   if (is.null(model))
     stop("plotSlopes requires a fitted regression model.")
@@ -100,7 +101,7 @@ plotSlopes <-
   } else {                  ## modxVar is not a factor
     modxRange <- range(modxVar, na.rm=TRUE)
     if (is.null(modxVals)) {
-      modxVals <- cutByQuantile(modxVar)
+      modxVals <- rockchalk:::cutByQuantile(modxVar)
     } else {
       if (is.numeric(modxVals)) {
         ;# print("TODO: Insert some checks that modxVals are reasonable")
@@ -110,9 +111,9 @@ plotSlopes <-
                                 c("quantile", "std.dev.","table"))
           print(modxVals)
           modxVals <- switch(modxVals,
-                         table = cutByTable(modxVar),
-                         quantile = cutByQuantile(modxVar),
-                         "std.dev." = cutBySD(modxVar),
+                         table = rockchalk:::cutByTable(modxVar),
+                         quantile = rockchalk:::cutByQuantile(modxVar),
+                         "std.dev." = rockchalk:::cutBySD(modxVar),
                          stop("unknown 'modxVals' algorithm"))
         }
       }
@@ -120,7 +121,9 @@ plotSlopes <-
   }
   lmx <- length(modxVals)
   if (missing(col)) col <- 1:lmx
-  if (length(col) < lmx) rep(col, length.out = lmx)
+  if (length(col) < lmx) col <- rep(col, length.out = lmx)
+  if (missing(llwd)) llwd <- 2
+  if (length(llwd) < lmx) llwd <- rep(llwd, length.out = lmx)
   predictors <- colnames(model$model)[-1]
   predictors <- setdiff(predictors, c(modx, plotx))
   newdf <- data.frame(expand.grid(plotxRange, modxVals))
@@ -131,27 +134,29 @@ plotSlopes <-
   }
   newdf$pred <- predict(model, newdata = newdf)
   dotargs <- list(...)
-  if (!plotPoints){
-    parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab,
-         type = "n")
-    parms <- modifyList(parms, dotargs)
-    do.call("plot", parms)
-  } else {
-    if (is.factor(modxVar)) {
-      parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab,
-           col = col)
-      parms <- modifyList(parms, dotargs)
-      do.call("plot", parms)
-    }
-    else {
-      parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab)
-      parms <- modifyList(parms, dotargs)
-      do.call("plot", parms)
+
+  parms <- list(mm[, plotx], depVar, xlab = plotx, ylab = ylab,
+                type = "n")
+  parms <- modifyList(parms, dotargs)
+  do.call("plot", parms)
+  if (plotPoints){
+      parms <- list(x = mm[, plotx], y = depVar, xlab = plotx, ylab = ylab,
+                        cex = 0.5, lwd = 0.2)
+      if (is.factor(modxVar)) {
+          parms <- c(parms,  col = col)
+          parms <- modifyList(parms, dotargs)
+          do.call("points", parms)
+      } else {
+          parms <- modifyList(parms, dotargs)
+          do.call("points", parms)
     }
   }
   for (i in 1:lmx) {
     pdat <- newdf[newdf[, modx] %in% modxVals[i], ]
-    lines(pdat[, plotx], pdat$pred, lty = i, col = col[i], lwd = 2)
+    parms <- list(x = pdat[, plotx], y = pdat$pred, lty = i)
+    parms <- modifyList(parms, dotargs)
+    parms <- modifyList(parms, list(col = col[i], lwd = llwd[i]))
+    do.call("lines", parms)
   }
   if (is.null(names(modxVals))) {
     legnd <- paste(modx, " = ", modxVals, sep = "")
@@ -159,7 +164,7 @@ plotSlopes <-
   else {
     legnd <- paste(modx, " = ", names(modxVals), sep = "")
   }
-  if(plotLegend) legend("topleft", legend = legnd, lty = 1:lmx, col = col,
+  if(plotLegend) legend("topleft", legend = legnd, lty = 1:lmx, col = col, lwd = llwd,
          bg = "white", title= paste("moderator:", modx))
 
   invisible(list(call=cl, newdata=newdf, modxVals = modxVals))

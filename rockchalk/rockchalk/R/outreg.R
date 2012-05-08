@@ -288,7 +288,8 @@ if (lyx == FALSE || !missing(title) || !missing(label)){
    cat ("* $p \\le 0.05$")
    cat("\\end{tabular}\n")
    cat("\\end{center}\n")
-   if (lyx == FALSE){
+  if (lyx == FALSE || !missing(title) || !missing(label)){
       cat("\\end{table}\n")
-   }
- }
+  }
+
+}
