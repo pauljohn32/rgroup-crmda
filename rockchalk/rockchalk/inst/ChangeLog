@@ -1,3 +1,17 @@
+2012-05-13  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R: x1floor and x2floor. Bad names?  Number of
+	divider lines to draw in floor of plot. Default 5, which was the
+	value I had hard coded before.
+
+	* ../R/perspEmpty.R (perspEmpty): clean up interface! Use x1 and
+	x2 arguments  to position the bottom grids.  Will require
+	interface cleanups in other functions.
+	
+	* ../R/mcGraph (mcGraph1-3): Changes to make usage match
+	perspEmpty intercface change. Instead of assuming perspEmpty will
+	manufacture the plot sequences, now the caller must do so.
+
 2012-05-07  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/plotPlane.R (myPredict): move draw arrows before points, so
