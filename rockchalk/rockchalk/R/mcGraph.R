@@ -32,7 +32,7 @@ mcGraph1 <- function (x1, x2, y, x1lab, x2lab, ylab, ...){
   if (missing(x2lab)) x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
   if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
 
-  res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
+  res <- perspEmpty(x1=plotSeq(x1range, 5), x2=plotSeq(x2range,5), y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
 
   yMinimum <- rep(yrange[1] , length(x1))
   mypoints1 <- trans3d ( x1, x2, yMinimum, pmat = res )
@@ -98,7 +98,7 @@ mcGraph2 <- function(x1, x2, y, rescaley=1, drawArrows=TRUE, x1lab, x2lab, ylab,
     if (missing(x2lab)) x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
     if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
 
-    res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
+    res <- perspEmpty(x1 = plotSeq(x1range,5), x2 = plotSeq(x2range,5), y = yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
 
     mypoints1 <- trans3d ( x1, x2 ,yrange[1], pmat = res )
     newy <- rescaley * (y - yrange[1]) + yrange[1]
@@ -172,7 +172,7 @@ mcGraph3 <- function(x1, x2, y, interaction = FALSE, drawArrows = TRUE, x1lab, x
     if (missing(x2lab))  x2lab <- gsub(".*\\$", "", deparse(substitute(x2)))
     if (missing(ylab)) ylab  <- gsub(".*\\$", "", deparse(substitute(y)))
 
-    res <- perspEmpty(x1=x1range, x2=x2range, y=yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
+    res <- perspEmpty(x1 = plotSeq(x1range, 5), x2 = plotSeq(x2range, 5),  y = yrange, x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
 
     mypoints1 <- trans3d( x1, x2, yrange[1], pmat = res )
     points( mypoints1, pch = 16, col = gray(0.8))

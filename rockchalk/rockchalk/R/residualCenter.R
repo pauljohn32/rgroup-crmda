@@ -32,10 +32,11 @@ residualCenter <- function(model){
 ##' @method residualCenter default
 ##' @S3method residualCenter default
 ##' @example inst/examples/residualCenter-ex.R
-residualCenter.default <- function (model) 
+residualCenter.default <- function (model)
 {
-  makeRCformula <- function(x) {
+  createRCinteraction <- function(x, data) {
     nterms <- length(strsplit( x, ":")[[1]])
+    if (nterms == 1) return(NULL)
     dv <- paste("I(", gsub(":", "*", x), ")", sep = "")
     iv <- paste("(", gsub(":"," + ",x),")")
     if(nterms >= 3) iv <- paste(iv, "^", nterms-1, sep="")
@@ -44,33 +45,56 @@ residualCenter.default <- function (model)
     rcterms <-  attr(terms(myformula), "term.labels")
     rcterms <- gsub(":", ".X.", rcterms)
     finalFormula <- paste(dv, "~", paste(rcterms, collapse = " + "))
+    aReg <- lm(finalFormula, as.data.frame(data))
+    list(residuals = as.numeric(resid(aReg)), reg = aReg)
   }
-  
-  dat <- model$model
-  tmvec <- attr(terms(model), "term.labels")
-  interactTerms <- tmvec[grep(":", tmvec)]
-  rcRegressions <- NULL
-  if (length(interactTerms)) {
-    interactFormulae <- lapply(interactTerms, makeRCformula)
-    interactRCNames <- gsub(":", ".X.", interactTerms)
-    names(interactFormulae) <- interactRCNames
-    rcRegressions <- list()
-    ##recursively process name by name to build up interaction variables in dat
-    for (rcName in interactRCNames){
-      rcFmla <-  interactFormulae[[rcName]]
-      aReg <- lm( rcFmla, dat)
-      rcRegressions[[rcName]] <- aReg
-      dat[ , rcName] <- as.numeric(resid(aReg))
-    }   
-  }
-  rcvec <- gsub(":", ".X.", tmvec)
-  fmla <- paste(colnames(model$model[1]), " ~ ",
-                paste(rcvec, collapse = " + "))
 
+  dat <- model.matrix(model)
+
+  if (colnames(dat)[1] == "(Intercept)")  dat <- dat[ , -1] # remove intercept
+  datn <- colnames(dat)
+
+  frmla <- paste(datn, collapse = " + ")
+
+  rcRegressions <- list()
+  for(i in seq_along(datn)){
+      newname <- gsub(":", ".X.", datn[i])
+      res <- createRCinteraction( datn[i] , data=dat)
+      if (!is.null(res)){
+          dat[ , datn[i]] <- res[["residuals"]]
+          rcRegressions[[newname]] <- res[["reg"]]
+          dimnames(dat)[[2]][i] <- newname
+      }
+  }
+
+
+  modelt <- terms(model)
+  frmla <- paste(colnames(dat), collapse = " + ")
+  frmlanew <- as.formula(paste( modelt[[2L]], "~" , frmla))
+
+  mfnew <- model.frame(frmlanew, data=cbind(dat, model$model))
+
+  ## m1fr <- model.frame(m1)
   mc <- model$call
-  mc$formula <- formula(fmla)
-  mc$data <- quote(dat)
+  mc$formula <- frmlanew
+  ## dat <- as.data.frame(dat)
+  ## dat <- cbind(m1fr[, 1], dat)
+
+##  dvname <- as.character(deparse(formula(m1t)[[2L]]))
+
+##  colnames(dat)[1] <- colnames(m1fr)[1]
+  mc$data <- quote(mfnew)
   res <- eval(mc)
+
+
+
+  ## modelmf <- model.frame(model)
+  ## mresp <- model.extract(modelmf, "response")
+  ## mrespname <- terms(modelmf)[[2]]
+  ## assign(mrespname, mresp)
+  ## dat <- cbind(mrespname, dat)
+
+
   class(res) <- c("rcreg", class(model))
   res$rcRegressions <- rcRegressions
   res
@@ -88,9 +112,9 @@ NULL
 ##' @example inst/examples/predict.rcreg-ex.R
 ##' @param object Fitted residual-centered regression from residualCenter
 ##' @param newdata A dataframe of values of the predictors for which predicted values are sought. Needs to include values for all predictors individually; need not include the interactions, since those are re-calculated inside this function.
-##' @param ... Other parameters that will be passed to the predict method of the model. 
+##' @param ... Other parameters that will be passed to the predict method of the model.
 predict.rcreg <- function (object, newdata, ...){
-  if ( ! c("rcreg") %in% class(object) ) stop("predict.rcreg is intended for rcreg objects, which are created by residualCenter in the rockchalk package") 
+  if ( ! c("rcreg") %in% class(object) ) stop("predict.rcreg is intended for rcreg objects, which are created by residualCenter in the rockchalk package")
   objectTerms <- terms(object)
   dvname <- names(attr(objectTerms, "dataClasses"))[1]
   rcRegs <- object$rcRegressions

@@ -27,8 +27,16 @@
 ##' sample averages are used for numeric variables, but for factors
 ##' the modal value is used.
 ##'
-##' For details, please consult the source code, which is being
-##' cleaned up.
+##' This function creates an empty 3D drawing and then fills in the
+##' pieces. It uses the R functions \code{lines}, \code{points}, and
+##' \code{arrows}. To allow customization, several parameters are
+##' introduced for the users to choose colors and such. These options
+##' are prefixed by "l" for the lines that draw the plane, "p" for the
+##' points, and "a" for the arrows. Of course, if plotPoints=FALSE or
+##' drawArrows=FALSE, then these options are irrelevant.
+##'
+##' For details, please consult the source code, which
+##' is being cleaned up.
 ##' @param model an lm or glm fitted model object
 ##' @param plotx1 name of one variable to be used on the x1 axis
 ##' @param plotx2 name of one variable to be used on the x2 axis
@@ -38,6 +46,19 @@
 ##' @param x1lab optional label
 ##' @param x2lab optional label
 ##' @param ylab optional label
+##' @param x1floor Default=5. Number of "floor" lines to be drawn for variable x1
+##' @param x2floor Default=5. Number of "floor" lines to be drawn for variable x2
+##' @param pch plot character, passed on to the "points" function
+##' @param pcol color for points, col passed to "points" function
+##' @param plwd line width, lwd passed to "points" function
+##' @param pcex character expansion, cex passed to "points" function
+##' @param llwd line width, lwd passed to the "lines" function
+##' @param lcol line color, col passed to the "lines" function
+##' @param llty line type, lty passed to the "lines" function
+##' @param acol color for arrows, col passed to "arrows" function
+##' @param alty line type, lty passed to the "arrows" function
+##' @param alwd line width, lwd passed to the "arrows" function
+##' @param alength arrow head length, length passed to "arrows" function
 ##' @param envir environment from whence to grab data
 ##' @param ... additional parameters that will go to persp
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
@@ -45,10 +66,9 @@
 ##' @export plotPlane
 ##' @seealso \code{\link[graphics]{persp}}, \code{\link[scatterplot3d]{scatterplot3d}}, \code{\link[HH]{regr2.plot}}
 ##' @example inst/examples/plotPlane-ex.R
-plotPlane <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawArrows = FALSE, plotPoints = TRUE, npp = 20, x1lab, x2lab, ylab, envir = environment(formula(model)),  ...){
+plotPlane <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawArrows = FALSE, plotPoints = TRUE, npp = 20, x1lab, x2lab, ylab, x1floor = 5, x2floor = 5,  pch = 1, pcol = "blue", plwd = 0.5, pcex = 1, llwd = 0.3, lcol = 1, llty = 1, acol = "red", alty = 4, alwd = 0.3, alength = 0.1, envir = environment(formula(model)),  ...){
   UseMethod("plotPlane")
 }
-
 
 
 ##' @return  The main point is the plot that is drawn, but for record keeping the return object is a list including 1) res: the transformation matrix that was created by persp 2) the call that was issued, 3) x1seq, the "plot sequence" for the x1 dimension, 4) x2seq, the "plot sequence" for the x2 dimension, 5) zplane, the values of the plane corresponding to locations x1seq and x2seq.
@@ -56,7 +76,7 @@ plotPlane <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawArrows = 
 ##' @rdname plotPlane
 ##' @method plotPlane default
 ##' @S3method plotPlane default
-plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawArrows = F, plotPoints = TRUE, npp = 20, x1lab, x2lab, ylab, envir = environment(formula(model)),  ...){
+plotPlane.default <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawArrows = FALSE, plotPoints = TRUE, npp = 20, x1lab, x2lab, ylab, x1floor = 5, x2floor = 5,  pch = 1, pcol = "blue", plwd = 0.5, pcex = 1, llwd = 0.3, lcol = 1, llty = 1, acol = "red", alty = 4, alwd = 0.3, alength = 0.1, envir = environment(formula(model)),  ...){
   if (is.null(model))
     stop("plotPlane requires a fitted regression model.")
   if (is.null(plotx1) | is.null(plotx2))
@@ -96,8 +116,8 @@ plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawA
   if (missing(x1lab)) x1lab <- plotx1
   if (missing(x2lab)) x2lab <- plotx2
 
-  x1range <- magRange(x1, 1.25)
-  x2range <- magRange(x2, 1.25)
+  x1range <- magRange(x1, 1.15)
+  x2range <- magRange(x2, 1.15)
 
   ##TODO must double check effect of function predictors
   otherPredictors <- varnames[-1] #all but y
@@ -126,7 +146,7 @@ plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawA
 
   yrange <- magRange(c(zplane,y), 1.15)
 
-  res <- perspEmpty(x1 = x1range, x2 = x2range, y = yrange,
+  res <- perspEmpty(x1 = plotSeq(x1range, x1floor), x2 = plotSeq(x2range, x2floor), y = yrange,
                     x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
 
    ##for arrows. NEEDS reworking to be more general
@@ -139,25 +159,41 @@ plotPlane.default <- function (model = NULL, plotx1 = NULL, plotx2 = NULL, drawA
     newy <- ifelse(fits < y, fits + 0.8 * (y - fits),
         fits + 0.8 * (y - fits))
     mypoints2s <- trans3d(x1, x2, newy, pmat = res)
-    if (drawArrows)
+    if (drawArrows){
+        lmp <- length(fits)
+        if (length(acol) > 1 && length(acol) < lmp) acol <- rep(acol, length.out = lmp)
+        if (length(alty) > 1 && length(alty) < lmp) acol <- rep(acol, length.out = lmp)
+        if (length(alwd) > 1 && length(alwd) < lmp) alwd <- rep(alwd, length.out = lmp)
+        if (length(alength) > 1 && length(alength) < lmp) alwd <- rep(alength, length.out = lmp)
         arrows(mypoints4$x, mypoints4$y, mypoints2s$x, mypoints2s$y,
-            col = "red", lty = 4, lwd = 0.3, length = 0.1)
+            col = acol, lty = alty, lwd = alwd, length = alength)
+    }
 
   if (plotPoints){
-    mypoints2 <- trans3d(x1, x2, y, pmat = res)
-    points(mypoints2, pch = 1, col = "blue")
+      mypoints2 <- trans3d(x1, x2, y, pmat = res)
+      lmp <- length(y)
+      if (length(pch) > 1 && length(pch) < lmp) pch <- rep(pch, length.out = lmp)
+      if (length(pcol) > 1 && length(pcol) < lmp) pcol <- rep(pcol, length.out = lmp)
+      if (length(plwd) > 1 && length(plwd) < lmp) plwd <- rep(plwd, length.out = lmp)
+      if (length(pcex) > 1 && length(pcex) < lmp) pcex <- rep(pcex, length.out = lmp)
+
+      points(mypoints2, pch = pch, col = pcol, lwd = plwd, cex = pcex)
   }
 
+  if (length(llwd) > 1 && length(llwd) < npp) llwd <- rep(llwd, length.out = npp)
+  if (length(lcol) > 1 && length(lcol) < npp) lcol <- rep(lcol, length.out = npp)
+  if (length(llty) > 1 && length(llty) < npp) llty <- rep(llty, length.out = npp)
 
-  for (i in 1:length(x1seq)) {
+  for (i in 1:npp) {
     lines(trans3d(x1seq[i], x2seq, zplane[i, ], pmat = res),
-          lwd = 0.3)
+          lwd = llwd, col = lcol, lty= llty)
   }
-  for (j in 1:length(x2seq)) {
+
+  for (j in 1:npp) {
     lines(trans3d(x1seq, x2seq[j], zplane[, j], pmat = res),
-          lwd = 0.3)
+         lwd = llwd, col = lcol, lty = llty)
   }
 
 
-    invisible(list(res=res, call=cl, "x1seq"=x1seq, "x2seq"=x2seq, "zplane"=zplane))
+  invisible(list(res=res, call=cl, "x1seq"=x1seq, "x2seq"=x2seq, "zplane"=zplane))
 }

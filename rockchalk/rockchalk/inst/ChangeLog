@@ -1,3 +1,19 @@
+2012-05-27  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/residualCenter.R (createRCinteraction): Noticed that this
+	function did not work with categorical variables in
+	interactions. MASSIVELY reworked calculation approach. Because R
+	generates new variables when it finds factors, a new, completely
+	literal approach is taken. From fitted model, get the design
+	matrix, notice the colnames are the variables in a linear
+	formula. Scan through there and replace variables with colons with
+	the residual centered versions.
+
+2012-05-19  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/recodeFactors.R (adjacent): fix flaw in ordered factor
+	re-calculation (had *again* made the "levels" mistake on the RHS)
+
 2012-05-13  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/plotPlane.R: x1floor and x2floor. Bad names?  Number of

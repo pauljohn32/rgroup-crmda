@@ -16,47 +16,37 @@
 ##' @param y data for the vertical axis, an R vector
 ##' @param x1lab label for the x1 axis, (the one called "xlab" inside persp)
 ##' @param x2lab label for the x2 axis, (the one called "ylab" inside persp)
-##' @param ylab  label for the y (vertical) axis (the one called "zlab" inside persp)
-##' @param ... further arguments that are passed to persp.
-##' Note that persp options xlab, ylab, and zlab are ignored,
-##' because this function re-names them x1lab, x2lab, and ylab.
+##' @param ylab label for the y (vertical) axis (the one called "zlab" inside persp)
+##' @param x1lim Optional: limits for x1 axis (should be a vector with 2 elements)
+##' @param x2lim Optional: limits for x2 axis (should be a vector with 2 elements)
+##' @param ... further arguments that are passed to persp. Please note
+##' Please remember that y is the vertical axis, but for persp, that
+##' is the one I call x2.  Thus dot-dot-dot arguments including xlab,
+##' ylab, zlab, xlim, ylim, and zlim are going to be ignored.
 ##' @return The perspective matrix that is returned by persp
 ##' @name perspEmpty
 ##' @export perspEmpty
 ##' @examples
 ##' x1 <- 1:10
-##' x2 <- 40:50
+##' x2 <- 41:50
 ##' y <-  rnorm(10)
 ##' perspEmpty(x1, x2, y)
 ##' res <- perspEmpty(x1, x2, y, ticktype="detailed", nticks=10)
 ##' mypoints1 <- trans3d ( x1, x2, y, pmat = res )
 ##' points( mypoints1, pch = 16, col= "blue")
-perspEmpty <- function(x1, x2, y, x1lab, x2lab, ylab, ... ){
+perspEmpty <- function(x1, x2, y, x1lab = "x1", x2lab = "x2", ylab = "y", x1lim, x2lim, ... ){
     x1range <- range(x1, na.rm = TRUE)
     x2range <- range(x2, na.rm = TRUE)
     yrange <- range(y, na.rm = TRUE)
-
-    zZero <- outer( plotSeq(x1range, length.out = 5), plotSeq(x2range, length.out = 5), function( a,b) { a*b*0 + yrange[1] } )
+    zZero <- outer(x1, x2, function(a,b) { a*b*0 + yrange[1] })
 
     dotargs <- list(...)
-    if (missing(x1lab)) {
-        dotargs[["xlab"]] <-"x1"
-    } else {
-        dotargs[["xlab"]] <- x1lab
-    }
-
-    if (missing(x2lab)) {
-        dotargs[["ylab"]] <- "x2"
-    } else {
-        dotargs[["ylab"]] <- x2lab
-    }
-    if (missing(ylab)) {
-        dotargs[["zlab"]] <-"y"
-    } else {
-        dotargs[["zlab"]] <-ylab
-    }
-
-    myDefaults <- list(x=plotSeq(x1range, length.out = 5), y= plotSeq(x2range, length.out = 5), z=zZero, zlim=yrange, lwd=1, theta=0, phi=15)
+    dotargs[["xlab"]] <- x1lab
+    dotargs[["ylab"]] <- x2lab
+    dotargs[["zlab"]] <- ylab
+    if (!missing(x1lim)) dotargs[["xlim"]] <- x1lim
+    if (!missing(x2lim)) dotargs[["ylim"]] <- x2lim
+    myDefaults <- list(x = x1, y = x2, z=zZero, zlim=yrange, lwd=1, theta=-20, phi=15)
 
     myargs <- modifyList(myDefaults, dotargs)
     res <- do.call("persp", myargs)

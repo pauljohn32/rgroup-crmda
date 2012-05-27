@@ -143,7 +143,7 @@ plotSlopes <-
       parms <- list(x = mm[, plotx], y = depVar, xlab = plotx, ylab = ylab,
                         cex = 0.5, lwd = 0.2)
       if (is.factor(modxVar)) {
-          parms <- c(parms,  col = col)
+          parms[["col"]] <- col
           parms <- modifyList(parms, dotargs)
           do.call("points", parms)
       } else {
