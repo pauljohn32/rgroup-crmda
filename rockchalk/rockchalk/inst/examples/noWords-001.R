@@ -1,4 +1,4 @@
-print("Basics")
+cat("\n\n Basics: R math, workspace, indexes, class, seq, rep, identical, all.equal \n\n")
 
 1 + 4
 exp(7)
@@ -8,6 +8,7 @@ log(4)
 
 x <- c(1,2,3,4,5,6)
 x
+
 ls()
 objects() #same
 
@@ -19,16 +20,28 @@ x4 <- 1:6
 x4
 identical(x, x2, x3, x4)
 
-## caution
-## class(x)
-## class(x2)
-## class(x3)
-## class(x4)
+## caution: why identical if class not same?
+class(x)
+class(x2)
+class(x3)
+class(x4)
+
+xint <- as.integer(x)
+class(xint)
+
+x2 <- seq(1L, 6L, by = 1L)
+class(x2)
+
+x2 <- seq.int(1,6)
+class(x2)
 
 
 ls()
-rm(x2, x3, x4)
+rm(x, x2, x3, x4)
 ls()
+
+x <- seq(0.5, 4.1, by = 0.3)
+x
 
 x^2
 exp(x)
@@ -41,19 +54,26 @@ x[4]
 x[4:6]
 x[c(1,4,5)]
 x[ x > 4 ]
+x[ -2 ]
+x[ -c(2,3) ]
+
 
 attributes(x)
 is.null(x)
 is.vector(x)
 is.numeric(x)
+is.integer(x)
 is.character(x)
 is.data.frame(x)
 is.logical(x)
 is.matrix(x)
 is.list(x)
 
+rm(x)
 
 y <- c(80, 90, 100, 110, 120, 130)
+x <- seq_along(y)
+x
 x + y
 x - y
 y * x
@@ -91,7 +111,7 @@ xy <- data.frame(x, y, w, z)
 xy
 colnames(xy)
 dim(xy)
-fix(xy)
+fix(xy) #Hit "Quit"
 
 xy[1, ]
 xy[ ,2]
@@ -107,18 +127,22 @@ xy[xy$z, ]
 xy[!xy$z, ]
 
 
-newx <- xy[ , "x"]
-is.data.frame(newx)
-is.vector(newx)
-all.equal(newx, x)
-identical(newx, x)
-is.matrix(newx)
+newx1 <- xy[ , "x"]
+newx1
+is.data.frame(newx1)
+class(newx1)
+is.vector(newx1)
 
-newx <- xy[ , "x", drop=F] # drop: R magic/curse?
-is.data.frame(newx)
-is.vector(newx)
-all.equal(newx, x)
-identical(newx, x)
+newx2 <- xy[ , "x", drop=F] # drop: R magic/curse?
+newx2
+is.data.frame(newx2)
+class(newx2)
+is.vector(newx2)
+
+
+all.equal(newx1, newx2)
+all.equal(newx1, as.vector(newx2))
+identical(newx, as.vector(newx2))
 
 
 
@@ -161,7 +185,7 @@ is.integer(x)
 x[5] <- -5L
 is.integer(x)
 x[9] <- -11
-is.integer(x) # ?promotion
+is.integer(x) # type promotion b/c -11 not integer
 class(x)
 x <- as.integer(x)
 is.integer(x)
@@ -195,7 +219,7 @@ is.vector(xs1)
 length(xs1)
 length(xs3)
 all.equal(xs1, xs3) #ok!
-identical(xs1, xs3) ##hmmm. puzzler
+
 which( xs1 != xs3 )
 which( xs1 == xs3 )
 
@@ -208,32 +232,9 @@ is.numeric(xs1)
 is.numeric(xs3)
 is.integer(xs3) ## aha!
 class(xs1)
+class(xs2)
 class(xs3)
 
-identical(xs3, as.integer(xs1)) ##solved. well. maybe
+identical(xs3, as.integer(xs1)) ##puzzle solved
 
 
-
-xs1 <- seq.int(from = 5, to = 20, by=1)
-xs2 <- seq.int(from = 5, to = 20, length.out=16)
-xs1 == xs2
-xs3 <- 5:20
-identical(xs1, xs2, xs3) ##mystery solved
-
-## appears bugish
-## > identical(seq(1,10), 1:10)
-## [1] TRUE
-## > identical(seq(1L, 10L,  by=1), 1:10)
-## [1] FALSE
-## > identical(seq(1, 10,  by=1), 1:10)
-## [1] FALSE
-## > identical(seq(1L, 10L,  by=1L), 1:10)
-## [1] TRUE
-## > identical(seq.int(1,10), 1:10)
-## [1] TRUE
-## > identical(seq.int(1,10, by=1), 1:10)
-## [1] FALSE
-## > identical(seq.int(1,10, by=1L), 1:10)
-## [1] FALSE
-## > identical(seq.int(1L, 10L, by=1L), 1:10)
-## [1] TRUE

@@ -1,0 +1,1825 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass sweavel-article
+\begin_preamble
+%\VignetteIndexEntry{Rchaeology}
+
+\usepackage{Sweavel}
+\usepackage{graphicx}
+\usepackage{color}
+
+\usepackage{babel}
+\usepackage[samesize]{cancel}
+
+
+
+\usepackage{ifthen}
+
+\makeatletter
+
+\renewenvironment{figure}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{figure}
+
+ }{%
+
+   \@float{figure}[#1]%
+
+ }%
+
+ \centering
+
+}{%
+
+ \end@float
+
+}
+
+\renewenvironment{table}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{table}
+
+ }{%
+
+   \@float{table}[#1]%
+
+ }%
+
+ \centering
+
+%  \setlength{\@tempdima}{\abovecaptionskip}%
+
+%  \setlength{\abovecaptionskip}{\belowcaptionskip}%
+
+% \setlength{\belowcaptionskip}{\@tempdima}%
+
+}{%
+
+ \end@float
+
+}
+
+
+%\usepackage{listings}
+% Make ordinary listings look as if they come from Sweave
+\lstset{tabsize=2, breaklines=true,style=Rstyle}
+
+% In document Latex options:
+\fvset{listparameters={\setlength{\topsep}{0em}}}
+\def\Sweavesize{\scriptsize} 
+\def\Rcolor{\color{black}} 
+\def\Rbackground{\color[gray]{0.90}}
+
+
+
+\usepackage{babel}
+
+\usepackage[samesize]{cancel}
+
+
+
+\usepackage{ifthen}
+
+
+
+\usepackage{listings}% Make ordinary listings look as if they come from Sweave
+\lstset{tabsize=2, breaklines=true, style=Rstyle}
+\end_preamble
+\options noae
+\use_default_options false
+\begin_modules
+sweave
+\end_modules
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding latin9
+\fontencoding T1
+\font_roman lmodern
+\font_sans lmss
+\font_typewriter cmtt
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref section
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 0
+\use_mathdots 0
+\cite_engine natbib_authoryear
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1in
+\topmargin 1in
+\rightmargin 1in
+\bottommargin 1in
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Rchaeology
+\end_layout
+
+\begin_layout Author
+Paul E.
+ Johnson <pauljohn @ ku.edu>
+\end_layout
+
+\begin_layout Description
+Rchaeology: The study of R programming by investigation of R source code.
+ It is the effort to discern the programming strategies, idioms, and style
+ of R programmers in order to better communicate with them.
+\end_layout
+
+\begin_layout Description
+Rchaeologist: One who practices Rchaeology.
+\end_layout
+
+\begin_layout Standard
+This document was initiated on May 31, 2012.
+ The newest copy will always be available at 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://pj.freefaculty.org/R
+\end_layout
+
+\end_inset
+
+, either in 
+\begin_inset CommandInset href
+LatexCommand href
+name "PDF"
+target "http://pj.freefaculty.org/R/Rchaeology.pdf"
+
+\end_inset
+
+ or 
+\begin_inset CommandInset href
+LatexCommand href
+name "HTML"
+target "http://pj.freefaculty.org/R/Rchaeology.html"
+
+\end_inset
+
+.
+ It is also available as a vignette in the R package 
+\begin_inset Quotes eld
+\end_inset
+
+rockchalk
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+What is the point? These lessons are from the 
+\begin_inset Quotes eld
+\end_inset
+
+school of hard knocks.
+\begin_inset Quotes erd
+\end_inset
+
+ Many are collected as I learn to write functions for 
+\begin_inset Quotes eld
+\end_inset
+
+rockchalk
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+How is this different from Rtips(
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://pj.freefaculty.org/R/Rtips.{pdf,html}
+\end_layout
+
+\end_inset
+
+)?
+\end_layout
+
+\begin_layout Enumerate
+Oriented toward programming R rather than using R.
+\end_layout
+
+\begin_layout Enumerate
+More synthetic, aimed more at finding 
+\begin_inset Quotes eld
+\end_inset
+
+what's right
+\begin_inset Quotes erd
+\end_inset
+
+ rather than 
+\begin_inset Quotes eld
+\end_inset
+
+what works.
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Written with Sweave (using Harrell's Sweavel style) so that code examples
+ work.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+% In document Latex options:
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+fvset{listparameters={
+\backslash
+setlength{
+\backslash
+topsep}{0em}}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+SweaveOpts{ae=F,nogin=T}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<Roptions, echo=F>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+options(device = pdf)
+\end_layout
+
+\begin_layout Plain Layout
+
+options(width=80, prompt=" ", continue="  ")
+\end_layout
+
+\begin_layout Plain Layout
+
+options(useFancyQuotes = FALSE) 
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Style Guides
+\end_layout
+
+\begin_layout Standard
+The R Core Team has not been eager to write out a formal list of criteria
+ that define 
+\begin_inset Quotes eld
+\end_inset
+
+good R style.
+\begin_inset Quotes erd
+\end_inset
+
+ I think they don't agree among themselves about many details.
+ The 
+\emph on
+R Internals
+\emph default
+ section 
+\begin_inset Quotes eld
+\end_inset
+
+R coding standards,
+\begin_inset Quotes erd
+\end_inset
+
+ is quite brief.
+ Nature abhors a vacuum, as they say.
+ Many others have seen fit to try to fill in the gaps (Google R style guide
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://google-styleguide.googlecode.com/svn/trunk/google-r-style.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+; Hadley Wickham's Style Guide
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://github.com/hadley/devtools/wiki/Style
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+).
+ In my R group at the University of Kansas, we have sought to do the same.
+ Aaron Boulton, surveyed these efforts and we developed some guidelines
+ for our group.
+ 
+\end_layout
+
+\begin_layout Standard
+It is important to remember the following.
+ First, any advice that does not come directly from the R Core Team has
+ no 
+\begin_inset Quotes eld
+\end_inset
+
+authority.
+\begin_inset Quotes erd
+\end_inset
+
+ I have advice, Hadley has advice, but none of it can be used as a trope
+ with which to bludgeon someone who does things differently.
+ Second, code writers can make ugly code that 
+\begin_inset Quotes eld
+\end_inset
+
+runs,
+\begin_inset Quotes erd
+\end_inset
+
+ but they can't compel anyone else to read it.
+ With few exceptions, coding style is not about making things 
+\begin_inset Quotes eld
+\end_inset
+
+work,
+\begin_inset Quotes erd
+\end_inset
+
+ it is about making them work in a way that is understood by the widest
+ possible audience.
+\end_layout
+
+\begin_layout Standard
+Generally speaking, what should your code look like? Here are the two best
+ answers I have.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Open the source code for R itself, and navigate to the directory src/library/sta
+ts/R.
+ Open the file 
+\begin_inset Quotes eld
+\end_inset
+
+lm.R
+\begin_inset Quotes erd
+\end_inset
+
+.
+ There's your answer.
+\end_layout
+
+\begin_layout Enumerate
+Open an R session, run the following commands
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> lm
+\end_layout
+
+\begin_layout Plain Layout
+
+> summary.lm
+\end_layout
+
+\begin_layout Plain Layout
+
+> stats:::print.summary.lm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There's your answer again.
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+If I'm looking over your shoulder as you write code, I may say 
+\begin_inset Quotes eld
+\end_inset
+
+ach, don't do that
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+nobody is going to want to look at that.
+\begin_inset Quotes erd
+\end_inset
+
+ You may say, as many students have, 
+\begin_inset Quotes eld
+\end_inset
+
+but this works!
+\begin_inset Quotes erd
+\end_inset
+
+ And all I can say in response is, 
+\begin_inset Quotes eld
+\end_inset
+
+lucky for you, you don't need help fixing it.
+ Because nobody will want to help that.
+\begin_inset Quotes erd
+\end_inset
+
+ Sometimes ugly code runs, but it is hard to understand, hard to debug.
+ 
+\end_layout
+
+\begin_layout Standard
+From my expertise as an Rchaeologist, I have accumulated a list of bits
+ of style advice.
+ These proceed in order, from things that every knowledgeable expert will
+ accept, to matters of personal taste that are more widely accepted, to
+ things that I like, but nobody else does.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Opening squiggly braces, 
+\begin_inset Quotes eld
+\end_inset
+
+{
+\begin_inset Quotes erd
+\end_inset
+
+ must be at the end of the line of code, rather than at the beginning.
+ This is recommended with for statements, and it is vital after 
+\begin_inset Quotes eld
+\end_inset
+
+else
+\begin_inset Quotes erd
+\end_inset
+
+.
+ This is not merely a matter of style.
+ The following will fail in R because the system does not know that the
+ else's work is continuing when the squiggly brace is on the next line.
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+if (x < 7){
+\end_layout
+
+\begin_layout Plain Layout
+
+    print("so far, so good")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+else
+\end_layout
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\begin_layout Plain Layout
+
+    print("this is a total disaster because the squiggle is not with the
+ else")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It should be like this:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+if (x < 7){
+\end_layout
+
+\begin_layout Plain Layout
+
+    print("so far, so good")
+\end_layout
+
+\begin_layout Plain Layout
+
+} else {
+\end_layout
+
+\begin_layout Plain Layout
+
+    print("this is the "defensive" style mentioned in the R documents")
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If you are a C or Java programmer, and you are used to putting your squiggly
+ braces in different spots, you will have to stop doing that.
+ C and Java require the author to use the semicolon to conclude every statement,
+ so there is never any ambiguity about when a command is finished.
+ R allows a line ending to conclude a command, opening up ambiguity about
+ when a command is finished.
+ To let R know that more work remains, put the squiggly brace at the end
+ of the line.
+\end_layout
+
+\begin_layout Standard
+As far as I know, this is the only bit of R style advice on which every
+ single qualified R programmer will agree.
+ The placement of braces is not simply style, it is a matter of right and
+ wrong.
+\end_layout
+
+\begin_layout Standard
+We can write it all on one line if we want to.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+if (x < 7) print("so far, so good") else print("this is else")
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The squiggly braces reduce the chance that we will make a mistake in the
+ code, and thus I almost always use them while developing code.
+ Perhaps, when a program is done, I'll go back and 
+\begin_inset Quotes eld
+\end_inset
+
+tighten it up
+\begin_inset Quotes erd
+\end_inset
+
+ so that I won't look like a novice.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Style for readability.
+ If you are going to ask an R expert for help, it is vital to supply code
+ that is as understandable as possible.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Put blank spaces on both sides of equal signs and mathematical symbols like
+ 
+\begin_inset Quotes eld
+\end_inset
+
+<
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes eld
+\end_inset
+
+*
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
++
+\begin_inset Quotes erd
+\end_inset
+
+, and so forth.
+ Put one space after commas.
+ This is purely a matter of convention and judgment, it does not affect
+ the 
+\begin_inset Quotes eld
+\end_inset
+
+rightness
+\begin_inset Quotes erd
+\end_inset
+
+ of code.
+ But every finished program by a well-qualified programmer will have this
+ feature.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Indentation of sections is required.
+ It allows the reader to discern 
+\begin_inset Quotes eld
+\end_inset
+
+sub steps
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Perhaps the R documentation is silent on many matters of style because
+ the members of R Core are not completely in agreement with each other.
+ Almost the only clear advice we get is the following.
+ For indentation of subsections, use 4 spaces.
+ Personally, I prefer 2 spaces, and until 2011 that is what I used.
+ Now, I've changed my settings in Emacs so that indentions are 4 spaces.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Style for widespread comprehension.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+How to name functions.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Avoid using names that are already in use.
+ Don't write functions named 
+\begin_inset Quotes eld
+\end_inset
+
+rep
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Quotes eld
+\end_inset
+
+seq
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\begin_inset Quotes eld
+\end_inset
+
+lm
+\begin_inset Quotes erd
+\end_inset
+
+, and so forth.
+ Even though R (since 2.14) requires all package writers to use namespaces,
+ and the system can tolerate name duplication to some extent, don't do it.
+\end_layout
+
+\begin_layout Enumerate
+Use periods to indicate classes, otherwise don't use periods in function
+ names.
+ Use camel case to name functions.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+myFunction or getCalculatedValues are better function names than my.function
+ or get.calculated.values.
+\end_layout
+
+\begin_layout Standard
+Why do some functions have periods in the name? Browse the R source code
+ and you find functions with names like 
+\begin_inset Quotes eld
+\end_inset
+
+predict.lm
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+summary.lm
+\begin_inset Quotes erd
+\end_inset
+
+.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+lm
+\begin_inset Quotes erd
+\end_inset
+
+ denotes the class of the input, so when a user runs the commands
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+m1 <- lm(y ~ x, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+summary(m1)
+\end_layout
+
+\begin_layout Plain Layout
+
+predict(m1)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The lm function creates an object of class 
+\begin_inset Quotes eld
+\end_inset
+
+lm
+\begin_inset Quotes erd
+\end_inset
+
+, and so when summary and predict are used, the R system notices that m1
+ is from that class, and the system then uses 
+\begin_inset Quotes eld
+\end_inset
+
+summary.lm
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+predict.lm
+\begin_inset Quotes erd
+\end_inset
+
+ to get the work done.
+ 
+\end_layout
+
+\begin_layout Standard
+Most users don't realize that when they run 
+\begin_inset Quotes eld
+\end_inset
+
+summary.lm
+\begin_inset Quotes erd
+\end_inset
+
+, a new type of object is created, it is from the class 
+\begin_inset Quotes eld
+\end_inset
+
+summary.lm
+\begin_inset Quotes erd
+\end_inset
+
+.
+ And in order to show that result to the user, the R system uses a function
+ called 
+\begin_inset Quotes eld
+\end_inset
+
+print.summary.lm
+\begin_inset Quotes erd
+\end_inset
+
+.
+ The function name has 3 parts, but the last two parts are the class of
+ the object for which the function is intended.
+ As one can see, inside the R system, the periods are VERY meaningful indicators
+ because they are used to declare which type of object is acted upon by
+ a function.
+ 
+\end_layout
+
+\begin_layout Standard
+As a result, I suggest programmers should NEVER use periods when they name
+ their functions, unless (of course) they are writing functions that work
+ on classes of objects.
+\end_layout
+
+\begin_layout Standard
+Instead, programmers should use camel case function names.
+ Instead of 
+\begin_inset Quotes eld
+\end_inset
+
+do.something,
+\begin_inset Quotes erd
+\end_inset
+
+ create a function called 
+\begin_inset Quotes eld
+\end_inset
+
+doSomething
+\begin_inset Quotes erd
+\end_inset
+
+.
+ This style is very pleasant to my eye because it exactly the same style
+ that is suggested in the Objective-C language, in which the Swarm simulation
+ system was written.
+ Some people, especially C++ programmers, have been trained to hate camel
+ case.
+\end_layout
+
+\begin_layout Standard
+Some parts of R, especially the old parts, were developed before 
+\begin_inset Quotes eld
+\end_inset
+
+object oriented
+\begin_inset Quotes erd
+\end_inset
+
+ programming had come to the forefront and, as a result, they do not comply
+ with this advice.
+ Nevertheless, I believe this is good advice and it is generally followed
+ by most of the good R programmers.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+How to name variables (and objects and other things you need to keep track
+ of).
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+Officially, R variable names must begin with an alphabetical character and
+ must include only letters, numbers and the symbols 
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+-
+\begin_inset Quotes erd
+\end_inset
+
+, and 
+\begin_inset Quotes eld
+\end_inset
+
+.
+\begin_inset Quotes erd
+\end_inset
+
+.
+ They must not include 
+\begin_inset Quotes eld
+\end_inset
+
+*
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+?
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+!
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+&
+\begin_inset Quotes erd
+\end_inset
+
+ or other special symbols.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+Please understand the history of S and R.
+ At one time, the underscore 
+\begin_inset Quotes eld
+\end_inset
+
+_
+\begin_inset Quotes erd
+\end_inset
+
+ was used as the assignment symbol.
+ That's right, instead of 
+\begin_inset Quotes eld
+\end_inset
+
+<-
+\begin_inset Quotes erd
+\end_inset
+
+, we used to write
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+y _ x + x^2
+\end_layout
+
+\end_inset
+
+The underscore for assignment was allowed, but discouraged, when I started
+ using R in 1998.
+ R functions that imported data would automatically translate underscores
+ into other symbols.
+ Underscore for assignment has since been forbidden altogether.
+ A while after that, the underscore was allowed in variable and function
+ names.
+ Because of that history, R veterans may still consider it jarring if your
+ variables include underscores.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+No T or F.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+This is one thing that almost everybody (99.9%) will agree with.
+ NEVER name variables 
+\begin_inset Quotes eld
+\end_inset
+
+T
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+F
+\begin_inset Quotes erd
+\end_inset
+
+.
+ These are too easily mistaken for TRUE and FALSE values.
+ Since R uses TRUE and FALSE as vital elements of almost all commands and
+ functions, and since users are allowed to abbreviate those as T or F, a
+ horrible confusion can develop if variables are named T or F.
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Avoid declaring variables that have the same names as widely used functions.
+ In 2001, I created a variable 
+\begin_inset Quotes eld
+\end_inset
+
+rep
+\begin_inset Quotes erd
+\end_inset
+
+ (for Republican party members) and nothing worked in my program.
+ In exasperation, I wrote to the r-help list, and learned that I had obliterated
+ R's own function rep with my variable.
+ That kind of mistake was common.
+ In 2002 or so, the R system was revised so that user-declared variables
+ cannot 
+\begin_inset Quotes eld
+\end_inset
+
+step on
+\begin_inset Quotes erd
+\end_inset
+
+ R system functions.
+ Nevertheless, it is disconcerting to me (probably others) when users create
+ variables with names like 
+\begin_inset Quotes eld
+\end_inset
+
+lm
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+rep
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+seq
+\begin_inset Quotes erd
+\end_inset
+
+, and so forth.
+ Its distracting; its confusing.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+Everything else is a matter of personal style and conscience.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+We should strive to have understandable code that others can understand
+ and use.
+ Hence, naming variables is important because it can help readers to understand
+ our code.
+ 
+\end_layout
+
+\begin_layout Standard
+Sometimes people will have fun by naming their variables after their mothers,
+ fathers, dogs, or favorite cities.
+ Calling a variable 
+\begin_inset Quotes eld
+\end_inset
+
+chicago
+\begin_inset Quotes erd
+\end_inset
+
+ may help the author to remember that a particular regression problem was
+ solved while in vacation in the windy city, but it will not help anybody
+ else understand what's going on.
+\end_layout
+
+\begin_layout Standard
+Often, while I'm working on a function, I will have a variable x and then
+ change it somehow.
+ In the heat of the moment, I can't think of a good name, so the new thing
+ is called xx.
+ Then I change that and have xx2.
+ Then I change that and have xx3.
+ When the function works in the way it is intended, I should go back and
+ beautify the names so they are most understandable.
+\end_layout
+
+\begin_layout Enumerate
+Use long names for infrequently used variables.
+ If a variable is going to be used twice, we might as well be verbose about
+ it.
+ If we are going to use a name 50 times in a 5 line program, we should choose
+ a short one.
+ For abbreviations, include a comment to remind the reader what the thing
+ stands for.
+\end_layout
+
+\begin_layout Enumerate
+My alphabetical scheme for naming things.
+ The emphasis is on naming things that go together so that they appear together
+ in the alphabetical list of objects, as seen by ls().
+ 
+\end_layout
+
+\begin_layout Standard
+Example 1.
+ Create a numeric variable, recode it as a factor, then create the 
+\begin_inset Quotes eld
+\end_inset
+
+dummy
+\begin_inset Quotes erd
+\end_inset
+
+ variables that correspond.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+x <- runif(1000, min = 0, max = 100)
+\end_layout
+
+\begin_layout Plain Layout
+
+xf <- cut(x, breaks = c(-1, 20, 50, 80, 101), labels = c("cold", "luke",
+ "warm", "hot"))
+\end_layout
+
+\begin_layout Plain Layout
+
+xfdummies <- contrasts(xf, contrasts = FALSE )[xf,]
+\end_layout
+
+\begin_layout Plain Layout
+
+colnames(xfdummies) <- c("xfcold", "xfluke", "xfwarm", "xfhot")
+\end_layout
+
+\begin_layout Plain Layout
+
+rownames(xfdummies) <- names(x)
+\end_layout
+
+\begin_layout Plain Layout
+
+dat <- data.frame(x, xf, xfdummies)
+\end_layout
+
+\begin_layout Plain Layout
+
+head(dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Example 2.
+ Estimate a regression, calculate the summary, extract summary statistics.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<echo=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+set.seed(12345)
+\end_layout
+
+\begin_layout Plain Layout
+
+x1 <- rnorm(200, m = 400, s = 10)
+\end_layout
+
+\begin_layout Plain Layout
+
+x2 <- rnorm(200, m = 80, s = 30)
+\end_layout
+
+\begin_layout Plain Layout
+
+y <- 3 + 0.2 * x1 + 0.4 * x2 + rnorm(200, s=400)
+\end_layout
+
+\begin_layout Plain Layout
+
+dat <- data.frame(x1, x2, y); rm(x1,x2,y)
+\end_layout
+
+\begin_layout Plain Layout
+
+m1 <- lm (y ~ x1 + x2, data = dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+m1summary <- summary(m1)
+\end_layout
+
+\begin_layout Plain Layout
+
+(m1se <- m1summary$sigma)
+\end_layout
+
+\begin_layout Plain Layout
+
+(m1rsq <- m1summary$r.squared)
+\end_layout
+
+\begin_layout Plain Layout
+
+(m1coef <- m1summary$coef)
+\end_layout
+
+\begin_layout Plain Layout
+
+(m1aic <- AIC(m1))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Example 3.
+ Run a regression, collect mean-centered and residual centered variants
+ of it, summarize each, and compare them.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<results=tex>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(rockchalk)
+\end_layout
+
+\begin_layout Plain Layout
+
+dat$y2 = with(dat, 3 + 0.2 * x1 + 0.4 * x2 + 0.35 * x1 *x2 + rnorm(200, s=4000))
+\end_layout
+
+\begin_layout Plain Layout
+
+m1 <- lm(y2 ~ x1 + x2, data = dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+m1i <- lm(y2 ~ x1 * x2, data = dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+m1ps <- plotSlopes(m1, plotx = "x1", modx = "x2")
+\end_layout
+
+\begin_layout Plain Layout
+
+m1ips <- plotSlopes(m1i, plotx = "x1", modx = "x2")
+\end_layout
+
+\begin_layout Plain Layout
+
+m1imc <- meanCenter(m1i)
+\end_layout
+
+\begin_layout Plain Layout
+
+m1irc <- residualCenter(m1i)
+\end_layout
+
+\begin_layout Plain Layout
+
+outreg(list(m1, m1i, m1imc, m1irc), tight = TRUE, modelLabels = c("Linear",
+ "Interaction", "Mean Centered", "Residual Centered"))
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Section
+What's In R Guts?
+\end_layout
+
+\begin_layout Subsection
+Rewriting Formulas
+\end_layout
+
+\begin_layout Standard
+On May 29, 2012, I was working on a regression problem that I addressed
+ to r-help as follows.
+\end_layout
+
+\begin_layout Quote
+I want to take a fitted regression and replace all uses of a variable in
+ a formula.
+ For example, I'd like to take
+\end_layout
+
+\begin_layout Quote
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+m1 <- lm(y ~ x1, data=dat)
+\end_layout
+
+\end_inset
+
+and replace x1 with something else, say x1c, so the formula would become
+\end_layout
+
+\begin_layout Quote
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+m1 <- lm(y ~ x1c, data=dat)
+\end_layout
+
+\end_inset
+
+I have working code to finish that part of the problem, but it fails when
+ the formula is more complicated.
+ If the formula has log(x1) or x1:x2, the update code I'm testing doesn't
+ get right.
+\end_layout
+
+\begin_layout Quote
+Here's the test code:
+\end_layout
+
+\begin_layout Quote
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+##PJ
+\end_layout
+
+\begin_layout Plain Layout
+
+## 2012-05-29
+\end_layout
+
+\begin_layout Plain Layout
+
+dat <- data.frame(x1=rnorm(100,m=50), x2=rnorm(100,m=50),
+\end_layout
+
+\begin_layout Plain Layout
+
+x3=rnorm(100,m=50), y=rnorm(100))
+\end_layout
+
+\begin_layout Plain Layout
+
+m1 <- lm(y ~ log(x1) + x1 + sin(x2) + x2 + exp(x3), data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+m2 <- lm(y ~ log(x1) + x2*x3, data=dat)
+\end_layout
+
+\begin_layout Plain Layout
+
+suffixX <- function(fmla, x, s){
+\end_layout
+
+\begin_layout Plain Layout
+
+upform <- as.formula(paste0(".
+ ~ .", "-", x, "+", paste0(x, s)))
+\end_layout
+
+\begin_layout Plain Layout
+
+update.formula(fmla, upform)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+newFmla <- formula(m2)
+\end_layout
+
+\begin_layout Plain Layout
+
+newFmla
+\end_layout
+
+\begin_layout Plain Layout
+
+suffixX(newFmla, "x2", "c")
+\end_layout
+
+\begin_layout Plain Layout
+
+suffixX(newFmla, "x1", "c")
+\end_layout
+
+\end_inset
+
+The last few lines of the output.
+ See how the update misses x1 inside log(x1) or in the interaction?
+\end_layout
+
+\begin_layout Quote
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> newFmla <- formula(m2)
+\end_layout
+
+\begin_layout Plain Layout
+
+> newFmla
+\end_layout
+
+\begin_layout Plain Layout
+
+y ~ log(x1) + x2 * x3
+\end_layout
+
+\begin_layout Plain Layout
+
+> suffixX(newFmla, "x2", "c")
+\end_layout
+
+\begin_layout Plain Layout
+
+y ~ log(x1) + x3 + x2c + x2:x3
+\end_layout
+
+\begin_layout Plain Layout
+
+> suffixX(newFmla, "x1", "c")
+\end_layout
+
+\begin_layout Plain Layout
+
+y ~ log(x1) + x2 + x3 + x1c + x2:x3
+\end_layout
+
+\end_inset
+
+It gets the target if the target is all by itself, but not otherwise.
+\end_layout
+
+\begin_layout Quote
+Later I noticed this really interesting thing.
+ The newFmla object can be probed recursively to eventually reveal all of
+ the individual pieces:
+\end_layout
+
+\begin_layout Quote
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+> newFmla
+\end_layout
+
+\begin_layout Plain Layout
+
+y ~ log(x1) + x2 * x3
+\end_layout
+
+\begin_layout Plain Layout
+
+> newFmla[[3]]
+\end_layout
+
+\begin_layout Plain Layout
+
+log(x1) + x2 * x3
+\end_layout
+
+\begin_layout Plain Layout
+
+> newFmla[[3]][[2]]
+\end_layout
+
+\begin_layout Plain Layout
+
+log(x1)
+\end_layout
+
+\begin_layout Plain Layout
+
+> newFmla[[3]][[2]][[2]]
+\end_layout
+
+\begin_layout Plain Layout
+
+x1
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Quote
+So, if you could tell me of a general way to "walk" though a formula object,
+ couldn't I use "gsub" or something like that to recognize each instance
+ of "x1" and replace with "x1c"??
+\end_layout
+
+\begin_layout Section
+Do This, Not That
+\end_layout
+
+\begin_layout Standard
+R novices sometimes use Google to search for R advice and they find it,
+ good or bad.
+ They may find their way to the r-help email list, where advice is generally
+ good, or to the StackOverflow pages for R, which may be better.
+ A lot of advice is offered by people like me, who may have good intentions,
+ but are simply not qualified to offer advice.
+ 
+\end_layout
+
+\begin_layout Standard
+One of the few bits of advice that seems to grab widespread support is that
+ 
+\begin_inset Quotes eld
+\end_inset
+
+for loops are bad.
+\begin_inset Quotes erd
+\end_inset
+
+ One can write an lapply statement in one line, while a for loop can take
+ 3 lines.
+ The code is shorter, but it won't necessarily run more quickly.
+ I recall being jarred by this revelation in John Chambers's book, 
+\emph on
+Software for Data Analysis
+\emph default
+.
+ The members of the apply family (apply, lapply, sapply, etc) can make for
+ more readable code, but they aren't always faster.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+However, none of the apply mechanisms changes the number of times the supplied
+ function is called, so serious improvements will be limited to iterating
+ simple calculations many times.
+ Otherwise, the n evaluations of the function can be expected to be the
+ dominant fraction of the computation
+\begin_inset Quotes erd
+\end_inset
+
+
+\begin_inset CommandInset citation
+LatexCommand citep
+after "213"
+key "chambers_software_2008"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "R"
+options "apsr"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document

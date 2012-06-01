@@ -982,6 +982,9 @@ a regression model?
 
 <<echo=F, include=F>>=
 dat2 <- genCorrelatedData(N=400, rho=.4, stde=300, beta=c(2,0.1,0.1,0.2))
+dat2n <- colnames(dat2)
+for(i in dat2n){print(i); nname <- paste0(as.character(i),"c"); dat2[[nname]] <- drop(scale(dat2[[i]]))}
+
 m4linear <- lm (y ~ x1 + x2, data=dat2)
 m4int <- lm (y ~ x1 * x2, data=dat2)
 m4mc <- meanCenter(m4int)
@@ -1045,7 +1048,7 @@ par(mfcol=c(2,2))
 par(mar=c(2,2,2,1))
 plotPlane(m4linear, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Linear", ticktype="detailed")
 plotPlane(m4int, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Interaction: Not Centered", ticktype="detailed")
-plotPlane(m4mc, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Mean-centered", ticktype="detailed")
+plotPlane(m4mc, plotx1="x1c", plotx2="x2c", plotPoints=FALSE, main="Mean-centered", ticktype="detailed")
 plotPlane(m4rc, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Residual-centered", ticktype="detailed")
 par(op)
 @
@@ -1097,17 +1100,19 @@ most persuasive case is found in Figure \ref{fig:rcenter40}.
 
 \begin{figure}
 <<rcenter40, fig=T,echo=FALSE, height=5, width=7>>=
-m4mcpred <- predict(m4int, newdata=dat2)
-m4rcpred <- predict(m4mc, newdata=dat2)
-m4intpred <- predict(m4int, newdata=dat2)
+m4mcpred <- fitted(m4int)#predict(m4mc, newdata=dat2)
+m4rcpred <- fitted(m4rc) #predict(m4rc, newdata=dat2)
+m4intpred <- fitted(m4int) #predict(m4int, newdata=dat2)
 op <- par(no.readonly = TRUE)
 par(mfcol=c(1,2))
-plot(m4intpred, m4rcpred, main="", xlab="Predictions of Uncentered Interaction", ylab="Residual-centered Predictions")
-predcor <- round(cor(m4intpred, m4rcpred),3)
-legend("topleft", legend=c(paste("Correlation=", predcor)))
-plot(m4mcpred, m4rcpred, main="", xlab="Mean-centered Predictions", ylab = "Residual-centered Predictions")
-predcor <- round(cor(m4mcpred, m4rcpred),3)
-legend("topleft", legend=c(paste("Correlation=", predcor)))
+plot(fitted(m4rc), predict(m4rc, newdata=dat2))
+plot(fitted(m4mc), predict(m4mc, newdata=dat2))
+#plot(m4intpred, m4rcpred, main="", xlab="Predictions of Uncentered Interaction", ylab="Residual-centered Predictions")
+#predcor <- round(cor(m4intpred, m4rcpred),3)
+#legend("topleft", legend=c(paste("Correlation=", predcor)))
+#plot(m4mcpred, m4rcpred, main="", xlab="Mean-centered Predictions", ylab = "Residual-centered Predictions")
+#predcor <- round(cor(m4mcpred, m4rcpred),3)
+#legend("topleft", legend=c(paste("Correlation=", predcor)))
 par(op)
 @
 

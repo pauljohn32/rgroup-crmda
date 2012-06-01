@@ -102,7 +102,9 @@ plotPlane.default <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawA
   varnames <- unlist(lapply(cn, carrier.name))
 
   ## Need a dataframe that has all elements from "varnames" in it.
-  emf <- get_all_vars(tt, data=expand.model.frame(model, varnames))
+  ## emf <- get_all_vars(tt, data=expand.model.frame(model, varnames))
+  emf <- model.data(model)
+
 
   if (plotx1 %in% varnames )
     x1 <- emf[, plotx1]
@@ -123,21 +125,25 @@ plotPlane.default <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawA
   otherPredictors <- varnames[-1] #all but y
   otherPredictors <- setdiff(otherPredictors, c(plotx2, plotx1)) #remove x1 x2
   if (length(otherPredictors) > 0) {
-    otherPredictorValues <- centralValues(as.data.frame(model$model[, otherPredictors]))
+      ##otherPredictorValues <- centralValues(as.data.frame(model$model[, otherPredictors]))
+      otherPredictorValues <- centralValues(emf[, otherPredictors, drop = FALSE])
   }
 
+
   myPredict <- function(a,b){
-    ndf <- data.frame(a, b) #ndf = new data frame
-    colnames(ndf) <- c(plotx1, plotx2)
-    if (length(otherPredictors) > 0) {
-      ndf <- cbind(ndf, otherPredictorValues)
-      colnames(ndf) <- c(plotx1, plotx2, otherPredictors)
-    }
-    if ("glm" %in% class(model)) {
-      predict(model, newdata = ndf, type = "response")
-    }else{
-      predict(model, newdata = ndf)
-    }
+      ndf <- data.frame(a, b) #ndf = new data frame
+      colnames(ndf) <- c(plotx1, plotx2)
+      if (length(otherPredictors) > 0) {
+          ndf <- cbind(ndf, otherPredictorValues)
+          colnames(ndf) <- c(plotx1, plotx2, otherPredictors)
+      }
+      if ("glm" %in% class(model)) {
+          if ("mcreg" %in% class(model)) attr(ndf, "isCentered") <- TRUE
+          predict(model, newdata = ndf, type = "response")
+      } else {
+          if ("mcreg" %in% class(model)) attr(ndf, "isCentered") <- TRUE
+          predict(model, newdata = ndf)
+      }
   }
 
   x1seq <- plotSeq(x1range, length.out = npp)
@@ -146,8 +152,9 @@ plotPlane.default <- function(model = NULL,  plotx1 = NULL, plotx2 = NULL, drawA
 
   yrange <- magRange(c(zplane,y), 1.15)
 
-  res <- perspEmpty(x1 = plotSeq(x1range, x1floor), x2 = plotSeq(x2range, x2floor), y = yrange,
-                    x1lab = x1lab, x2lab = x2lab, ylab = ylab, ...)
+  res <- perspEmpty(x1 = plotSeq(x1range, x1floor), x2 =
+                    plotSeq(x2range, x2floor), y = yrange, x1lab =
+                    x1lab, x2lab = x2lab, ylab = ylab, ...)
 
    ##for arrows. NEEDS reworking to be more general
   if ("glm" %in% class(model)) {

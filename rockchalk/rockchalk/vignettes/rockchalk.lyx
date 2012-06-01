@@ -3559,6 +3559,21 @@ dat2 <- genCorrelatedData(N=400, rho=.4, stde=300, beta=c(2,0.1,0.1,0.2))
 
 \begin_layout Plain Layout
 
+dat2n <- colnames(dat2)
+\end_layout
+
+\begin_layout Plain Layout
+
+for(i in dat2n){print(i); nname <- paste0(as.character(i),"c"); dat2[[nname]]
+ <- drop(scale(dat2[[i]]))}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
 m4linear <- lm (y ~ x1 + x2, data=dat2)
 \end_layout
 
@@ -3815,8 +3830,8 @@ plotPlane(m4int, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Interaction:
 
 \begin_layout Plain Layout
 
-plotPlane(m4mc, plotx1="x1", plotx2="x2", plotPoints=FALSE, main="Mean-centered"
-, ticktype="detailed")
+plotPlane(m4mc, plotx1="x1c", plotx2="x2c", plotPoints=FALSE, main="Mean-centere
+d", ticktype="detailed")
 \end_layout
 
 \begin_layout Plain Layout
@@ -3982,17 +3997,17 @@ status open
 
 \begin_layout Plain Layout
 
-m4mcpred <- predict(m4int, newdata=dat2)
+m4mcpred <- fitted(m4int)#predict(m4mc, newdata=dat2)
 \end_layout
 
 \begin_layout Plain Layout
 
-m4rcpred <- predict(m4mc, newdata=dat2)
+m4rcpred <- fitted(m4rc) #predict(m4rc, newdata=dat2)
 \end_layout
 
 \begin_layout Plain Layout
 
-m4intpred <- predict(m4int, newdata=dat2)
+m4intpred <- fitted(m4int) #predict(m4int, newdata=dat2)
 \end_layout
 
 \begin_layout Plain Layout
@@ -4007,34 +4022,44 @@ par(mfcol=c(1,2))
 
 \begin_layout Plain Layout
 
-plot(m4intpred, m4rcpred, main="", xlab="Predictions of Uncentered Interaction",
- ylab="Residual-centered Predictions")
+plot(fitted(m4rc), predict(m4rc, newdata=dat2))
 \end_layout
 
 \begin_layout Plain Layout
 
-predcor <- round(cor(m4intpred, m4rcpred),3)
+plot(fitted(m4mc), predict(m4mc, newdata=dat2))
 \end_layout
 
 \begin_layout Plain Layout
 
-legend("topleft", legend=c(paste("Correlation=", predcor)))
+#plot(m4intpred, m4rcpred, main="", xlab="Predictions of Uncentered Interaction"
+, ylab="Residual-centered Predictions")
 \end_layout
 
 \begin_layout Plain Layout
 
-plot(m4mcpred, m4rcpred, main="", xlab="Mean-centered Predictions", ylab
+#predcor <- round(cor(m4intpred, m4rcpred),3)
+\end_layout
+
+\begin_layout Plain Layout
+
+#legend("topleft", legend=c(paste("Correlation=", predcor)))
+\end_layout
+
+\begin_layout Plain Layout
+
+#plot(m4mcpred, m4rcpred, main="", xlab="Mean-centered Predictions", ylab
  = "Residual-centered Predictions")
 \end_layout
 
 \begin_layout Plain Layout
 
-predcor <- round(cor(m4mcpred, m4rcpred),3)
+#predcor <- round(cor(m4mcpred, m4rcpred),3)
 \end_layout
 
 \begin_layout Plain Layout
 
-legend("topleft", legend=c(paste("Correlation=", predcor)))
+#legend("topleft", legend=c(paste("Correlation=", predcor)))
 \end_layout
 
 \begin_layout Plain Layout

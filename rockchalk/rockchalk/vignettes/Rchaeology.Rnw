@@ -1,0 +1,594 @@
+%% LyX 2.0.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
+\documentclass[english,noae]{article}
+\usepackage{lmodern}
+\renewcommand{\sfdefault}{lmss}
+\renewcommand{\ttdefault}{cmtt}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage{listings}
+\usepackage{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\setlength{\parskip}{\smallskipamount}
+\setlength{\parindent}{0pt}
+\usepackage{babel}
+\usepackage{url}
+\usepackage[authoryear]{natbib}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
+ breaklinks=false,pdfborder={0 0 1},backref=section,colorlinks=false]
+ {hyperref}
+\usepackage{breakurl}
+
+\makeatletter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
+\usepackage{Sweavel}
+<<echo=F>>=
+  if(exists(".orig.enc")) options(encoding = .orig.enc)
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% User specified LaTeX commands.
+%\VignetteIndexEntry{Rchaeology}
+
+\usepackage{Sweavel}
+\usepackage{graphicx}
+\usepackage{color}
+
+\usepackage{babel}
+\usepackage[samesize]{cancel}
+
+
+
+\usepackage{ifthen}
+
+\makeatletter
+
+\renewenvironment{figure}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{figure}
+
+ }{%
+
+   \@float{figure}[#1]%
+
+ }%
+
+ \centering
+
+}{%
+
+ \end@float
+
+}
+
+\renewenvironment{table}[1][]{%
+
+ \ifthenelse{\equal{#1}{}}{%
+
+   \@float{table}
+
+ }{%
+
+   \@float{table}[#1]%
+
+ }%
+
+ \centering
+
+%  \setlength{\@tempdima}{\abovecaptionskip}%
+
+%  \setlength{\abovecaptionskip}{\belowcaptionskip}%
+
+% \setlength{\belowcaptionskip}{\@tempdima}%
+
+}{%
+
+ \end@float
+
+}
+
+
+%\usepackage{listings}
+% Make ordinary listings look as if they come from Sweave
+\lstset{tabsize=2, breaklines=true,style=Rstyle}
+
+% In document Latex options:
+\fvset{listparameters={\setlength{\topsep}{0em}}}
+\def\Sweavesize{\scriptsize} 
+\def\Rcolor{\color{black}} 
+\def\Rbackground{\color[gray]{0.90}}
+
+
+
+\usepackage{babel}
+
+\usepackage[samesize]{cancel}
+
+
+
+\usepackage{ifthen}
+
+
+
+\usepackage{listings}% Make ordinary listings look as if they come from Sweave
+\lstset{tabsize=2, breaklines=true, style=Rstyle}
+
+\makeatother
+
+\begin{document}
+
+\title{Rchaeology}
+
+
+\author{Paul E. Johnson <pauljohn @ ku.edu>}
+\maketitle
+\begin{description}
+\item [{Rchaeology:}] The study of R programming by investigation of R
+source code. It is the effort to discern the programming strategies,
+idioms, and style of R programmers in order to better communicate
+with them.
+\item [{Rchaeologist:}] One who practices Rchaeology.
+\end{description}
+This document was initiated on May 31, 2012. The newest copy will
+always be available at \url{http://pj.freefaculty.org/R}, either
+in \href{http://pj.freefaculty.org/R/Rchaeology.pdf}{PDF} or \href{http://pj.freefaculty.org/R/Rchaeology.html}{HTML}.
+It is also available as a vignette in the R package ``rockchalk''.
+
+What is the point? These lessons are from the ``school of hard knocks.''
+Many are collected as I learn to write functions for ``rockchalk''. 
+
+How is this different from Rtips(\url{http://pj.freefaculty.org/R/Rtips.{pdf,html}})?
+\begin{enumerate}
+\item Oriented toward programming R rather than using R.
+\item More synthetic, aimed more at finding ``what's right'' rather than
+``what works.''
+\item Written with Sweave (using Harrell's Sweavel style) so that code examples
+work.
+\end{enumerate}
+% In document Latex options:
+\fvset{listparameters={\setlength{\topsep}{0em}}}
+\SweaveOpts{ae=F,nogin=T}
+
+<<Roptions, echo=F>>=
+options(device = pdf)
+options(width=80, prompt=" ", continue="  ")
+options(useFancyQuotes = FALSE) 
+@
+
+
+\section{Style Guides}
+
+The R Core Team has not been eager to write out a formal list of criteria
+that define ``good R style.'' I think they don't agree among themselves
+about many details. The \emph{R Internals} section ``R coding standards,''
+is quite brief. Nature abhors a vacuum, as they say. Many others have
+seen fit to try to fill in the gaps (Google R style guide%
+\footnote{\url{http://google-styleguide.googlecode.com/svn/trunk/google-r-style.html}%
+}; Hadley Wickham's Style Guide%
+\footnote{\url{https://github.com/hadley/devtools/wiki/Style}%
+}). In my R group at the University of Kansas, we have sought to do
+the same. Aaron Boulton, surveyed these efforts and we developed some
+guidelines for our group. 
+
+It is important to remember the following. First, any advice that
+does not come directly from the R Core Team has no ``authority.''
+I have advice, Hadley has advice, but none of it can be used as a
+trope with which to bludgeon someone who does things differently.
+Second, code writers can make ugly code that ``runs,'' but they
+can't compel anyone else to read it. With few exceptions, coding style
+is not about making things ``work,'' it is about making them work
+in a way that is understood by the widest possible audience.
+
+Generally speaking, what should your code look like? Here are the
+two best answers I have. 
+\begin{enumerate}
+\item Open the source code for R itself, and navigate to the directory src/library/stats/R.
+Open the file ``lm.R''. There's your answer.
+\item Open an R session, run the following commands
+
+
+\begin{lstlisting}
+> lm
+> summary.lm
+> stats:::print.summary.lm
+\end{lstlisting}
+
+
+
+There's your answer again.
+
+\end{enumerate}
+If I'm looking over your shoulder as you write code, I may say ``ach,
+don't do that'' or ``nobody is going to want to look at that.''
+You may say, as many students have, ``but this works!'' And all
+I can say in response is, ``lucky for you, you don't need help fixing
+it. Because nobody will want to help that.'' Sometimes ugly code
+runs, but it is hard to understand, hard to debug. 
+
+From my expertise as an Rchaeologist, I have accumulated a list of
+bits of style advice. These proceed in order, from things that every
+knowledgeable expert will accept, to matters of personal taste that
+are more widely accepted, to things that I like, but nobody else does. 
+\begin{enumerate}
+\item Opening squiggly braces, ``\{'' must be at the end of the line of
+code, rather than at the beginning. This is recommended with for statements,
+and it is vital after ``else''. This is not merely a matter of style.
+The following will fail in R because the system does not know that
+the else's work is continuing when the squiggly brace is on the next
+line.
+
+
+\begin{lstlisting}
+if (x < 7){
+    print("so far, so good")
+}
+else
+{
+    print("this is a total disaster because the squiggle is not with the else")
+}
+\end{lstlisting}
+
+
+
+It should be like this:
+
+
+\begin{lstlisting}
+if (x < 7){
+    print("so far, so good")
+} else {
+    print("this is the "defensive" style mentioned in the R documents")
+}
+\end{lstlisting}
+
+
+
+If you are a C or Java programmer, and you are used to putting your
+squiggly braces in different spots, you will have to stop doing that.
+C and Java require the author to use the semicolon to conclude every
+statement, so there is never any ambiguity about when a command is
+finished. R allows a line ending to conclude a command, opening up
+ambiguity about when a command is finished. To let R know that more
+work remains, put the squiggly brace at the end of the line.
+
+
+As far as I know, this is the only bit of R style advice on which
+every single qualified R programmer will agree. The placement of braces
+is not simply style, it is a matter of right and wrong.
+
+
+We can write it all on one line if we want to.
+
+
+\begin{lstlisting}
+if (x < 7) print("so far, so good") else print("this is else")
+\end{lstlisting}
+
+
+
+The squiggly braces reduce the chance that we will make a mistake
+in the code, and thus I almost always use them while developing code.
+Perhaps, when a program is done, I'll go back and ``tighten it up''
+so that I won't look like a novice.
+
+\item Style for readability. If you are going to ask an R expert for help,
+it is vital to supply code that is as understandable as possible. 
+
+\begin{enumerate}
+\item Put blank spaces on both sides of equal signs and mathematical symbols
+like ``<'',``{*}'',''+'', and so forth. Put one space after
+commas. This is purely a matter of convention and judgment, it does
+not affect the ``rightness'' of code. But every finished program
+by a well-qualified programmer will have this feature. 
+\item Indentation of sections is required. It allows the reader to discern
+``sub steps''. Perhaps the R documentation is silent on many matters
+of style because the members of R Core are not completely in agreement
+with each other. Almost the only clear advice we get is the following.
+For indentation of subsections, use 4 spaces. Personally, I prefer
+2 spaces, and until 2011 that is what I used. Now, I've changed my
+settings in Emacs so that indentions are 4 spaces.
+\end{enumerate}
+\item Style for widespread comprehension. 
+
+\begin{enumerate}
+\item How to name functions. 
+
+\begin{enumerate}
+\item Avoid using names that are already in use. Don't write functions named
+``rep'' ``seq'' ``lm'', and so forth. Even though R (since 2.14)
+requires all package writers to use namespaces, and the system can
+tolerate name duplication to some extent, don't do it.
+\item Use periods to indicate classes, otherwise don't use periods in function
+names. Use camel case to name functions. 
+
+
+myFunction or getCalculatedValues are better function names than my.function
+or get.calculated.values.
+
+
+Why do some functions have periods in the name? Browse the R source
+code and you find functions with names like ``predict.lm'' and ``summary.lm''.
+``lm'' denotes the class of the input, so when a user runs the commands
+
+
+\begin{lstlisting}
+m1 <- lm(y ~ x, data=dat)
+summary(m1)
+predict(m1)
+\end{lstlisting}
+
+
+
+The lm function creates an object of class ``lm'', and so when summary
+and predict are used, the R system notices that m1 is from that class,
+and the system then uses ``summary.lm'' and ``predict.lm'' to
+get the work done. 
+
+
+Most users don't realize that when they run ``summary.lm'', a new
+type of object is created, it is from the class ``summary.lm''.
+And in order to show that result to the user, the R system uses a
+function called ``print.summary.lm''. The function name has 3 parts,
+but the last two parts are the class of the object for which the function
+is intended. As one can see, inside the R system, the periods are
+VERY meaningful indicators because they are used to declare which
+type of object is acted upon by a function. 
+
+
+As a result, I suggest programmers should NEVER use periods when they
+name their functions, unless (of course) they are writing functions
+that work on classes of objects.
+
+
+Instead, programmers should use camel case function names. Instead
+of ``do.something,'' create a function called ``doSomething''.
+This style is very pleasant to my eye because it exactly the same
+style that is suggested in the Objective-C language, in which the
+Swarm simulation system was written. Some people, especially C++ programmers,
+have been trained to hate camel case.
+
+
+Some parts of R, especially the old parts, were developed before ``object
+oriented'' programming had come to the forefront and, as a result,
+they do not comply with this advice. Nevertheless, I believe this
+is good advice and it is generally followed by most of the good R
+programmers.
+
+\end{enumerate}
+\item How to name variables (and objects and other things you need to keep
+track of).
+
+\begin{enumerate}
+\item Officially, R variable names must begin with an alphabetical character
+and must include only letters, numbers and the symbols ``\_'', ``-'',
+and ``.''. They must not include ``{*}'',''?'',''!'',''\&''
+or other special symbols. 
+
+
+Please understand the history of S and R. At one time, the underscore
+``\_'' was used as the assignment symbol. That's right, instead
+of ``<-'', we used to write
+
+
+\begin{lstlisting}
+y _ x + x^2
+\end{lstlisting}
+The underscore for assignment was allowed, but discouraged, when I
+started using R in 1998. R functions that imported data would automatically
+translate underscores into other symbols. Underscore for assignment
+has since been forbidden altogether. A while after that, the underscore
+was allowed in variable and function names. Because of that history,
+R veterans may still consider it jarring if your variables include
+underscores.
+
+\item No T or F. 
+
+
+This is one thing that almost everybody (99.9\%) will agree with.
+NEVER name variables ``T'' or ``F''. These are too easily mistaken
+for TRUE and FALSE values. Since R uses TRUE and FALSE as vital elements
+of almost all commands and functions, and since users are allowed
+to abbreviate those as T or F, a horrible confusion can develop if
+variables are named T or F.
+
+\item Avoid declaring variables that have the same names as widely used
+functions. In 2001, I created a variable ``rep'' (for Republican
+party members) and nothing worked in my program. In exasperation,
+I wrote to the r-help list, and learned that I had obliterated R's
+own function rep with my variable. That kind of mistake was common.
+In 2002 or so, the R system was revised so that user-declared variables
+cannot ``step on'' R system functions. Nevertheless, it is disconcerting
+to me (probably others) when users create variables with names like
+``lm'', ``rep'', ``seq'', and so forth. Its distracting; its
+confusing.
+\end{enumerate}
+\end{enumerate}
+\item Everything else is a matter of personal style and conscience. 
+
+
+We should strive to have understandable code that others can understand
+and use. Hence, naming variables is important because it can help
+readers to understand our code. 
+
+
+Sometimes people will have fun by naming their variables after their
+mothers, fathers, dogs, or favorite cities. Calling a variable ``chicago''
+may help the author to remember that a particular regression problem
+was solved while in vacation in the windy city, but it will not help
+anybody else understand what's going on.
+
+
+Often, while I'm working on a function, I will have a variable x and
+then change it somehow. In the heat of the moment, I can't think of
+a good name, so the new thing is called xx. Then I change that and
+have xx2. Then I change that and have xx3. When the function works
+in the way it is intended, I should go back and beautify the names
+so they are most understandable.
+\begin{enumerate}
+\item Use long names for infrequently used variables. If a variable is going
+to be used twice, we might as well be verbose about it. If we are
+going to use a name 50 times in a 5 line program, we should choose
+a short one. For abbreviations, include a comment to remind the reader
+what the thing stands for.
+\item My alphabetical scheme for naming things. The emphasis is on naming
+things that go together so that they appear together in the alphabetical
+list of objects, as seen by ls(). 
+\end{enumerate}
+
+Example 1. Create a numeric variable, recode it as a factor, then
+create the ``dummy'' variables that correspond.
+
+
+<<>>=
+x <- runif(1000, min = 0, max = 100)
+xf <- cut(x, breaks = c(-1, 20, 50, 80, 101), labels = c("cold", "luke", "warm", "hot"))
+xfdummies <- contrasts(xf, contrasts = FALSE )[xf,]
+colnames(xfdummies) <- c("xfcold", "xfluke", "xfwarm", "xfhot")
+rownames(xfdummies) <- names(x)
+dat <- data.frame(x, xf, xfdummies)
+head(dat)
+@
+
+
+Example 2. Estimate a regression, calculate the summary, extract summary
+statistics.
+
+
+<<echo=T>>=
+set.seed(12345)
+x1 <- rnorm(200, m = 400, s = 10)
+x2 <- rnorm(200, m = 80, s = 30)
+y <- 3 + 0.2 * x1 + 0.4 * x2 + rnorm(200, s=400)
+dat <- data.frame(x1, x2, y); rm(x1,x2,y)
+m1 <- lm (y ~ x1 + x2, data = dat)
+m1summary <- summary(m1)
+(m1se <- m1summary$sigma)
+(m1rsq <- m1summary$r.squared)
+(m1coef <- m1summary$coef)
+(m1aic <- AIC(m1))
+@
+
+
+Example 3. Run a regression, collect mean-centered and residual centered
+variants of it, summarize each, and compare them.
+
+
+<<results=tex>>=
+library(rockchalk)
+dat$y2 = with(dat, 3 + 0.2 * x1 + 0.4 * x2 + 0.35 * x1 *x2 + rnorm(200, s=4000))
+m1 <- lm(y2 ~ x1 + x2, data = dat)
+m1i <- lm(y2 ~ x1 * x2, data = dat)
+m1ps <- plotSlopes(m1, plotx = "x1", modx = "x2")
+m1ips <- plotSlopes(m1i, plotx = "x1", modx = "x2")
+m1imc <- meanCenter(m1i)
+m1irc <- residualCenter(m1i)
+outreg(list(m1, m1i, m1imc, m1irc), tight = TRUE, modelLabels = c("Linear", "Interaction", "Mean Centered", "Residual Centered"))
+@
+
+\end{enumerate}
+
+\section{What's In R Guts?}
+
+
+\subsection{Rewriting Formulas}
+
+On May 29, 2012, I was working on a regression problem that I addressed
+to r-help as follows.
+\begin{quote}
+I want to take a fitted regression and replace all uses of a variable
+in a formula. For example, I'd like to take
+
+\begin{lstlisting}
+m1 <- lm(y ~ x1, data=dat)
+\end{lstlisting}
+and replace x1 with something else, say x1c, so the formula would
+become
+
+\begin{lstlisting}
+m1 <- lm(y ~ x1c, data=dat)
+\end{lstlisting}
+I have working code to finish that part of the problem, but it fails
+when the formula is more complicated. If the formula has log(x1) or
+x1:x2, the update code I'm testing doesn't get right.
+
+Here's the test code:
+
+\begin{lstlisting}
+##PJ
+## 2012-05-29
+dat <- data.frame(x1=rnorm(100,m=50), x2=rnorm(100,m=50),
+x3=rnorm(100,m=50), y=rnorm(100))
+m1 <- lm(y ~ log(x1) + x1 + sin(x2) + x2 + exp(x3), data=dat)
+m2 <- lm(y ~ log(x1) + x2*x3, data=dat)
+suffixX <- function(fmla, x, s){
+upform <- as.formula(paste0(". ~ .", "-", x, "+", paste0(x, s)))
+update.formula(fmla, upform)
+}
+newFmla <- formula(m2)
+newFmla
+suffixX(newFmla, "x2", "c")
+suffixX(newFmla, "x1", "c")
+\end{lstlisting}
+The last few lines of the output. See how the update misses x1 inside
+log(x1) or in the interaction?
+
+\begin{lstlisting}
+> newFmla <- formula(m2)
+> newFmla
+y ~ log(x1) + x2 * x3
+> suffixX(newFmla, "x2", "c")
+y ~ log(x1) + x3 + x2c + x2:x3
+> suffixX(newFmla, "x1", "c")
+y ~ log(x1) + x2 + x3 + x1c + x2:x3
+\end{lstlisting}
+It gets the target if the target is all by itself, but not otherwise.
+
+Later I noticed this really interesting thing. The newFmla object
+can be probed recursively to eventually reveal all of the individual
+pieces:
+
+\begin{lstlisting}
+> newFmla
+y ~ log(x1) + x2 * x3
+> newFmla[[3]]
+log(x1) + x2 * x3
+> newFmla[[3]][[2]]
+log(x1)
+> newFmla[[3]][[2]][[2]]
+x1
+\end{lstlisting}
+
+
+So, if you could tell me of a general way to \textquotedbl{}walk\textquotedbl{}
+though a formula object, couldn't I use \textquotedbl{}gsub\textquotedbl{}
+or something like that to recognize each instance of \textquotedbl{}x1\textquotedbl{}
+and replace with \textquotedbl{}x1c\textquotedbl{}??
+\end{quote}
+
+\section{Do This, Not That}
+
+R novices sometimes use Google to search for R advice and they find
+it, good or bad. They may find their way to the r-help email list,
+where advice is generally good, or to the StackOverflow pages for
+R, which may be better. A lot of advice is offered by people like
+me, who may have good intentions, but are simply not qualified to
+offer advice. 
+
+One of the few bits of advice that seems to grab widespread support
+is that ``for loops are bad.'' One can write an lapply statement
+in one line, while a for loop can take 3 lines. The code is shorter,
+but it won't necessarily run more quickly. I recall being jarred by
+this revelation in John Chambers's book, \emph{Software for Data Analysis}.
+The members of the apply family (apply, lapply, sapply, etc) can make
+for more readable code, but they aren't always faster. ``However,
+none of the apply mechanisms changes the number of times the supplied
+function is called, so serious improvements will be limited to iterating
+simple calculations many times. Otherwise, the n evaluations of the
+function can be expected to be the dominant fraction of the computation''\citep[213]{chambers_software_2008}.
+
+\bibliographystyle{apsr}
+\bibliography{R}
+
+\end{document}

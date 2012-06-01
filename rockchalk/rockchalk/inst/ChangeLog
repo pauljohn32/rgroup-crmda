@@ -1,4 +1,25 @@
+2012-05-29  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/meanCenter.R (formulaReplace): rework code so centered
+	variables are re-named with "c" on end. Otherwise too confusing.
+
+	* standardize: re-work to change variable names by appending s.
+
+	* centerNumerics: new function, will add centered variables to a
+	data frame with new names with "c" or "cs" appended.
+
+2012-05-28  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/meanCenter.R (predict.mcreg): predict must use same mean
+	and scale as were used in original regression. Use meanCenter
+	centeredValues return more fully.
+	* meanCenter(std): eliminate use of R scale, now calculate
+	mean and scale factors, return them in list with centered
+	variables.
+
 2012-05-27  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R (carrier.name): use model.data, fix centerValues
 
 	* ../R/residualCenter.R (createRCinteraction): Noticed that this
 	function did not work with categorical variables in
