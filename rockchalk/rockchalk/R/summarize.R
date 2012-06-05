@@ -240,7 +240,7 @@ NULL
 ##' of summary information, while factors is a list of factor summaries.
 ##' @export
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-##' @example inst/examples/summarize.R
+##' @example inst/examples/summarize-ex.R
 summarize <- function(dat, ...) {
     dots <- list(...)
     dotnames <- names(dots)

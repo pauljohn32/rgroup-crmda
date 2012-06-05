@@ -53,9 +53,9 @@
 ##' for which plotted lines are sought. If modx is a factor, the
 ##' default approach will create one line for each level, but the user
 ##' can supply a vector of levels if a subset is desired..
-##' @param plotPoints TRUE or FALSE: Should the plot include the scatterplot points along with the lines.
-##' @param plotLegend TRUE or FALSE: Include a default legend. Set to FALSE if use wants to run a different legend command after the plot has been drawn.
-##' @param col An optional color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
+##' @param plotPoints Optional. TRUE or FALSE: Should the plot include the scatterplot points along with the lines.
+##' @param plotLegend Optional. TRUE or FALSE: Include a default legend. Set to FALSE if use wants to run a different legend command after the plot has been drawn.
+##' @param col Optional. A color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
 ##' @param llwd An optional vector of line widths used while plotting the lines that represent the values of the factor. This applies only to the lines in the plot. The ... argument will also allow one to pass options that are parsed by plot, such as lwd. That deterimine the thickness of points in the plot.
 ##' @param ... further arguments that are passed to plot
 ##' @export

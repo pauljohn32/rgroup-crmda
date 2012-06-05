@@ -1,3 +1,14 @@
+2012-06-03  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotPlane.R (## carrier.name): using model.data now, and
+	varNamesRHS, no need for carrier nonsense anymore.
+
+2012-06-02  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/plotCurves.R (carrier.name): revise to use model.data
+	function, including the attribute varNamesRHS. Cleans up use of
+	carrier data.
+
 2012-05-29  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/meanCenter.R (formulaReplace): rework code so centered

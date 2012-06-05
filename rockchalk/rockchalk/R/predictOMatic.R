@@ -28,12 +28,12 @@
 ##' values. The fl list must be a named list, using names of variables
 ##' from the regression formula.  It is not needed to call this
 ##' directly if one is satisfied with the results from predictOMatic.
-##' @param model Fitted regression model
-##' @param fl  "focus list".  optional. names list of variables and values
-##' for which to create a new data object.
-##' @param emf optional. data frame used to fit model (not a model
-##' frame. Instead, use output from function \code{model.data}). It is
-##' UNTRANSFORMED variables ("x" as opposed to poly(x,2).1 and
+##' @param model Required. Fitted regression model
+##' @param fl Optional. "focus list" of variables. Named list of variables and values for which to create a new data object.
+##' @param emf Optional. data frame used to fit model (not a model
+##' frame, which may include transformed variables like
+##' log(x1). Instead, use output from function \code{model.data}). It
+##' is UNTRANSFORMED variables ("x" as opposed to poly(x,2).1 and
 ##' poly(x,2).2).
 ##' @return A data frame of x values that could be used as the data= argument in the original regression model. The attribute "varNamesRHS" is a vector of the predictor values.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
@@ -136,14 +136,14 @@ model.data <- function(model){
 ##' predictOMatic( m1, fl =
 ##' list("x1" = median(m1dat$x1), "x2"=c(1,2,3), "x3" = quantile(m1dat$x3))
 ##'
-##' @param model A fitted regression model
+##' @param model Required. A fitted regression model
 ##' @param fl (focus list). Optional. A named list of variables and
 ##' values, such as fl = list("x1" = c(1,2,3), "x2" = c("M","F"), "x3"
 ##' = quantile(dat$x3)). Must name only predictors that are fitted in
 ##' \code{model}.  Need not include all predictors in a model.
 ##' Predictor variables in \code{model} that are not named in fl will
 ##' be set to mean or mode values. See details and examples.
-##' @param divider If fl is not specified, automatic selection of
+##' @param divider Optional. If fl is not specified, automatic selection of
 ##' predictor values is employed. \code{divider} determines the method of
 ##' selection. Should be one of c("quantile","std.dev","table"). This
 ##' determines whether values selected are quantile values, values

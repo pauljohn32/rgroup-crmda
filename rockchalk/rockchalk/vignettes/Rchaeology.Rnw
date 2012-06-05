@@ -1,5 +1,7 @@
-%% LyX 2.0.3 created this file.  For more info, see http://www.lyx.org/.
-%% Do not edit unless you really know what you are doing.
+\batchmode
+\makeatletter
+\def\input@path{{/home/pauljohn/SVN/rgroup/trunk/rockchalk/rockchalk/vignettes//}}
+\makeatother
 \documentclass[english,noae]{article}
 \usepackage{lmodern}
 \renewcommand{\sfdefault}{lmss}
@@ -18,7 +20,6 @@
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
  breaklinks=false,pdfborder={0 0 1},backref=section,colorlinks=false]
  {hyperref}
-\usepackage{breakurl}
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
@@ -123,7 +124,12 @@
 
 
 \author{Paul E. Johnson <pauljohn @ ku.edu>}
+
 \maketitle
+This document was initiated on May 31, 2012. The newest copy will
+always be available at \url{http://pj.freefaculty.org/R}, either
+in \href{http://pj.freefaculty.org/R/Rchaeology.pdf}{PDF} or \href{http://pj.freefaculty.org/R/Rchaeology.html}{HTML}.
+It is also available as a vignette in the R package ``rockchalk''.
 \begin{description}
 \item [{Rchaeology:}] The study of R programming by investigation of R
 source code. It is the effort to discern the programming strategies,
@@ -131,21 +137,19 @@ idioms, and style of R programmers in order to better communicate
 with them.
 \item [{Rchaeologist:}] One who practices Rchaeology.
 \end{description}
-This document was initiated on May 31, 2012. The newest copy will
-always be available at \url{http://pj.freefaculty.org/R}, either
-in \href{http://pj.freefaculty.org/R/Rchaeology.pdf}{PDF} or \href{http://pj.freefaculty.org/R/Rchaeology.html}{HTML}.
-It is also available as a vignette in the R package ``rockchalk''.
-
-What is the point? These lessons are from the ``school of hard knocks.''
-Many are collected as I learn to write functions for ``rockchalk''. 
+These are Rcheological observations about the style and mannerisms
+of R programmers in their native habitats. Almost all of the insights
+here are gathered from the r-help and r-devel emails lists, the stackoverflow
+website pages for R, and the R source code itself. These are lessons
+from the ``school of hard knocks.''
 
 How is this different from Rtips(\url{http://pj.freefaculty.org/R/Rtips.{pdf,html}})?
 \begin{enumerate}
-\item Oriented toward programming R rather than using R.
-\item More synthetic, aimed more at finding ``what's right'' rather than
-``what works.''
-\item Written with Sweave (using Harrell's Sweavel style) so that code examples
-work.
+\item This is oriented toward programming R, rather than using R.
+\item It is more synthetic, aimed more at finding ``what's right'' rather
+than ``what works.''
+\item It is written with Sweave (using Harrell's Sweavel style) so that
+code examples work.
 \end{enumerate}
 % In document Latex options:
 \fvset{listparameters={\setlength{\topsep}{0em}}}
@@ -426,16 +430,22 @@ a good name, so the new thing is called xx. Then I change that and
 have xx2. Then I change that and have xx3. When the function works
 in the way it is intended, I should go back and beautify the names
 so they are most understandable.
+
+\end{enumerate}
+I don't have a comprehensive style guide, probably never will, but
+I do have some advice that may help readers to understand why I name
+variables in certain ways. These are the objectives of my current
+approach.
 \begin{enumerate}
 \item Use long names for infrequently used variables. If a variable is going
 to be used twice, we might as well be verbose about it. If we are
 going to use a name 50 times in a 5 line program, we should choose
 a short one. For abbreviations, include a comment to remind the reader
 what the thing stands for.
-\item My alphabetical scheme for naming things. The emphasis is on naming
-things that go together so that they appear together in the alphabetical
-list of objects, as seen by ls(). 
-\end{enumerate}
+\item Use an alphabetical scheme for naming related things so that they
+alway stay together in the workspace. As seen by ls(), the related
+bits should always be together.
+
 
 Example 1. Create a numeric variable, recode it as a factor, then
 create the ``dummy'' variables that correspond.
@@ -492,35 +502,26 @@ outreg(list(m1, m1i, m1imc, m1irc), tight = TRUE, modelLabels = c("Linear", "Int
 \section{What's In R Guts?}
 
 
-\subsection{Rewriting Formulas}
+\subsection{Rewriting Formulas. My Introductory Puzzle.}
 
-On May 29, 2012, I was working on a regression problem that I addressed
-to r-help as follows.
-\begin{quote}
-I want to take a fitted regression and replace all uses of a variable
-in a formula. For example, I'd like to take
+On May 29, 2012, I was working on a regression problem in the rockchalk
+package. The functions meanCenter and residualCenter a fitted regression
+model and transform some variables. The non-centered variable ``x1''
+is renamed to ``x1c'', and then the regression is executed with
+the new data. Thus it is necessary to take something that is fitted
+with a formula like y \textasciitilde{} x1{*}x2, and then re-fit with
+a formula like y \textasciitilde{} x1c{*}x2c. In the end, the answer
+is a single, if complicated line of code that speaks volumes about
+the way the advanced R user interacts with the system.
 
-\begin{lstlisting}
-m1 <- lm(y ~ x1, data=dat)
-\end{lstlisting}
-and replace x1 with something else, say x1c, so the formula would
-become
+My first effort used R's update function. It is fairly easy to replace
+x1 with x1c in the formula, but not when x1 is logged or otherwise
+transformed. In exasperation, I wrote to r-help and described the
+problem with this working example. 
 
-\begin{lstlisting}
-m1 <- lm(y ~ x1c, data=dat)
-\end{lstlisting}
-I have working code to finish that part of the problem, but it fails
-when the formula is more complicated. If the formula has log(x1) or
-x1:x2, the update code I'm testing doesn't get right.
-
-Here's the test code:
-
-\begin{lstlisting}
-##PJ
-## 2012-05-29
+<<include=T, results=hide>>=
 dat <- data.frame(x1=rnorm(100,m=50), x2=rnorm(100,m=50),
-x3=rnorm(100,m=50), y=rnorm(100))
-m1 <- lm(y ~ log(x1) + x1 + sin(x2) + x2 + exp(x3), data=dat)
+x3=rnorm(100,m=50), x4 = rnorm(100, m=50), y=rnorm(100))
 m2 <- lm(y ~ log(x1) + x2*x3, data=dat)
 suffixX <- function(fmla, x, s){
 upform <- as.formula(paste0(". ~ .", "-", x, "+", paste0(x, s)))
@@ -530,9 +531,10 @@ newFmla <- formula(m2)
 newFmla
 suffixX(newFmla, "x2", "c")
 suffixX(newFmla, "x1", "c")
-\end{lstlisting}
-The last few lines of the output. See how the update misses x1 inside
-log(x1) or in the interaction?
+@
+
+Run that and check the last few lines of the output. See how the update
+misses x1 inside log(x1) or in the interaction?
 
 \begin{lstlisting}
 > newFmla <- formula(m2)
@@ -545,29 +547,506 @@ y ~ log(x1) + x2 + x3 + x1c + x2:x3
 \end{lstlisting}
 It gets the target if the target is all by itself, but not otherwise.
 
-Later I noticed this really interesting thing. The newFmla object
-can be probed recursively to eventually reveal all of the individual
-pieces:
+While struggling with this, I noticed this really interesting thing.
+The object ``newFmla'' is not just a text string. It is actually
+a list. Its parts can be probed recursively, to eventually reveal
+all of the individual pieces:
+
+<<newFla10>>=
+newFmla
+newFmla[[1]]
+newFmla[[2]]
+newFmla[[3]]
+newFmla[[3]][[2]]
+newFmla[[3]][[2]][[2]]
+@
+
+How could I put that information to use? I asked the members of r-help.
+
+Lately I've had very good luck with r-help. A person who writes under
+the pseudonym Gabor Grothendieck wrote an answer to r-help on May
+29, 2012, ``Try substitute:''
 
 \begin{lstlisting}
-> newFmla
-y ~ log(x1) + x2 * x3
-> newFmla[[3]]
-log(x1) + x2 * x3
-> newFmla[[3]][[2]]
-log(x1)
-> newFmla[[3]][[2]][[2]]
-x1
+> do.call("substitute", list(newFmla, setNames(list(as.name("x1c")), "x1")))
+y ~ log(x1c) + x2 * x3
 \end{lstlisting}
 
 
-So, if you could tell me of a general way to \textquotedbl{}walk\textquotedbl{}
-though a formula object, couldn't I use \textquotedbl{}gsub\textquotedbl{}
-or something like that to recognize each instance of \textquotedbl{}x1\textquotedbl{}
-and replace with \textquotedbl{}x1c\textquotedbl{}??
-\end{quote}
+Bingo. 
 
-\section{Do This, Not That}
+That's quintessential R. It packs together a half-dozen very deep
+thoughts that I will try to explain in the rest of this section. It
+has most of the essential secrets of R's guts, laid out in a single
+line. It has do.call, substitute, it interprets a formula as a list,
+and it shows that every command in R is, when it comes down to brass
+tacks, a list. I would like to take up these separate pieces in order.
+
+
+\subsection{do.call and eval}
+
+In my early work as an Rchaeologist, I had noticed eval and do.call,
+but did not understand their significance in the mind of the R programmers.
+Whenever difficult problems arose in r-help, the answer almost invariably
+involved do.call or eval. Maybe both. 
+
+
+\subsubsection{do.call}
+
+Let's concentrate on do.call first. The syntax is like this
+
+\begin{lstlisting}
+do.call("someRFunction", aListOfArgumentsToGoInTheParentheses)
+\end{lstlisting}
+
+
+It is as if we were telling R to run this:
+
+\begin{lstlisting}
+someRFunction(aListOfArgumentsToGoInTheParentheses)
+\end{lstlisting}
+
+
+Let's consider an example that runs a regression the ordinary way,
+and then with do.call. In this example, the role of ``someRFunction''
+will be played by lm and the list of arguments will be the parameters
+of the regression. The regression m1 will be constructed the ordinary
+way, while m2 is constructed with do.call.
+
+<<>>=
+m1 <- lm(y ~ x1*x2, data=dat)
+coef(m1)
+regargs <- list(formula = y ~ x1*x2, data= quote(dat))
+m2 <- do.call("lm", regargs)
+coef(m2)
+all.equal(m1, m2)
+@
+
+The object regargs is a list of arguments that R can understand when
+they are supplied to the lm function. 
+
+do.call is a powerful, mysterious symbol. It holds flexibility; we
+can calculate commands and then run them. I first needed it when we
+had a simulation project that ran very slowly when confronted with
+medium or large sized problems. There's a writeup in the working examples
+distributed with rockchalk called stackListItems-01.R. I was using
+rbind over and over to join the results of simulation runs. Basically,
+the code was like this
+
+\begin{lstlisting}
+for (i in 1:10000){
+   dat <- someHugeSimulation(i)
+   result <- rbind(result, dat)
+}
+\end{lstlisting}
+
+
+That will call rbind 10000 times. I had not realized that rbind is
+a comparatively time-consuming task because it accesses a new chunk
+of memory each time it is run. On the other hand, we could collect
+those results in a list, then we can call rbind one time to smash
+together all of the results.
+
+\begin{lstlisting}
+for (i in 1:10000){
+   mylist[[i]] <- someHugeSimulation(i)
+}
+result <- do.call("rbind", mylist)
+\end{lstlisting}
+
+
+It is much faster to run rbind only once. It would be OK if we typed
+it all out like this:
+
+\begin{lstlisting}
+result <- rbind(mylist[[1]],mylist[[2]],mylist[[3]],mylist[[4]], ..., mylist[[10000])
+\end{lstlisting}
+
+
+But who wants to do all of that typing? How tiresome! Thanks to Erik
+Iverson in r-help, I understand that
+
+\begin{lstlisting}
+result <- do.call("rbind", mylist)
+\end{lstlisting}
+
+
+is doing the EXACT same thing. ``mylist'' is a list of arguments.
+do.call is \emph{constructing} a function call from the list of arguments.
+It is \emph{as if} I had actually typed rbind with 10000 arguments.
+
+The beauty in this is that we could design a program that can assemble
+the list of arguments, and also choose the function to be run, on
+the fly. We are not required to literally write the function in quotes,
+as in ``rbind''. We could instead have a variable that is calculated
+to select one function among many, and then use do.call on that. In
+a very real sense, we could write a program that can write itself
+as it runs. 
+
+From all of this (and a peek at ?call), I arrive at an Rchaeological
+eureka! A call object is a quoted command plus a list of arguments
+for that command. 
+
+
+\subsubsection{eval}
+
+Where does eval fit into the picture? As far as I can tell, do.call(\textquotedbl{}rbind\textquotedbl{},
+mylist) is basically the same as eval(call(``rbind'', mylist). The
+call function manufactures the call object, the eval function tells
+it to do its work. I think of do.call as a contraction of ``eval''
+and ``call''. eval can handle evaluates any valid R expression,
+and a call is a valid expression. I'm leaving the question of ``what
+is an expression'' to a later time.
+
+Here's a quick example that repeats the two regressions exercise that
+was completed with do.call. Now I'll create an expression regargs2.
+Note it is necessary for me to evaluate the expression before the
+lm function can understand it.
+
+<<>>=
+m3 <- lm(y ~ x1*x2, data=dat)
+coef(m3)
+regargs2 <- expression(y ~ x1*x2, data = dat)
+m4 <- lm(eval(regargs2))
+coef(m4)
+@
+
+The main reason for using eval is that we can ``piece together''
+commands and then run them after we have assembled all the pieces. 
+
+We can create a formula object implicitly (without explicitly asking
+for it) by using this code. 
+
+<<>>=
+f1 <- y ~ x1 + x2 + x3 + log(x4)
+class(f1)
+m5 <- lm(f1, data = dat)
+@
+
+The object f1 is a formula object because R has created it that way.
+Its not just a text string. R notices the $\sim$ symbol and the whole
+line is interpreted as a formula. Observe it has separate pieces,
+just like newFmla in the example problem that started this section.
+
+<<>>=
+f1[[1]]
+f1[[2]]
+f1[[3]]
+f1[[3]][[1]]
+f1[[3]][[2]]
+f1[[3]][[3]]
+@\\
+Note that f1 created in this way must be a syntactically valid R formula;
+it cannot include any other regression options.
+
+\begin{lstlisting}
+> f1 <- y ~ x1 + x2 + x3 + log(x4), data=dat 
+Error: unexpected ',' in "f1 <- y ~ x1 + x2 + x3 + log(x4),"
+\end{lstlisting}
+
+
+If can declare f1exp as an expression, then R does not re-interpret
+it as a formula (f1exp is an unevaluated expression, the R parser
+has not translated it yet). To use that as a formula in the regression,
+we have to evaluate it.
+
+<<>>=
+f1exp <- expression(y ~ x1 + x2 + x3 + log(x4))
+class(f1exp)
+m6 <- lm(eval(f1exp), data=dat)
+@
+
+When f1exp is evaluated, what do we have? Here's the answer.
+
+<<>>=
+f1expeval <- eval(f1exp)
+class(f1expeval)
+all.equal(f1expeval, f1)
+m7 <- lm(f1expeval, data=dat)
+all.equal(coef(m5), coef(m6), coef(m7))	
+@
+
+The point here is that the pieces of an ordinary use command can be
+separated and put back together again before the work of doing calculations
+begins. 
+
+Now we turn back to the main theme. How is eval used in functions?
+Some functions take a lot of arguments. They need to pick some arguments,
+and send those to some functions. 
+
+Let's consider the lm code in some detail. Suppose a user submits
+a command like ``lm(y \textasciitilde{} x, data=dat, x = TRUE, y
+= TRUE).'' Inside lm, it is necessary to pick through those arguments
+and then pass them off to other functions in order to build the data
+matrix and so forth. Here are the first lines of the lm function
+
+\begin{lstlisting}[breaklines=true,numbers=left,numberstyle={\footnotesize},tabsize=4]
+lm <- function (formula, data, subset, weights, na.action, method = "qr",
+    model = TRUE, x = FALSE, y = FALSE, qr = TRUE, singular.ok = TRUE,
+    contrasts = NULL, offset, ...)
+{
+    ret.x <- x
+    ret.y <- y
+    cl <- match.call()
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(c("formula", "data", "subset", "weights", "na.action",
+        "offset"), names(mf), 0L)
+    mf <- mf[c(1L, m)]
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- as.name("model.frame")
+    mf <- eval(mf, parent.frame())
+\end{lstlisting}
+
+
+Lets consider what those lines do with a command like this.
+
+\begin{lstlisting}
+m1 <- lm(y ~ x1*x2, data=dat, x = TRUE, y = TRUE)
+\end{lstlisting}
+
+
+The lm function notices that I supply some arguments. In line 8, the
+match.call function is used to grab a copy of the command that I typed.
+If we use R's debugging facility to stop the program at that point,
+we would see that mf is exactly the same as my command, except R has
+named the arguments:
+
+\begin{lstlisting}
+> mf
+lm(formula = y ~ x1 * x2, data = dat, x = TRUE, y = TRUE)
+\end{lstlisting}
+
+
+That's not just a string of letters, however. It is a call object,
+a list with individual pieces that we can revise. Lines 10 and 11
+check the names of mf for the presence of certain arguments, and throw
+away the rest. It only wants the arguments we would be needed to run
+the function model.frame. Line 12 adds an argument to the list, drop.unused.levels.
+Up to that point, then, we can look at the individual pieces of mf:
+
+\begin{lstlisting}
+> names(mf) [1] ""                   "formula"            "data" [4] "drop.unused.levels"
+> mf[[1]]
+lm
+> mf[[2]]
+y ~ x1 * x2
+> mf[[3]]
+dat
+> mf[[4]] 
+[1] TRUE
+\end{lstlisting}
+
+
+The object mf has separate pieces that can be revised and then evaluated.
+Line 13 replaces the element 1 in mf with the symbol ``model.frame''.
+That's the function that will be called. Line 14 is the coup de grâce,
+when the revised call ``mf'' is sent to eval. In the end, it is
+\emph{as if} lm had directly submitted the command
+
+\begin{lstlisting}
+mf <- model.frame(y ~ x1 * x2, data=dat, drop.unused.levels=TRUE)
+\end{lstlisting}
+
+
+It would not do to simply write that into the lm function, however,
+because some people use variables that have names different from y,
+x1, and x2, and their data objects may not be called dat. lm allows
+users to input whatever they want for a formula and data, and then
+lm takes what it needs to build a model frame.
+
+
+\subsection{substitute}
+
+Most R users I know have not used substitute, except as it arises
+in the plotmath. In the context of plotmath, the problem is as follows.
+Plotmath causes the R plot functions to convert expressions into mathematical
+symbols in a way this is reminiscent of \LaTeX{}. For example, a command
+like this:
+
+\begin{lstlisting}
+text(4, 4, expression(gamma))
+\end{lstlisting}
+will draw the gamma symbol at the position (4,4). We can use paste
+to combine symbolic commands and text like so:
+
+\begin{lstlisting}
+text(4, 4, expression(paste(gamma, " = 7")))
+\end{lstlisting}
+The number 7 is a nice number, but what if we want to calculate something
+and insert it into the expression? Your first guess might be to insert
+a function that makes a calculation, such as the mean, but this fails:
+
+\begin{lstlisting}
+text(4, 4, expression(paste(gamma, mean(x))))
+\end{lstlisting}
+In order to smuggle the result of a calculation into an expression,
+some fancy footwork is required. In the help page for plotmath, examples
+using the functions bquote and substitute are offered. 
+
+For the particular purpose of blending expressions with calculation
+results, I find the bquote function to be more immediately understandable.
+In this section, I'm trying to understand the use of substitute, so
+let's stick with that. The plotmath help page points to syntax like
+this:
+
+<<fig=T, height=3, width=4>>=
+plot(1:10, seq(1,5, length.out=10), type = "n", main="Illustrating Substitute with plotmath", xlab="x", ylab="y")
+text(5, 4, substitute(gamma + x1mean, list(x1mean = mean(dat$x1))))
+text(5, 2, expression(paste(gamma, " is the mean of x1")))
+@
+
+Run ?substitute and one is brought to a famous piece of Rchaeological
+pottery: 
+\begin{quote}
+\textquoteleft{}substitute\textquoteright{} returns the parse tree
+for the (unevaluated) expression \textquoteleft{}expr\textquoteright{},
+substituting any variables bound in \textquoteleft{}env\textquoteright{}. 
+\end{quote}
+Pardon me. parse tree? We've seen expressions already, that part is
+not so off putting. But ``parse tree''? Really?
+
+This is one of those points at which being an Rchaeologist has real
+benefits. The manual page gives us some insights into the R programmer,
+and it is his or her view of his or her own actions, but it doesn't
+necessarily speak to how we should understand substitute. For me,
+the only workable approach is to build up a sequence of increasingly
+complicated examples. 
+
+I start by creating the list of replacements. This replacement list
+can have a format like this: 
+
+<<>>=
+sublist <- list(x1 = "alphabet", x2 = "zoology")
+@
+
+I want to replace x1 with alphabet and x2 with zoology. The quotes
+indicate that alphabet and zoology are strings, not other objects
+that already exist. Consider:
+
+<<>>=
+substitute(expression(x1 + x2 + log(x1) + x3), sublist)
+@
+
+The special things to note are that the substitution 1) leaves other
+variables alone (since they are not named in sublist) and 2) it finds
+all valid use of the symbols x1 and x2 and replaces them.
+
+This isn't quite what I wanted, however, because the strings have
+been inserted into the middle of my expression. I just want symbols.
+It turns out that the functions as.name and as.symbol are exactly
+the same, and usually I use as.symbol, but in Gabor's answer to my
+question, as.name is used, so I will illustrate that here.
+
+<<>>=
+sublist <- list(x1 = as.name("alphabet"), x2 = as.name("zoology"))
+substitute(expression(x1 + x2 + log(x1) + x3), sublist)
+@
+
+
+\subsection{setNames and names}
+
+Almost every R user has noticed that the elements of R lists can have
+names. In a data frame, the names of the list elements are thought
+of as variable names, or column names. If dat is a data frame, the
+names and colnames functions return the same thing, but that's not
+true for other types of objects.
+
+<<>>=
+dat <- data.frame(x1=1:10, x2=10:1, x3=rep(1:5,2), x4=gl(2,5))
+colnames(dat)
+names(dat)
+@
+
+After dat is created, we can change the names inside it with a very
+similar approach:
+
+<<>>=
+newnames <- c("whatever","sounds","good","tome")
+colnames(dat) <- newnames
+colnames(dat)
+@
+
+While used interactively, this is convenient, but it is a bit tedious
+because we have to create dat first, and then set the names. The setNames
+function allows us to do this in one shot. I'll paste the data frame
+creating commands and the name vector in for a first try:
+
+<<>>=
+dat2 <- setNames(data.frame(x1=rnorm(10), x2=rnorm(10), x3=rnorm(10), x4=gl(2,5)), c("good","names","tough","find"))
+head(dat2, 2)
+@
+
+In order to make this more generally useful, the first step is to
+take the data-frame-creating code and set it into an expression that
+is not immediately evaluated (that's datcommand). When I want the
+data frame to be created, I use eval, and then the newnames vector
+is put to use. 
+
+<<>>=
+newnames <- c("iVar", "uVar", "heVar", "sheVar")
+datcommand <- expression(data.frame(x1=1:10, x2=10:1, x3=rep(1:5,2), x4=gl(2,5)))
+eval(datcommand)
+dat3 <- setNames(eval(datcommand), newnames)
+@
+
+The whole point of this exercise is that we can write code that creates
+the names, and creates the data frame, and then they all come together.
+
+What if we have just one element in a list? In Gabor's answer to my
+question, there is this idiom
+
+\begin{lstlisting}
+setNames(list(as.name("x1c")), "x1")))
+\end{lstlisting}
+
+
+Consider this from the inside out. 
+\begin{enumerate}
+\item as.name(``x1c'') is an R symbol object,
+\item list(as.name(``x1c'')) is an list with just one object, which is
+that symbol object. 
+\item Use setNames. The object has no name! We would like to name it ``x1''. 
+\end{enumerate}
+It is as if we had run the command list(x1 = x1c). The big difference,
+of course, is that this way is much more flexible because we can calculate
+replacements. 
+
+
+\subsection{The Big Finish}
+
+In the meanCenter function in rockchalk, some predictors are mean-centered
+and their names are revised. A variable named ``age'' becomes ``agec''
+or ``x1'' becomes ``x1c''. So the user's regression formula that
+uses variables agec or x1 must be revised. This is a function that
+takes a formula ``fmla'' and replaces a symbol xname with newname.
+
+\begin{lstlisting}
+formulaReplace <- function(fmla, xname, newname){ 
+do.call("substitute", list(fmla, setNames(list(as.name(newname)), xname))) 
+}
+\end{lstlisting}
+
+
+This is put to use in meanCenter. Suppose a vector of variable names
+called nc (stands for ``needs centering'') has already been calculated.
+The function std creates a centered variable.
+
+\begin{lstlisting}
+newFmla <- mc$formula
+for (i in seq_along(nc)){
+    icenter <- std(stddat[, nc[i]])
+    newname <- paste0(as.character(nc[i]), "c")
+    newFmla <- formulaReplace(newFmla,  as.character(nc[i]), newname)
+    nc[i] <- newname
+}
+\end{lstlisting}
+
+
+If one has a copy of rockchalk 1.6 or newer, the evidence of the success
+of this approach should be evident in the output of the command example(meanCenter). 
+
+
+\section{Do This, Not That (Stub)}
 
 R novices sometimes use Google to search for R advice and they find
 it, good or bad. They may find their way to the r-help email list,
@@ -588,7 +1067,14 @@ function is called, so serious improvements will be limited to iterating
 simple calculations many times. Otherwise, the n evaluations of the
 function can be expected to be the dominant fraction of the computation''\citep[213]{chambers_software_2008}.
 
+Todo: insert discussion of stackListItems-001.
+
+Insert alternative methods of measuring executation time and measuring
+performance
+
+Balance time spent optimizing code versus time spent running program.
+
 \bibliographystyle{apsr}
-\bibliography{R}
+\bibliography{0_home_pauljohn_SVN_rgroup_trunk_rockchalk_rockchalk_vignettes_rockchalk}
 
 \end{document}

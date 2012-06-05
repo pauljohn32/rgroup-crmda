@@ -28,16 +28,16 @@
 ##' standard deviation.
 ##'
 ##'
-##' @param model Fitted regression object. Must have a predict method
-##' @param plotx String with name of IV to be plotted on x axis
-##' @param modx String for moderator variable name. May be either numeric or factor.
-##' @param modxVals If modx is numeric, either a character string, "quantile", "std.dev.",
+##' @param model Required. Fitted regression object. Must have a predict method
+##' @param plotx Required. String with name of IV to be plotted on x axis
+##' @param modx Required. String for moderator variable name. May be either numeric or factor.
+##' @param modxVals Optional. If modx is numeric, either a character string, "quantile", "std.dev.",
 ##' or "table", or a vector of values for which plotted lines are
 ##' sought. If modx is a factor, the default approach will create one
 ##' line for each level, but the user can supply a vector of levels if
 ##' a subset is desired.
-##' @param plotPoints Should the plot include the scatterplot points along with the lines.
-##' @param col An optional color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
+##' @param plotPoints Optional. Should the plot include the scatterplot points along with the lines.
+##' @param col Optional. A color vector.  By default, the R's builtin colors will be used,  which are "black", "red", and so forth.  Instead, a vector of color names can be supplied, as in c("pink","black", "gray70").  A color-vector generating function like rainbow(10) or gray.colors(5) can also be used. A vector of color names can be supplied with this function. Color names will be recycled if the plot requires more different colors than the user provides.
 ##' @param envir environment to search for variables.
 ##' @param ... further arguments that are passed to plot.
 ##' @export
@@ -59,38 +59,33 @@ plotCurves <-
   if (is.null(modx))
     stop("plotCurves requires the name of moderator variable for which several slopes are to be drawn")
 
-  carrier <- function(term, data, enc = NULL) {
-    if (length(term) > 1L)
-      carrier(term[[2L]])
-    else eval(term, envir = data, enclos = enc)
-  }
-  carrier.name <- function(term) {
-    if (length(term) > 1L)
-      carrier.name(term[[2L]])
-    else as.character(term)
-  }
+  ## carrier <- function(term, data, enc = NULL) {
+  ##   if (length(term) > 1L)
+  ##     carrier(term[[2L]])
+  ##   else eval(term, envir = data, enclos = enc)
+  ## }
+  ## carrier.name <- function(term) {
+  ##   if (length(term) > 1L)
+  ##     carrier.name(term[[2L]])
+  ##   else as.character(term)
+  ## }
 
   cl <- match.call()
   mf <- model.frame(model)
-  tt <- terms(model)
+  ##  tt <- terms(model)
 
-  cn <- parse(text = colnames(mf))
-  varnames <- unlist(lapply(cn, carrier.name))
+  ##  cn <- parse(text = colnames(mf))
+  ## varnames <- unlist(lapply(cn, carrier.name))
+  ## emf <- get_all_vars(tt, data = expand.model.frame(model, varnames, na.expand=TRUE))
+  emf <- model.data(model)
 
-  emf <- get_all_vars(tt, data = expand.model.frame(model, varnames, na.expand=TRUE))
-
-  ## experimenting with another way to gather variables.
-  ## data <- eval(model$call$data, envir) ##grabs nothing unless data option was used
-  ## if (is.null(data))
-  ##   data <- mf
-  ## ## if (plotx %in% varnames) plotxVar <- emf[, plotx] else stop("plotx missing")
-  ## data <- data[row.names(emf) , ]
-
-  plotxVar <- carrier(parse(text = plotx), emf, enc=envir)
+  ## plotxVar <- carrier(parse(text = plotx), emf, enc=envir)
+  plotxVar <- emf[ , plotx]
   if (!is.numeric(plotxVar))
     stop(paste("plotCurves: The variable", plotx, "should be a numeric variable"))
 
-  modxVar <- carrier(parse(text = modx), emf, enc=envir)
+  ##modxVar <- carrier(parse(text = modx), emf, enc=envir)
+  modxVar <- emf[ , modx]
   depVar <- model.response(mf)
 
   ylab <- names(mf)[1]  ## returns transformed DV
@@ -106,7 +101,7 @@ plotCurves <-
       if (!all(modxVals %in% levels(modxVar))) stop("modxVals includes non-observed levels of modxVar")
     }
   } else {                  ## modxVar is not a factor
-    modxRange <- range(modxVar, na.rm=TRUE)
+    ## modxRange <- range(modxVar, na.rm=TRUE)
     if (is.null(modxVals)) {
       modxVals <- cutByQuantile(modxVar)
     } else {
@@ -130,12 +125,13 @@ plotCurves <-
   if (missing(col)) col <- 1:lmx
   if (length(col) < lmx) rep(col, length.out = lmx)
 
-  predictors <- colnames(emf)[-1]
+##  predictors <- colnames(emf)[-1]
+  predictors <- attr(emf, "varNamesRHS")
   predictors <- setdiff(predictors, c(modx, plotx))
   newdf <- data.frame(expand.grid(plotxSeq, modxVals))
   colnames(newdf) <- c(plotx, modx)
   if (length(predictors) > 0) {
-    newdf <- cbind(newdf, centralValues(as.data.frame(emf[, predictors])))
+    newdf <- cbind(newdf, centralValues(emf[, predictors, drop = FALSE]))
     colnames(newdf) <- c(plotx, modx, predictors)
   }
   newdf$pred <- predict(model, newdata = newdf)
