@@ -1,6 +1,9 @@
 ## Paul Johnson
 ## 2012-02-01
 
+## How to run the simulation in rgroup SVN repository under
+## trunk/irt/mirt-openbugs
+
 I'm testing the last changes to bfasim-r2openbugs on my PC now. It
 seems to run fine, it saves the res and rhat files for each batch.
 
