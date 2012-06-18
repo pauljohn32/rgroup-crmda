@@ -29,15 +29,15 @@ standardize.lm <- function(model){
   ys  <- drop(scale(mdata[, 1]))
   #dm = design matrix, columns of predictors as numerically coded
   dm <- model.matrix(model)[ , -1, drop=FALSE] #no intercept
-  dmnames <- paste0(colnames(dm),"s")
+  dmnames <- paste(colnames(dm),"s", sep="")
   dmnamesticked <- paste("`",dmnames,"`", sep="")
   dmnamesticked <- gsub("``","`", dmnamesticked)
-  dvname <- paste0(colnames(mdata)[1],"s")
+  dvname <- paste(colnames(mdata)[1],"s", sep="")
   dvnameticked <-  paste("`", dvname,"`", sep="")
   dvnameticked <- gsub("``","`", dvnameticked)
   std <- function(x) if(is.numeric(x)) scale(x) else x
   stddat <- apply(dm, 2, std)  ##standardize numeric vars
-  colnames(stddat) <- paste0(colnames(stddat), "s")
+  colnames(stddat) <- paste(colnames(stddat), "s", sep="")
   stddat <- cbind(ys, stddat )
   stddat <- as.data.frame(stddat)
   colnames(stddat) <- c(dvname, dmnames)
@@ -214,8 +214,8 @@ meanCenter.default <- function(model, centerOnlyInteractors=TRUE, centerDV=FALSE
         icenter <- std(stddat[, nc[i]])
         centeredVars[1, nc[i]] <- icenter$xmean
         centeredVars[2, nc[i]] <- icenter$xsd
-        newname <- paste0(as.character(nc[i]), "c")
-        if (isTRUE(standardize)) newname <- paste0(newname, "s")
+        newname <- paste(as.character(nc[i]), "c", sep="")
+        if (isTRUE(standardize)) newname <- paste(newname, "s", sep="")
         stddat[ ,newname] <- icenter$x
         newFmla <- formulaReplace(newFmla,  as.character(nc[i]), newname)
         nc[i] <- newname
@@ -392,10 +392,10 @@ centerNumerics <- function(data, center, standardize = FALSE){
 
     datas <- scale(data[ , nc], center = center, scale = standardize)
     if(!is.null(attr(datas, "scaled:center"))) centers <- attr(datas, "scaled:center")
-    colnames(datas) <- paste0(colnames(datas), "c")
+    colnames(datas) <- paste(colnames(datas), "c", sep="")
     if(!is.null(attr(datas, "scaled:scale"))){
         scales <- attr(datas, "scaled:scale")
-        colnames(datas) <- paste0(colnames(datas), "s")
+        colnames(datas) <- paste(colnames(datas), "s", sep="")
     }
     data <- as.data.frame(cbind(data, datas))
     attr(data, "centers") <- centers
