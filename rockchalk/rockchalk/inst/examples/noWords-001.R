@@ -142,7 +142,7 @@ is.vector(newx2)
 
 all.equal(newx1, newx2)
 all.equal(newx1, as.vector(newx2))
-identical(newx, as.vector(newx2))
+identical(newx1, as.vector(newx2))
 
 
 
