@@ -290,7 +290,7 @@ status open
 
 \begin_layout Plain Layout
 
-dir.create("graphics", showWarnings=T)
+dir.create("plots", showWarnings=T)
 \end_layout
 
 \begin_layout Plain Layout
@@ -327,7 +327,7 @@ topsep}{0em}}}
 
 
 \backslash
-SweaveOpts{prefix.string=graphics/plot,ae=F,height=4,width=6}
+SweaveOpts{prefix.string=plots/plot,ae=F,height=4,width=6}
 \end_layout
 
 \end_inset
@@ -2464,7 +2464,7 @@ status open
 
 
 \backslash
-includegraphics[width=6.5in]{graphics/plot-ps10}
+includegraphics[width=6.5in]{plots/plot-ps10}
 \end_layout
 
 \end_inset

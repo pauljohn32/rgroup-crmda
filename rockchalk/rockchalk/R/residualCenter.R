@@ -23,12 +23,15 @@ residualCenter <- function(model){
 
 ##' @rdname residualCenter
 ##' @export
-##' @return a regression model of the type as the input model, with the exception that the residualCentered predictor is used in place of the original interaction. The return model includes new variable centeringRegressions: a list
-##' including each of the intermediate regressions that was calculated
-##' in order to create the residual centered interaction terms. These
-##' latter objects may be necessary for diagnostics and to calculate
-##' predicted values for hypothetical values of the inputs. If there
-##' are no interactive terms, then NULL is returned.
+##' @return a regression model of the type as the input model, with
+##' the exception that the residualCentered predictor is used in place
+##' of the original interaction. The return model includes new
+##' variable centeringRegressions: a list including each of the
+##' intermediate regressions that was calculated in order to create
+##' the residual centered interaction terms. These latter objects may
+##' be necessary for diagnostics and to calculate predicted values for
+##' hypothetical values of the inputs. If there are no interactive
+##' terms, then NULL is returned.
 ##' @method residualCenter default
 ##' @S3method residualCenter default
 ##' @example inst/examples/residualCenter-ex.R
@@ -74,26 +77,10 @@ residualCenter.default <- function (model)
 
   mfnew <- model.frame(frmlanew, data=cbind(dat, model$model))
 
-  ## m1fr <- model.frame(m1)
   mc <- model$call
   mc$formula <- frmlanew
-  ## dat <- as.data.frame(dat)
-  ## dat <- cbind(m1fr[, 1], dat)
-
-##  dvname <- as.character(deparse(formula(m1t)[[2L]]))
-
-##  colnames(dat)[1] <- colnames(m1fr)[1]
   mc$data <- quote(mfnew)
   res <- eval(mc)
-
-
-
-  ## modelmf <- model.frame(model)
-  ## mresp <- model.extract(modelmf, "response")
-  ## mrespname <- terms(modelmf)[[2]]
-  ## assign(mrespname, mresp)
-  ## dat <- cbind(mrespname, dat)
-
 
   class(res) <- c("rcreg", class(model))
   res$rcRegressions <- rcRegressions

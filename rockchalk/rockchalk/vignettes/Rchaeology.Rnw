@@ -1,7 +1,5 @@
-\batchmode
-\makeatletter
-\def\input@path{{/home/pauljohn/SVN/rgroup/trunk/rockchalk/rockchalk/vignettes//}}
-\makeatother
+%% LyX 2.0.3 created this file.  For more info, see http://www.lyx.org/.
+%% Do not edit unless you really know what you are doing.
 \documentclass[english,noae]{article}
 \usepackage{lmodern}
 \renewcommand{\sfdefault}{lmss}
@@ -20,6 +18,7 @@
  bookmarks=true,bookmarksnumbered=false,bookmarksopen=false,
  breaklinks=false,pdfborder={0 0 1},backref=section,colorlinks=false]
  {hyperref}
+\usepackage{breakurl}
 
 \makeatletter
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Textclass specific LaTeX commands.
@@ -155,12 +154,12 @@ code examples work.
 \tableofcontents{}
 
 <<echo=F>>=
-dir.create("graphics", showWarnings=T)
+dir.create("plots", showWarnings=T)
 @
 
 % In document Latex options:
 \fvset{listparameters={\setlength{\topsep}{0em}}}
-\SweaveOpts{prefix.string=graphics/plot,ae=F,height=4,width=6}
+\SweaveOpts{prefix.string=plots/plot,ae=F,height=4,width=6}
 
 <<Roptions, echo=F>>=
 options(width=100, continue="  ")
@@ -768,7 +767,7 @@ m1ips <- plotSlopes(m1i, plotx = "x1", modx = "x2")
 @
 
 \end{enumerate}
-\includegraphics[width=6.5in]{graphics/plot-ps10}
+\includegraphics[width=6.5in]{plots/plot-ps10}
 
 <<results=tex>>=
 m1imc <- meanCenter(m1i)
@@ -1355,6 +1354,6 @@ performance
 Balance time spent optimizing code versus time spent running program.
 
 \bibliographystyle{apsr}
-\bibliography{0_home_pauljohn_SVN_rgroup_trunk_rockchalk_rockchalk_vignettes_rockchalk}
+\bibliography{rockchalk}
 
 \end{document}
