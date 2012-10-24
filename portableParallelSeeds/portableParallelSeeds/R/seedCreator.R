@@ -42,8 +42,9 @@
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @seealso snowft, streams, parallel
 ##' @references
-##' L’Ecuyer, P. (1999). Good Parameters and Implementations for Combined Multiple Recursive Random Number Generators. Operations Research, 47(1), 159–164.
-##' L’Ecuyer, P., Simard, R., Chen, E. J., & Kelton, W. D. (2002). An Object-Oriented Random-Number Package with Many Long Streams and Substreams. Operations Research, 50(6), 1073–1075.
+##' L'Ecuyer, P. (1999). Good Parameters and Implementations for Combined Multiple Recursive Random Number Generators. Operations Research, 47(1), 159-164.
+
+##' L'Ecuyer, P., Simard, R., Chen, E. J., & Kelton, W. D. (2002). An Object-Oriented Random-Number Package with Many Long Streams and Substreams. Operations Research, 50(6), 1073-1075.
 ##' @examples
 ##' projSeeds <- seedCreator(2000, 3, seed = 123456, file = "fruits.rds")
 ##' A1 <- projSeeds[[787]]

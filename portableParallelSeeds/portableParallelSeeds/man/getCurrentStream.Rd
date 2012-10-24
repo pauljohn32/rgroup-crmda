@@ -16,7 +16,7 @@
 \examples{
 mySeeds <- seedCreator(500, 5, file="mySeeds.rds", seed = 123123)
 initPortableStreams(mySeeds, run = 17)
-etCurrentStream()
+getCurrentStream()
 useStream(2)
 runif(2)
 }

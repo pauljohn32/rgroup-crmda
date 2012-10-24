@@ -1,0 +1,5 @@
+2012-10-24  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../man/portableParallelSeeds-package.Rd (Maintainer): insert
+	examples and other boilerplate
+

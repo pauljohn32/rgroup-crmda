@@ -50,7 +50,7 @@ useStream <- function(n = NULL, origin = FALSE, verbose = TRUE){
   if (verbose){
     print("useStream useStream useStream useStream")
     print("CurrentStream CurrentStream CurrentStream")
-    print(currentStream)
+    print( get("currentStream", envir = .GlobalEnv, inherits = FALSE) )
     print("Current .Random.seed")
     print(.Random.seed)
   }
@@ -71,7 +71,7 @@ useStream <- function(n = NULL, origin = FALSE, verbose = TRUE){
 ##' mySeeds <- seedCreator(500, 5, file="mySeeds.rds", seed = 123123)
 ##' initPortableStreams(mySeeds, run = 17)
 ## runif(2)
-##' etCurrentStream()
+##' getCurrentStream()
 ##' useStream(2)
 ##' runif(2)
 getCurrentStream <- function(){
@@ -135,8 +135,9 @@ initPortableStreams <- function(projSeeds, run, verbose = TRUE){
     if (missing(projSeeds)) {
         stop("initPortableStreams requires a seed object in order to initialize the random streams")
     } else if (is.character(projSeeds)){
-        projSeeds <- loadRDS(projSeeds)
-    } else if (class(projSeeds) != "portableSeeds"){
+        projSeeds <- readRDS(projSeeds)
+    }
+    if (class(projSeeds) != "portableSeeds"){
         stop("Inappropriate project seed object supplied. The projSeeds object must be created by the seedCreator function, which would have set its class as portableSeeds")
     }
 
@@ -151,9 +152,8 @@ initPortableStreams <- function(projSeeds, run, verbose = TRUE){
   if (verbose){
     print("initPortableStreams, Run = ", run)
     print(.Random.seed)
-    print("CurrentStream CurrentStream CurrentStream =", currentStream)
-    ## print("Current Stream:", currentStream)
+    print("CurrentStream CurrentStream CurrentStream =", get("currentStream", envir = .GlobalEnv, inherits = FALSE))
     print("All Current States")
-    print(currentStates)
+    print( get("currentStates", envir = .GlobalEnv, inherits = FALSE) )
   }
 }

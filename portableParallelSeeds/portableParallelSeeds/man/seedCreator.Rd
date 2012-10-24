@@ -72,13 +72,13 @@ unlink("fruits.rds") #delete file
   Paul E. Johnson <pauljohn@ku.edu>
 }
 \references{
-  L’Ecuyer, P. (1999). Good Parameters and Implementations
+  L'Ecuyer, P. (1999). Good Parameters and Implementations
   for Combined Multiple Recursive Random Number Generators.
-  Operations Research, 47(1), 159–164. L’Ecuyer, P.,
+  Operations Research, 47(1), 159-164. L'Ecuyer, P.,
   Simard, R., Chen, E. J., & Kelton, W. D. (2002). An
   Object-Oriented Random-Number Package with Many Long
   Streams and Substreams. Operations Research, 50(6),
-  1073–1075.
+  1073-1075.
 }
 \seealso{
   snowft, streams, parallel

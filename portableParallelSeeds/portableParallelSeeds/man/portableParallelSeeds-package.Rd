@@ -3,40 +3,72 @@
 \alias{portableParallelSeeds}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+Creates, saves, reloads, and selects among streams of
+random numbers. 
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+This implements one approach for exact replication of
+simulations that are conducted on different compute systems. From a
+batch of thousands of simulations, one can select any arbritray "run"
+of the model and re-initialize it (replicate it) in isolation. Why is
+this useful? Suppose a simulation requires an exercise to be conducted
+2000 times for various randomly-generated data. We want to be sure we
+get the same results if we run that in a compute cluster or if we run
+on a single workstation. It is thus necessary to create a matrix of
+random generator states (loosely referred to as seeds, but they really
+are random generator states), one for each "run", and then conduct the
+simulation so that the saved seeds are properly put to user when a
+particular run is to be executed. This framework allows each "run" to
+draw from several separate streams of random numbers.
 }
 \details{
 \tabular{ll}{
 Package: \tab portableParallelSeeds\cr
 Type: \tab Package\cr
 Version: \tab 1.0\cr
-Date: \tab 2012-10-11\cr
-License: \tab What license is it under?\cr
+Date: \tab 2012-10-24\cr
+License: \tab GPL (v >= 2)\cr
 }
-~~ An overview of how to use the package, including the most important ~~
-~~ functions ~~
+Creates, saves, reloads, and selects among streams of
+random numbers. 
 }
 \author{
-Who wrote it
+Paul E. Johnson <pauljohn@ku.edu>
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
+Maintainer: Paul E. Johnson <pauljohn@ku.edu>
 }
 \references{
-~~ Literature or other references for background information ~~
-}
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in ~~
-~~ the R documentation directory ~~
-\keyword{ package }
+  Chambers, (2008) Software for Data A
+  
+ L'Ecuyer, P. (1999). Good Parameters and Implementations
+  for Combined Multiple Recursive Random Number Generators.
+  Operations Research, 47(1), 159-164.
+
+ L'Ecuyer, P., Simard, R., Chen, E. J., & Kelton, W. D. (2002). An
+  Object-Oriented Random-Number Package with Many Long Streams and
+  Substreams. Operations Research, 50(6), 1073-1075.  } 
+\keyword{ iteration }
+\keyword{ programming }
+\keyword{ environment }
 \seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
+  \code{\link[rstream:rstream-package]{rstream}}
+  \code{\link[snowFT:snowFT-package]{snowft}}
+  \code{\link[parallel:parallel-package]{parallel}}
+  \code{\link[rlecuyer]{ResetNextSubstream}}
 }
 \examples{
-~~ simple examples of the most important functions ~~
+   mySeeds <- seedCreator(500, 5, file="mySeeds.rds", seed = 123123)
+   mySeeds[[17]][[1]]
+   mySeeds[[17]][[4]]
+   initPortableStreams(mySeeds, run=17)
+   .Random.seed
+   runif(2)
+   rm(mySeeds)
+   savedSeeds <- initPortableStreams("mySeeds.rds", run=17)
+   .Random.seed
+   runif(2)
+   getCurrentStream()
+   useStream(4)
+   .Random.seed
+   unlink("mySeeds.rda")
 }
