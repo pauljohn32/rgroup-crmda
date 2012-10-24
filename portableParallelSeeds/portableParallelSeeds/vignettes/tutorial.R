@@ -1,0 +1,125 @@
+RNGkind("L'Ecuyer-CMRG")
+set.seed(23456)
+
+library(parallel)
+
+## nrep = number of repetitions (or tasks)
+## streamsPerRep = number of streams needed by each repetition
+nReps <- 2000
+streamsPerRep <- 2
+
+## projSeeds=list of lists of stream seeds
+projSeeds <- vector(mode="list", nReps)
+for (i in 1:nReps) projSeeds[[i]] <- vector(mode="list", streamsPerRep)
+
+runif(1) ##establishes .Random.seed
+##Grab first seed
+s <- .Random.seed
+origSeed <- s
+
+x <- rnorm(4) ##will compare later
+x
+
+for (i in 1:nReps) {
+  for (j in 1:streamsPerRep){
+    projSeeds[[i]][[j]] <- s
+    s <- nextRNGStream(s)
+  }
+}
+
+
+save(projSeeds, file="projSeeds.rda")
+
+rm(projSeeds)
+
+load("projSeeds.rda")
+
+##Note that origSeed does match projSeeds
+origSeed
+projSeeds[[1]][[1]]
+
+
+## And we get same random draws from project 1, stream 1
+.Random.seed <- projSeeds[[1]][[1]]
+rnorm(4)
+x
+
+##Another way (preferred?) to reset stream
+assign(".Random.seed", projSeeds[[1]][[1]], envir = .GlobalEnv)
+rnorm(4)
+
+
+
+
+## Now, how to make this more systematic
+## Each task needs streamsPerRep seeds
+## startSeeds = for each stream, a starting seed
+## currentSeeds = for each stream, a seed recording stream's current position
+## currentStream = integer indicator of which stream is in use
+
+
+## Test that interactively
+currentStream <- 1
+currentSeeds <- startSeeds <- projSeeds[[1]]
+.Random.seed <- startSeeds[[currentStream]]
+
+useStream <- function(n = NULL, origin = FALSE){
+  if (n > length(currentSeeds)) stop("requested stream does not exist")
+  currentSeeds[[currentStream]] <- .Random.seed
+  if (origin) assign(".Random.seed", startSeeds[[n]], envir = .GlobalEnv)
+  else assign(".Random.seed",  currentSeeds[[n]], envir = .GlobalEnv)
+  currentStream <<- n
+}
+
+
+useStream(n=1, origin=TRUE)
+rnorm(4)
+
+currentStream
+
+useStream(n=2, origin=TRUE)
+rnorm(4)
+
+currentStream
+
+
+## Now, make that work in a clustered environment
+
+cl <- makeCluster(9, "MPI")
+
+## run on worker, so can retrieve seeds for particular run
+initSeeds <- function(p = NULL){
+  currentStream <<- 1
+  projSeeds[[p]]
+}
+
+
+clusterEvalQ(cl, {
+  RNGkind("L'Ecuyer-CMRG")
+})
+
+clusterExport(cl, c("projSeeds", "useStream", "initSeeds"))
+
+someHorrendousFunction <- function(run, parm){
+  currentStream <- 1
+  currentSeeds <- startSeeds <- initSeeds(run)
+  assign(".Random.seed",  startSeeds[[currentStream]],  envir = .GlobalEnv)
+
+  ##then some gigantic, long lasting computation occurs
+  dat <- data.frame(x1 = rnorm(parm$N), x2 = rnorm(parm$N), y = rnorm(parm$N))
+  m1 <- lm(y ~ x1 + x2, data=dat)
+  list(m1, summary(m1), model.matrix(m1))
+}
+
+whatever <- list("N" = 999)
+
+res <- parLapply(cl, 1:nReps, someHorrendousFunction, parm = whatever)
+
+res[[77]]
+
+##Prove I can repeat 77'th task
+
+res77 <- someHorrendousFunction(77, parm = whatever)
+
+## well, that worked.
+

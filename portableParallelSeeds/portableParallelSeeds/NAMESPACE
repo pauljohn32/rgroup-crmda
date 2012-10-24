@@ -1,0 +1,4 @@
+export(getCurrentStream)
+export(initPortableStreams)
+export(seedCreator)
+export(useStream)

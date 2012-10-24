@@ -1,0 +1,28 @@
+Package: portableParallelSeeds
+Type: Package
+Title: Allow replication of simulations on parallel and serial computers.
+Version: 0.5
+Date: 2012-10-11
+Author: Paul E. Johnson <pauljohn@ku.edu>
+Maintainer: Paul E. Johnson <pauljohn@ku.edu>
+Description: Creates, saves, reloads, and selects among streams of
+    random numbers.  This implements one approach for exact replication of
+    simulations that are conducted on different compute systems. From a
+    batch of thousands of simulations, one can select any arbritray "run"
+    of the model and re-initialize it (replicate it) in isolation. Why is
+    this useful? Suppose a simulation requires an exercise to be conducted
+    2000 times for various randomly-generated data. We want to be sure we
+    get the same results if we run that in a compute cluster or if we run
+    on a single workstation. It is thus necessary to create a matrix of
+    random generator states (loosely referred to as seeds, but they really
+    are random generator states), one for each "run", and then conduct the
+    simulation so that the saved seeds are properly put to user when a
+    particular run is to be executed. This framework allows each "run" to
+    draw from several separate streams of random numbers.
+License: GPL ( >= 2)
+Depends:
+    parallel
+Repository: CRAN
+Collate:
+    'initPortableStreams.R'
+    'seedCreator.R'
