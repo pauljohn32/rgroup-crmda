@@ -64,8 +64,12 @@ X801 <- rnorm(801, m=14, sd = 10.1)
 ## series.
 
 
-mc1 <- mclapply(1:1000, runOneSimulation, projSeeds, N = 800, m = 14, sd=10.1, mc.cores=3)
-
-identical(mc1, serial1)
+## I'd like to run this to demonstrate multi-core compatability, but
+## problems with mclapply on Linux (where tclck is loaded) prevent
+## me from expecting to to run on all systems. So I'll comment it out
+## for now.
+## require(parallel)
+## mc1 <- mclapply(1:1000, runOneSimulation, projSeeds, N = 800, m = 14, sd=10.1, mc.cores=3)
+## identical(mc1, serial1)
 
 unlink("fruits.rds") #delete file

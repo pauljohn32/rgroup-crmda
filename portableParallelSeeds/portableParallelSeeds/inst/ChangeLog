@@ -1,5 +1,8 @@
 2012-10-24  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
+	* ../R/initPortableStreams.R (useStream): changing verbose
+	defaults to FALSE for useSteam and initStreams
+
 	* ../man/portableParallelSeeds-package.Rd (Maintainer): insert
 	examples and other boilerplate
 

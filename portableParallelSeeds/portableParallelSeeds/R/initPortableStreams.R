@@ -26,7 +26,7 @@
 ##' @param verbose Requests detailed output for diagnostics.
 ##' @return Nothing. This function is run to change environment variables.
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
-useStream <- function(n = NULL, origin = FALSE, verbose = TRUE){
+useStream <- function(n = NULL, origin = FALSE, verbose = FALSE){
   oldseed <-
     if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE))
       get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
@@ -80,6 +80,7 @@ getCurrentStream <- function(){
     else stop("in useStream, .Random.seed was NULL")
     ## get local copies of currentStream, currentStates
     curStream <- get("currentStream", envir = .GlobalEnv, inherits = FALSE)
+    curStream
 }
 
 ##' Brings saved seeds back to life. Reads a portable parallel seeds (object or file) and sets the seed collection in the global environment.
@@ -115,20 +116,9 @@ getCurrentStream <- function(){
 ##' @return nothing is returned. This function is used for the side effect of seetting three objects in the global environment, the startStates (list), currentStates (list), and currentStream (an integer).
 ##' @author Paul E. Johnson <pauljohn@@ku.edu>
 ##' @seealso \code{seedCreator} to generate the input file for this function and \code{useStream} to change from one stream to another.
-##' @examples
-##' mySeeds <- seedCreator(500, 5, file="mySeeds.rds", seed = 123123)
-##' initPortableStreams(mySeeds, run=17)
-##' .Random.seed
-##' runif(2)
-##' .Random.seed
-##' runif(2)
-##' rm(mySeeds)
-##' savedSeeds <- initPortableStreams("mySeeds.rds", run=17)
-##' .Random.seed
-##' runif(2)
-##' .Random.seed
-##' runif(2)
-initPortableStreams <- function(projSeeds, run, verbose = TRUE){
+##' @example inst/examples/pps-ex.R
+
+initPortableStreams <- function(projSeeds, run, verbose = FALSE){
     require(parallel)
     RNGkind("L'Ecuyer-CMRG")
 
@@ -150,10 +140,10 @@ initPortableStreams <- function(projSeeds, run, verbose = TRUE){
   assign("currentStates", runSeeds, envir = .GlobalEnv)
   assign(".Random.seed", runSeeds[[1L]],  envir = .GlobalEnv)
   if (verbose){
-    print("initPortableStreams, Run = ", run)
+    print(paste("initPortableStreams, Run = ", run))
     print(.Random.seed)
-    print("CurrentStream CurrentStream CurrentStream =", get("currentStream", envir = .GlobalEnv, inherits = FALSE))
+    print(paste("CurrentStream CurrentStream CurrentStream =", get("currentStream", envir = .GlobalEnv, inherits = FALSE)))
     print("All Current States")
-    print( get("currentStates", envir = .GlobalEnv, inherits = FALSE) )
+    print(paste(get("currentStates", envir = .GlobalEnv, inherits = FALSE)))
   }
 }

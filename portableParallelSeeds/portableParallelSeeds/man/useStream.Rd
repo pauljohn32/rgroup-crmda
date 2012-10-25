@@ -2,7 +2,7 @@
 \alias{useStream}
 \title{Selects among available random streams.}
 \usage{
-  useStream(n = NULL, origin = FALSE, verbose = TRUE)
+  useStream(n = NULL, origin = FALSE, verbose = FALSE)
 }
 \arguments{
   \item{n}{An integer that selects which random stream
