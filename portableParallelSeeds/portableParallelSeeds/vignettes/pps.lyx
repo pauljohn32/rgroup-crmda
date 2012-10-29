@@ -96,6 +96,7 @@
 \begin_modules
 sweave
 enumitem
+foottoend
 \end_modules
 \maintain_unincluded_children false
 \language english
@@ -176,9 +177,10 @@ Paul E.
 \end_layout
 
 \begin_layout Abstract
-The R package portableParallelSeeds implements one method of managing simulation
-s so that separate runs can be replicated exactly, in the sense proposed
- by 
+The R package portableParallelSeeds implements one method of managing random
+ streams for batches of simulations.
+ It is designed so that separate runs can be replicated exactly, in the
+ sense proposed by 
 \begin_inset CommandInset citation
 LatexCommand citet
 key "chambers_software_2008"
@@ -194,28 +196,36 @@ many separate substreams
 \begin_inset Quotes erd
 \end_inset
 
- approach suggested by L'Ecuyer, the suggested approach is that programmers
- should first create a matrix of initial states for many random streams,
- and then make those streams available to simulation runs.
+ made possible by the CMRG random generator (as suggested by 
+\begin_inset CommandInset citation
+LatexCommand citealp
+key "lecuyer_object-oriented_2002"
+
+\end_inset
+
+), we first create a large collection of initial states for many random
+ streams, and then make those streams available to simulation runs.
  The random number streams for each separate run of a simulation are thus
  properly initialized.
  The framework allows one to run a simulation in a single workstation (iterative
 ly) or on a cluster computer (parallel) and obtain the same results.
  It is also possible to select particular runs from a batch and re-start
  them for closer inspection.
- 
+ This approach allows for each separate run to depend on several separate
+ streams of random numbers and it offers a method for changing among the
+ random streams.
 \end_layout
 
 \begin_layout Standard
 The portableParallelSeeds package for R proposes a simple, yet powerful,
  method for replicating simulations in a way that is valid across hardware
  types and operating systems.
- It is intended to faciliate researchers who need to run a series of simulations
-, either on a desktop workstation or in a cluster of many separate computers,
- and obtain the same results.
+ It is intended to facilitate the work of researchers who need to run a
+ series of simulations, either on a desktop workstation or in a cluster
+ of many separate computers.
  The approach proposed here allows the precise replication of the whole
- batch of runs, of course, but it has two special features that are not
- easily available elsewhere.
+ batch of runs, whether run in serial or parallel, but it has two special
+ features that are not easily available elsewhere.
  First, any particular run of the model may be re-created, in isolation
  from the rest of the runs.
  Second, each particular run can be initialized with several separate streams
@@ -223,37 +233,75 @@ The portableParallelSeeds package for R proposes a simple, yet powerful,
  One can, for example, draw on two sparate streams to initialize data for
  1000 students and 50 teachers, and then draw random values from a third
  stream, and then turn back to the first stream to draw data for 50 more
- students from the same generator than generated the first batch of students.
- Thus, the same 1050 students would be obtained, whether they are drawn
- in two sets (1000+50) or in one set (1050).
+ students from the same generator that generated the first batch of students.
+ Thus, data for the same 1050 students would be obtained, whether they are
+ drawn in two sets (1000+50) or in one set (1050).
 \end_layout
 
 \begin_layout Standard
-It blends ideas about seed management from John M.
- Chambers Software for Data Analysis (2008) with ideas from the snowFT package
- by Hana Sevcikova and Tony R.
- Rossini.
+The approach blends ideas about seed management from 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "chambers_software_2008"
+
+\end_inset
+
+ (as implemented in the R package SoDA, Chambers 
+\begin_inset CommandInset citation
+LatexCommand citeyear
+key "chambers_soda:_2012"
+
+\end_inset
+
+) with ideas from the R package snowFT package by Hana Sevcikova and Tony
+ R.
+ Rossini 
+\begin_inset CommandInset citation
+LatexCommand citeyearpar
+key "snowFT"
+
+\end_inset
+
+.
  Chambers proposes a method of recording the random generator's state that
  works well in simulations that run on a single piece of hardware, but it
  does not generalize directly to a cluster computing framework in which
  simulation runs begin separately on many separate nodes.
  The framework introduced in snowFT initializes each compute node with its
  own random seed, but does not separately initialize each run of the model.
- The plan used in portableParallelSeeds addresses these difficulties and
- also affords some new benefits for simulation research.
+ The plan used in portableParallelSeeds addresses these shortcomings.
 \end_layout
 
 \begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+In statistical research, it is now common propose an estimator and then
+ apply it to 1000s of simulated data sets in order to ascertain the sampling
+ distribution (for a review, see Johnson, Forthcoming).
+ Researchers face a variety of practical challenges in the management of
+ these simulations so that the sources of variations in results across runs
+ can be meaningfully understood.
+ The ability to replicate runs within this research process is, quite obviously,
+ of the first importance.
+ The ability to re-create the exact same random number streams is vital
+ in this enterprise (Chambers, 2008).
+ 
+\end_layout
+
+\begin_layout Subsection
 Sketch of the approach
 \end_layout
 
 \begin_layout Standard
 Step 1.
- Create a Matrix of Initializing States
+ Create a Collection of Initializing States for Random Number Generators.
 \end_layout
 
 \begin_layout Standard
-Conceptualize a simulation project as a sequence of separate 
+It is necessary to conceptualize a simulation project as a sequence of separate
+ 
 \begin_inset Quotes eld
 \end_inset
 
@@ -263,10 +311,10 @@ runs.
 
  A run is an isolated series of calculations that begins in a pre-determined
  state.
- A matrix of initializing states has one row for each anticipated run of
- the model.
- Within each row of this matrix, can be one or more set of information to
- initialize separate streams of random numbers.
+ Think of the collection of initializing states as a matrix that has one
+ row for each anticipated run of the model.
+ Within each row of this matrix, there will be information to initialize
+ one or more separate streams of random numbers.
  The matrix of initializing states can be saved on disk.
  In that way, any particular run from a batch can be re-started on a different
  computer and the same results can be obtained.
@@ -523,157 +571,243 @@ Matrix of Initializing States
 Step 2.
  Design the simulation so that, when a run begins, the function that governs
  the run will retrieve its initializing states.
- The states of these streams are set into the R global environment.
- The function then designates which stream should be used to draw random
- numbers.
+ Those states are set into the R global environment.
+ The function may designate which stream is to be used for each section
+ of calculations.
  
 \end_layout
 
 \begin_layout Standard
 If the initializing states are saved in a file, then re-starting the process
  on any computer running R will re-generate the same simulation because
- the R Core Team has taken great effort to assure us that saved files can
- be transferred from one type of hardware to another and that the streams
- of random numbers that are drawn from these states are the same.
+ the R Core Team (2012) has taken great effort to assure us that saved R
+ files can be transferred from one type of hardware to another.
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Subsection
 Benefits of this Approach
 \end_layout
 
 \begin_layout Standard
-This may be useful for researchers who run large simulations in a cluster
- environment, but have better, more comfortable access to workstations that
- are located in their offices.
- The interesting, or troublesome, runs from a large batch can be investigated
- in the relative comfort of one's own workstation, where a richer set of
- analytical programs may be available.
-\end_layout
-
-\begin_layout Standard
-First, we create a matrix of 
-\begin_inset Quotes eld
-\end_inset
-
-initializing states
-\begin_inset Quotes erd
-\end_inset
-
- for random streams.
- For each 
-\end_layout
-
-\begin_layout Standard
-This approach helps with the problem of creating large batches of simulations
- that can be replicated exactly, whether or not they are run on a single
- computer or on a cluster of separate nodes.
+The run-level initialization of random streams proposed here has benefits
+ over the other available approaches.
+ Other approaches, say for example, the scheme in snowFT, initialize the
+ compute nodes, but then repeatedly assign jobs to the nodes without re-setting
+ the random streams.
  
 \end_layout
 
 \begin_layout Standard
-A substantial benefit, however, is the ability to isolate particular runs
- and repeat them.
- Some scenarios in which this might be useful would be the following.
-\end_layout
-
-\begin_layout Enumerate
-A batch of 2000 runs has been collected, but 10 exhibit behavior that is
- surprising.
- The research wants to understand those cases more deeply.
- Each run must be re-started, precisely replicating the initial conditions,
- so that the researcher can interact with them in order to explore the sources
- of their surprising results.
-\end_layout
-
-\begin_layout Enumerate
-A researcher wishes to re-start simulations and interact them in order to
- conduct stress tests.
- A single run can be re-started many times and each re-start can be subjected
- to additional random effects.
- We are more confident in these simulations because the procedure will draw
- of additional random observations 
-\emph on
-from the same random streams
-\emph default
- that generated the original data.
- Hence, there is no danger of drawing the same, or an overlapping, sequence
- of random numbers.
+Benefit 1.
+ Get the same results for each run, every time, whether the exercise is
+ conducted on a workstation or on clusters of various sizes.
+ 
 \end_layout
 
 \begin_layout Standard
-The framework describe here allows the user to create several separate random
- number generator sequences for each run of an exercise.
+The usual approach may help to assure that a whole batch of simulations
+ can be replicated on that particular hardware setup, but it does not assure
+ replication on clusters of different sizes.
+ It can be very frustrating when the numerical results obtained from a week-long
+ series of calculations on a workstation does do not match the calculations
+ of the same procedures on a compute cluster, or when the number of compute
+ nodes changes.
+ 
 \end_layout
 
 \begin_layout Standard
-It enhances work that requires runs with random numbers, whether runs are
- in a cluster computing environment or in a single workstation.
+If we have a cluster with 5 machines, each can be predictably initialized,
+ and then the 1000 simulation runs will be assigned among the 5 nodes, one
+ after the other.
+ It is possible to replicate those simulations, but only on a cluster with
+ exactly 5 machines.
+ If we have 10 nodes, we initialize 10 machines, and then the 1000 runs
+ are assigned among them.
+ The random streams used, for example, on the 6th run, will not match the
+ random streams that were obtained in the cluster with 5 nodes, and neither
+ will match a simulation executed on a single machine.
+\end_layout
+
+\begin_layout Standard
+Benefit 2.
+ Get the same results, even when a load balancing assignment of runs is
+ used.
+\end_layout
+
+\begin_layout Standard
+A load balancing algorithm monitors the compute nodes and sends the next
+ assignment to the first available system.
+ This may reduce the total compute time of the project, but it plays havoc
+ with replication.
+ If 1000 runs are to be divided among 10 nodes, and are assigned in order
+ to the same nodes, then the random number streams set on each node will
+ remain in sequence across all of the runs.
+ However, if we use a load balancing algorithm, then the jobs are not necessaril
+y assigned to the same nodes on repeated runs.
+ The presence of other jobs in a compute node or network traffic might slow
+ down the completion of calculations, causing the node to 
+\begin_inset Quotes eld
+\end_inset
+
+miss its spot in line,
+\begin_inset Quotes erd
+\end_inset
+
+ thus altering the assignment of all future runs among nodes.
+ As a result, when a load balancing algorithm is used, replication of results
+ for any particular run appears to be extremely unlikely, even if we always
+ have access to the same number of nodes.
+\end_layout
+
+\begin_layout Standard
+Benefit 3.
+ Isolate runs and investigate them in detail.
+\end_layout
+
+\begin_layout Standard
+In the process of exploring a model, it may be that some simulation runs
+ are problematic.
+ The researcher wants to know what's wrong, which usually involves re-starting
+ the simulation and then exploring it interactively.
+ Because each separate run begins with a set of saved random generator states,
+ accurate replication is possible.
+\end_layout
+
+\begin_layout Standard
+Because the approach proposed here allows each simulation to depend on several
+ separate streams of randomness, the researcher has much more flexibility
+ in conducting this investigation.
+ For example, the 
+\begin_inset Quotes eld
+\end_inset
+
+replication part
+\begin_inset Quotes erd
+\end_inset
+
+ of the simulation might be restricted to draw from stream 1, while the
+ researcher can change to stream 2 to draw more random values without changing
+ the values that will be offered by stream 1 in the remainder of the simulation.
+ This prevents gratuitous changes in simulated values from triggering sequence
+ of unpredictable changes in simulation results.
 \end_layout
 
 \begin_layout Section
-Brief Soliloquy on Seeds and States of Random Generators
+A Brief Soliloquy on Random Generators
 \end_layout
 
 \begin_layout Standard
-My understanding of random generators is based mostly on agent-based modeling
- with the Swarm simulation system.
- Many of the R users with whom I have discussed this parallel seeds project
- do not have the same background and so we are sometimes arguing simply
- because we understand some terms differently.
- To avoid that, I would like to offer a brief explanation of what goes on
- inside R when we ask for random numbers from a normal (or other) distribution.
+In order to keep the ideas clear, I would like to sketch some definitions
+ and then present some observations about the usage of random generators.
+ 
+\end_layout
+
+\begin_layout Subsection
+Terminology
 \end_layout
 
 \begin_layout Standard
 A 
 \series bold
-random generator 
+pseudo random number generator 
 \series default
-is an object that offers a stream of randomly chosen integers.
- If we divide each integer by the largest possible integer, then the generator
- returns a stream of floating point numbers drawn from the 
+(PRNG) is an object that offers a stream of numbers that we can treat as
+ though it is unpredictable.
+ Inside the PRNG, there is a vector of values, the 
+\series bold
+internal state
+\series default
+ of the generator, which is updated as values are drawn.
+ Although the internal state vector is sometimes referred to as a seed value,
+ most researchers think of the seed as something different.
+ The 
+\series bold
+seed
+\series default
+ is an integer (possibly more than one integer) that is used to initialize
+ the state vector of the random generator.
+ When a given seed is used, the same sequence of random numbers is generated.
+ However, from the perspective of the outside observer who is not privy
+ to the details about the initialization of the PRNG, each value in the
+ stream of numbers appears to be an equally likely selection among the possible
+ values.
+ There are a number of tests that are used to make sure that the pseudo
+ random numbers are more-or-less unpredictable.
+\end_layout
+
+\begin_layout Standard
+The values from the generator are used as input in a procedure that simulates
+ values from 
+\series bold
+statistical distributions
+\series default
+.
+ The uniform distribution is the only truly easy distribution.
+ If the PRNG generates integer values, we simply divide each integer by
+ the largest possible value of the PRNG.
+ That provides values that we can treat as equally likely draws from the
+ 
 \begin_inset Formula $[0,1]$
 \end_inset
 
  interval.
- If the generator is high in quality, then the stream of numbers approximates
- truly equally likely selection among the possible values.
- There are no detectable dependencies in the stream of numbers, no repeating
- patterns, no sections of compression in variance, no correlation of values
- across time.
- 
+ The other statistical distributions are more difficult.
+ Some distributions are relatively easily (e.g, the logistic), while for
+ others (e.g., the gamma distribution) simulation are considerably more difficult.
+ The normal distribution, which occupies such a central place in statistical
+ theory, is a comparatively difficult case.
 \end_layout
 
-\begin_layout Standard
-A random distribution is a function that converts numbers from the random
- generator into values that approximate a statistical distribution.
- Of course, the easiest distribution to code is a random uniform distribution
- on 
-\begin_inset Formula $[0,1]$
-\end_inset
-
-, since the random generator automatically gives us that information.
- Some of the other distributions we need are easier to approximate than
- others.
- The logistic distribution is very easy to approximate; the cumulative distribut
-ion function of the logistic is invertible, so that we can directly translate
- random draws from 
-\begin_inset Formula $[0,1]$
-\end_inset
-
- into draws from the logistic.
- The normal distribution is surprisingly difficult to approximate and there
- is no definitive 
+\begin_layout Subsection
+Differentiate 
 \begin_inset Quotes eld
 \end_inset
 
-best method
+seed
 \begin_inset Quotes erd
 \end_inset
 
- to approximate draws from a normal distribution (hence, R includes several
- methods for generating normal variables).
+ from 
+\begin_inset Quotes eld
+\end_inset
+
+internal state
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+This is a point of confusion mainly because applied researchers typically
+ refer to an initializing integer as the 
+\begin_inset Quotes eld
+\end_inset
+
+seed
+\begin_inset Quotes erd
+\end_inset
+
+, whereas to experts who develop generators, the 
+\begin_inset Quotes eld
+\end_inset
+
+seed
+\begin_inset Quotes erd
+\end_inset
+
+ refers to the internal state of the generator.
+ Thus, we sometimes find ourselves talking at cross purposes.
+ To avoid this confusion, I will not use the term 
+\begin_inset Quotes eld
+\end_inset
+
+seed
+\begin_inset Quotes erd
+\end_inset
+
+ to refer to the internal state of the generator.
 \end_layout
 
 \begin_layout Standard
@@ -706,17 +840,289 @@ set.seed(12345)
 \end_layout
 
 \begin_layout Standard
-That re-sets the existing generator to a known position.
- It is important to understand that the position of the random generator
- is not 12345.
- Instead, the generator's "state" vector is some value that can be derived
- uniquely from 12345.
+That re-sets the generator to a known position, the same values are supplied
+ by the generator after the internal state is reset.
+ Applied researchers refer to the number 
+\begin_inset Quotes eld
+\end_inset
+
+12345
+\begin_inset Quotes erd
+\end_inset
+
+ as the seed.
 \end_layout
 
 \begin_layout Standard
-In R, it is necessary to actually draw one random number to initialize the
- apparatus for drawing random numbers.
- So we draw one value from a uniform distribution,
+But it is important to understand that the internal state of the random
+ generator is not 12345.
+ The experts who develop random generators often use the term seed to refer
+ to the generator's internal state, a vector of numbers that the generator
+ uses over time for its internal record-keeping purposes.
+ R uses a variable called .Random.seed to record the internal state of the
+ distribution object:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+s0 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+s0[1:8]
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+I'm only displaying the first 10 values of the default random generator,
+ which is the Mersenne-Twister, which is often referred to as MT19937 (more
+ detail on MT19937 will follow).
+ 
+\end_layout
+
+\begin_layout Standard
+How can you check my claim that the default generator is MT19937? Run 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+RNGkind()
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The output includes two values, the first is the name of the existing random
+ generator.
+ The second value is the algorithm that is used to simulate values from
+ a normal distribution.
+\end_layout
+
+\begin_layout Standard
+Why is the name of the internal state of the random generator begin with
+ a period? That signifies that it is a 
+\begin_inset Quotes eld
+\end_inset
+
+hidden
+\begin_inset Quotes erd
+\end_inset
+
+ variable, a variable that the R team does not expect users to alter.
+ A careless user might mistakenly set the random generator's internal process
+ to an unworkable value, such as
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Schunk}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Sinput}
+\end_layout
+
+\begin_layout Plain Layout
+
+.Random.seed <- 18
+\end_layout
+
+\begin_layout Plain Layout
+
+runif(1)
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Sinput}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Schunk}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Future requests for random values will produce the following error.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Schunk}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Soutput}
+\end_layout
+
+\begin_layout Plain Layout
+
+Error in runif(1) :
+\end_layout
+
+\begin_layout Plain Layout
+
+  .Random.seed is not an integer vector but of type 'double'
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Soutput}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Schunk}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Mainly out of concern for the possibility that the user has accidentally
+ created a new variable .Random.seed in a different environment, experts will
+ interact with the global environment directly, using the commands get and
+ assign.
+ For example, get is safer.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<eval=F, include=T>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+s0 <- get(".Random.seed",  envir = .GlobalEnv, inherits = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If we went on to make a series of calculations that use random numbers,
+ we could force the generator back to the initial state with this command:
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+assign(".Random.seed", s0, envir=.GlobalEnv)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This only works, of course, if s0 is the correctly formatted vector and
+ the user has not changed the random generator function itself.
+\end_layout
+
+\begin_layout Subsection
+MT19937's internal state
+\end_layout
+
+\begin_layout Standard
+In order to understand the way R implements the PRNG, it is important to
+ explore what happens to the state of the generator as we draw random numbers.
+ Since we began with the default, MT19937, we might as well work on that
+ first.
+ Suppose we draw one value from a uniform distribution.
 \end_layout
 
 \begin_layout Standard
@@ -744,48 +1150,9 @@ runif(1)
 \end_layout
 
 \begin_layout Standard
-Now, what is the state of the random generator? Run this to see all 626
- elements of .Random.seed.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<eval=F, include=T>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-.Random.seed
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-I don't want to print out all 626 numbers from the state of the generator,
- but everybody should look that over, at least once.
- As one will see from .Random.seed, the generator's internal state is quite
- a complicated thing.
- The following argument might be believable only if one has actually looked
- at the whole state vector of the generator.
- 
-\end_layout
-
-\begin_layout Standard
-Lets focus on the first few values in the .Random.seed.
- Save a copy of that generator state in s1, and then inspect the first few
- elements
+The pattern I want to demonstrate in the following paragraphs begins with
+ a quick look at the generator's internal state after drawing just one random
+ uniform number.
 \end_layout
 
 \begin_layout Standard
@@ -818,22 +1185,47 @@ s1[1:10]
 \end_layout
 
 \begin_layout Standard
-Study the first two numbers in the output.
- The first element is 403.
- That's R's indicator for the type of the generator; in R, 403 refers to
- the generator known as MT19937, which is the default random generator in
- R (and most good programs, actually).
+The interesting part is in the first two values.
+ 
+\end_layout
+
+\begin_layout Enumerate
+403.
+ This is a value that R uses to indicate which type of generator created
+ this particular state vector.
+ The value 
+\begin_inset Quotes eld
+\end_inset
+
+03
+\begin_inset Quotes erd
+\end_inset
+
+ indicates that MT19937 is in use, while the value 
+\begin_inset Quotes eld
+\end_inset
+
+4
+\begin_inset Quotes erd
+\end_inset
+
+ means that the inversion method is used to simulate draws from a normal
+ distribution.
+ The Mersenne-Twiseter is the default random generator in R (and most good
+ programs, actually).
+\end_layout
+
+\begin_layout Enumerate
+1.
+ That's a counter.
+ How many random values have been drawn from this particular vector? Only
+ one.
  
 \end_layout
 
 \begin_layout Standard
-The second number in MT19937's state is 1.
- That's a counter.
- It means that this generator's state has, so far, been used only to draw
- one random number.
- Each time we draw another random value, the generator's state counter variable
+Each time we draw another random value, the generator's counter variable
  will be incremented by one.
- Observe the following:
 \end_layout
 
 \begin_layout Standard
@@ -853,58 +1245,6 @@ runif(1)
 \begin_layout Plain Layout
 
 s2 <- .Random.seed
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-## Now compare the first 8 elements of s1 and s2.
- 
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-cbind(s1, s2)[1:8, ]
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-There is not much point in looking at elements 9:626 in the state vector,
- because they are all the same in s1 and s2.
- If we do this over and over again, we will see that, for a long time, the
- members of the state vector in positions 3 through 626 do not change.
- Only the second element changes.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -933,20 +1273,42 @@ cbind(s1, s2, s3)[1:8, ]
 \end_layout
 
 \begin_layout Standard
-That is peculiar to the way MT19937 works.
- The counter marks off how many random values have been drawn.
- The MT19937 generator is fast partly because it does not do fresh calculations
- each time the user asks for a random number.
- It draws from its existing collection of random values.
+I'm only showing the first 8 elements, to save space, but there's nothing
+ especially interesting about elements 9 through 626.
+ They are all are integers, part of an complicated scheme that MANDN created.
+ For our purposes, the important point is that integers 3 through 624 are
+ exactly the same in s1, s2, and s3.
+ If we do this over and over again, we will see that same internal state,
+ over and over.
+ Only the change is in the second element, the counter.
+ That is peculiar to the way MT19937 works.
+ Many other generators do not have counters, and generally they do not have
+ such long internal state vectors.
+ 
 \end_layout
 
 \begin_layout Standard
-One important tidbit to remember is that some random distributions will
- draw more than one number from the random generator object.
- Thus, it may be difficult to replicate various random number sequences
- if we replace some distributions with others.
- As we see in this next example, the default normal distribution object
- in R draws two random values.
+As soon as we draw more random numbers--enough to cause the 2nd variable
+ to increment past 624--then the 
+\emph on
+whole vector
+\emph default
+ changes.
+ I'll draw 621 more values.
+ That will position the generator at the state s4, which is 
+\begin_inset Quotes eld
+\end_inset
+
+on the brink
+\begin_inset Quotes erd
+\end_inset
+
+ of a complete overhaul.
+ In all of the draws up to s4, only the counter, element 2, is changing.
+ The internal state of the generator's elements 3:626 is the same.
+ But when one more random number is drawn, and the generator reaches state
+ s5, the whole vector changes.
+ Observe that the third column is completely different.
 \end_layout
 
 \begin_layout Standard
@@ -960,7 +1322,7 @@ status open
 
 \begin_layout Plain Layout
 
-rnorm(1)
+invisible(runif(621))
 \end_layout
 
 \begin_layout Plain Layout
@@ -970,7 +1332,17 @@ s4 <- .Random.seed
 
 \begin_layout Plain Layout
 
-cbind(s1, s2, s3, s4)[1:8, ]
+invisible(runif(1))
+\end_layout
+
+\begin_layout Plain Layout
+
+s5 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+cbind(s1, s4, s5)[1:8, ]
 \end_layout
 
 \begin_layout Plain Layout
@@ -984,23 +1356,17 @@ cbind(s1, s2, s3, s4)[1:8, ]
 \end_layout
 
 \begin_layout Standard
-The complication here is that if we draw, say, 10 random uniform values,
- and then 1 normal variable, and then 10 more random uniforms, we are actually
- using 22 values from our generator.
- On the other hand, if we draw 10 uniforms, then 1, then 10 more, we get
- completely different uniform values for the last 10 observations we have
- drawn.
- That can cause weird complications when trying to understand why 2 runs
- of very similar models end up in completely different states.
-\end_layout
+After the wholesale change between s4 and s5, another draw produces more
+ 
+\begin_inset Quotes eld
+\end_inset
 
-\begin_layout Standard
-As soon as we draw more random numbers--enough to cause the 2nd variable
- to increment past 623--then the WHOLE VECTOR changes.
- I'll draw 619 more values, and the internal state of the generator's elements
- 3:626 will be the same.
- But when one more random number is drawn, the whole vector changes.
- Observe the third column is completely different.
+business as usual.
+\begin_inset Quotes erd
+\end_inset
+
+ Observe that the internal state of the generator in columns s6 and s7 is
+ not changing, except for the counter.
 \end_layout
 
 \begin_layout Standard
@@ -1010,16 +1376,6 @@ status open
 \begin_layout Plain Layout
 
 <<>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-invisible(runif(619))
-\end_layout
-
-\begin_layout Plain Layout
-
-s5 <- .Random.seed
 \end_layout
 
 \begin_layout Plain Layout
@@ -1034,35 +1390,7 @@ s6 <- .Random.seed
 
 \begin_layout Plain Layout
 
-cbind(s1, s5, s6)[1:8, ]
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Now draw another number and notice that only the second element changes.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<>>=
-\end_layout
-
-\begin_layout Plain Layout
-
-runif(1)
+invisible(runif(1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1072,17 +1400,7 @@ s7 <- .Random.seed
 
 \begin_layout Plain Layout
 
-runif(1)
-\end_layout
-
-\begin_layout Plain Layout
-
-s8 <- .Random.seed
-\end_layout
-
-\begin_layout Plain Layout
-
-cbind(s6, s7, s8)[1:10, ]
+cbind(s4, s5, s6, s7)[1:8, ]
 \end_layout
 
 \begin_layout Plain Layout
@@ -1101,9 +1419,10 @@ Here it goes again, giving random integers to the functions that need them,
 \end_layout
 
 \begin_layout Standard
-The random generator object can be forced back to an earlier state, thus
- making it possible to replicate a stream of random numbers.
- If we were to run set.seed() again, we could begin at the beginning, again.
+Like all R generators, the MT19937 generator can be re-set to any previous
+ saved state.
+ When we run set.seed(12345), that calls an initializing function that resets
+ the .Random.seed vector.
 \end_layout
 
 \begin_layout Standard
@@ -1112,7 +1431,7 @@ status open
 
 \begin_layout Plain Layout
 
-<<>>=
+<<reinit1>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -1141,10 +1460,9 @@ s9 <- .Random.seed
 \end_layout
 
 \begin_layout Standard
-Similarly, we can re-set the generator to any particular saved state.
- The equivalent of running set.seed(12345) is to explicitly replace the state
- of the generator with the saved state variable s1.
- R's assign() function is used to re-set .Random.seed in the global environment.
+It is also possible, however, to achieve the same effect by replacing the
+ value of .Random.seed with a copy of the saved state, which I called s0 in
+ a previous command.
  For example, 
 \end_layout
 
@@ -1154,12 +1472,12 @@ status open
 
 \begin_layout Plain Layout
 
-<<>>=
+<<reinit2>>=
 \end_layout
 
 \begin_layout Plain Layout
 
-assign(".Random.seed", s1, envir=.GlobalEnv)
+assign(".Random.seed", s0, envir=.GlobalEnv)
 \end_layout
 
 \begin_layout Plain Layout
@@ -1188,9 +1506,36 @@ cbind(s1, s9, s10)[1:8, ]
 \end_layout
 
 \begin_layout Standard
-How do I know the default generator is MT19937? The R function RNGkind()
- is used to view and set the type of the random generator.
+The reader should notice that after re-initializing the state of the random
+ generator, we draw the exact same value from runif(1) and after that the
+ state of the generator is the same in all of the cases being compared.
  
+\end_layout
+
+\begin_layout Standard
+The power of the assign statement is that we can re-set the generator to
+ 
+\emph on
+any
+\emph default
+ saved position.
+ This is suggested by Chambers (2008) in his discussion of replication in
+ Monte Carlo experiments.
+ When we begin to draw random numbers, we can save a copy of .Random.seed,
+ and then, at any point in the future, we can re-set the generator's state
+ and repeat the exercise.
+ 
+\end_layout
+
+\begin_layout Subsection
+CMRG, an alternative generator.
+\end_layout
+
+\begin_layout Standard
+In R, only one random generator can be active at a given moment.
+ The type of generator is selected by RNGkind().
+ This will explicitly instruct R to use the algorithms from MT19937.
+ `
 \end_layout
 
 \begin_layout Standard
@@ -1199,12 +1544,12 @@ status open
 
 \begin_layout Plain Layout
 
-<<>>=
+<<crmg2, include=T, eval=F>>=
 \end_layout
 
 \begin_layout Plain Layout
 
-RNGkind()
+RNGkind("Mersenne-Twister")
 \end_layout
 
 \begin_layout Plain Layout
@@ -1218,37 +1563,42 @@ RNGkind()
 \end_layout
 
 \begin_layout Standard
-The output includes two values, the first is the name of the existing random
- generator.
- MT19937 is the short name for the Mersenne-Twister.
- The second value is the algorithm that is used to simulate values from
- a normal distribution.
- 
-\end_layout
-
-\begin_layout Standard
-In R, only one random generator can be active at a given moment.
+That puts the value of .Random.seed to a proper condition in the global environmen
+t.
  When any function needs some random information, perhaps to draw a random
- number from a distribution, or to initialize estimates in a maximum likelihood
- procedure, or to conduct a Bayesian Markov chain Monte Carlo analysis,
- the default methods will draw randomness from the same, single, generator
- that R is currently using.
+ number from a distribution or to initialize estimates in a maximum likelihood
+ procedure, it will draw from the one, established generator.
  
 \end_layout
 
 \begin_layout Standard
-The MT19937 is a great generator with wonderful properties, that is why
- it is the default in R.
- It works very well on a single computer, but it is not so workable in parallel
- programming.
- If we need to initialize 1000 different computers so that they have separate,
- non-overlapping, uncorrelated random number generators, we face a serious
- challenge if we are using MT19937.
- One idea to parallelize MT19937 is to spawn separate generators with slightly
- different internal parameters so that the streams they generate will differ,
- but in a replicable way.
- That approach, for a variety of reasons, not as popular as the alternative,
- which is called the 
+The MT19937 is a great generator with wonderful properties.
+ The cycle of values it provides will not begin to repeat itself until it
+ generates 
+\begin_inset Formula $2^{19937}$
+\end_inset
+
+ values.
+ It performs very well in a series of tests of random number streams.
+ 
+\end_layout
+
+\begin_layout Standard
+The only major shortcoming of MT199937 is that it does not work well in
+ parallel programming.
+ MT19937 can readily provide random numbers for 1000s of runs of a simulation
+ on a single workstation, but it is very difficult to initialize MT19937
+ on many compute nodes in a cluster so that the random streams are not overlappi
+ng.
+ One idea is to spawn separate MT19937 generators with slightly different
+ internal parameters so that the streams they generate will differ.
+ That's the approach suggested in the SPRNG project.
+ 
+\end_layout
+
+\begin_layout Standard
+That approach, for a variety of reasons, not as popular as the alternative,
+ the 
 \begin_inset Quotes eld
 \end_inset
 
@@ -1257,64 +1607,65 @@ many separate substreams
 \end_inset
 
  approach.
- 
-\end_layout
-
-\begin_layout Standard
-The many separate substreams approach can be introduced as follows.
- Think of a really long, practically infinite, vector of randomly generated
- integers.
- This is so long it is, well, practically infinite.
+ The theory for this approach is surprisingly simple.
+ Think of a really long vector of randomly generated integers.
+ This vector is so long it is, well, practically infinite.
  It has more numbers than we would need for thousands of separate projects.
  If we divide this practically infinite vector into smaller pieces, then
  each piece can be treated as its own random number stream.
  Because these separate vectors are drawn from the one really long vector
  of random numbers, then we have confidence that the separate substreams
  are not overlapping each other and are not correlated with each other.
- 
+ But we don't want to run a generator for a really long time so that we
+ can find the subsections of the stream.
+ That would require an impractically huge amount of storage.
+ So, to implement the very simple, solid theory, we just need a practical
+ way to splice into a random vector that we don't want to calculate.
 \end_layout
 
 \begin_layout Standard
-That's the idea, in a nutshell.
- But how can it be accomplished? If we were to try to use MT19937, we would
- face an apparently insurmountable problem of generating the practically
- infinite stream and the sub-dividing it into pieces.
- MT19937 does not offer a direct method to grab 
+That sounds impossible, but a famous paper by 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "lecuyer_object-oriented_2002"
+
+\end_inset
+
+ showed that it can be done.
+ It cannot be done with MT19937, but it can be done with an alternative
+ generator called a combined multiple-recursive generator, or CMRG.
+ The properties of CMRG were established previously by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "lecuyer_good_1999"
+
+\end_inset
+
+.
+ This generator was not included in the base of R until very recently.
+ The solution to the many separate streams problem is an algorithm that
+ can 
 \begin_inset Quotes eld
 \end_inset
 
-sections
+skip
 \begin_inset Quotes erd
 \end_inset
 
- from a not-yet generated sequence.
- 
+ to widely separated points in the sequence that would be generated by the
+ CMRG.
+ Without actually generating the infinite series of values, we can find
+ the generator's internal state at far-apart positions.
+ Fortunately for us, this generator's internal state is also very manageable
+ (it is only 6 integer values), so it is easy to store.
 \end_layout
 
 \begin_layout Standard
-The alternative generator, proposed by L'Ecuyer, makes it possible to 
-\begin_inset Quotes eld
-\end_inset
-
-imagine
-\begin_inset Quotes erd
-\end_inset
-
- that practically infinite vector and then, without actually generating
- all of the values, we can find the generator's internal state at various
- far-apart positions which can then be used to initialize the many separate
- streams.
- This generator's internal state is much smaller than MT19937.
- It is only 6 integer values.
- Second, it is possible.
- This generator was not available in the base of R until very recently.
-\end_layout
-
-\begin_layout Standard
-It is informative to put L'Ecuyer's CMRG generator through its paces, just
- as we explored MT19937.
+Lets explore L'Ecuyer's CMRG generator, just as we explored MT19937.
  First, we tell R to change its default generator, and then we set the seed,
  and draw some values.
+ We draw four uniform random numbers and check the internal state of the
+ generator after each one.
 \end_layout
 
 \begin_layout Standard
@@ -1323,7 +1674,7 @@ status open
 
 \begin_layout Plain Layout
 
-<<>>=
+<<cmrg4>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -1338,45 +1689,17 @@ set.seed(12345)
 
 \begin_layout Plain Layout
 
+t0 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
 runif(1)
 \end_layout
 
 \begin_layout Plain Layout
 
 t1 <- .Random.seed
-\end_layout
-
-\begin_layout Plain Layout
-
-t1
-\end_layout
-
-\begin_layout Plain Layout
-
-@
-\end_layout
-
-\end_inset
-
-Apparently, this generator's assigned number inside the R framework is 407
- and there are 6 other numbers that characterize the state of the random
- generator.
-\end_layout
-
-\begin_layout Standard
-Note that the state of the CMRG process does not include a counter variable
- comparable to the 2nd element in the MT19937's internal state.
- Draw a few more uniform values and check the internal state after each
- one.
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-<<>>=
 \end_layout
 
 \begin_layout Plain Layout
@@ -1425,18 +1748,331 @@ cbind(t1, t2, t3, t4)
 \end_layout
 
 \begin_layout Standard
-Note that all the values in the state vector change when a new random number
- is drawn.
- Unlike the MT19937, where the state remains static after most draws (except
- for the 2nd element), the entire state of CMRG changes with each draw.
+Apparently, this generator's assigned number inside the R framework is 
+\begin_inset Quotes eld
+\end_inset
+
+07
+\begin_inset Quotes erd
+\end_inset
+
+ (the 
+\begin_inset Quotes eld
+\end_inset
+
+4
+\begin_inset Quotes erd
+\end_inset
+
+ still indicates that inversion is being used to simulate normal values).
+ There are 6 integer numbers that characterize the state of the random generator.
+ Note that the state of the CMRG process does not include a counter variable
+ comparable to the 2nd element in the MT19937's internal state.
+ The state vector is thought of as 2 vectors of 3 elements each.
+ Each successive draw shifts the values in those vectors, replacing one
+ value in each.
  
 \end_layout
 
 \begin_layout Standard
-With CMRG, it is difficult to tell if drawing a normally distributed value
- uses 2 values from the random generator.
- Internal to the generator's state, there's no counter that makes it easy
- to tell if the generator has given out two values, or only one.
+The procedure to skip ahead to the starting point of the next stream is
+ implemented in the R function nextRNGStream.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+require(parallel) ## for nextRNGStream
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams <- vector("list", 5)
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams[[1]] <- t0
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams[[2]] <- nextRNGStream(t0)
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams[[3]] <- nextRNGStream(substreams[[2]])
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams[[4]] <- nextRNGStream(substreams[[3]])
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams[[5]] <- nextRNGStream(substreams[[4]])
+\end_layout
+
+\begin_layout Plain Layout
+
+substreams
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+rnorm draws two random values, but runif draws only one
+\end_layout
+
+\begin_layout Standard
+One important tidbit to remember is that simulating draws from some distribution
+s will draw more than one number from the random generator.
+ Some functions use random values when we don't expect them to do so.
+ This can make the random numbers change even if the initial seed in a simulatio
+n is set correctly.
+ I will re-set the stream to the initial position in this example.
+ The normal distribution distribution in R draws two random values, as we
+ see from the count value in internal state of the generator for variable
+ s4.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<norm1>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+RNGkind("Mersenne-Twister")
+\end_layout
+
+\begin_layout Plain Layout
+
+set.seed(12345)
+\end_layout
+
+\begin_layout Plain Layout
+
+runif(1); s1 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+runif(1); s2 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+runif(1); s3 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+rnorm(1); s4 <- .Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+cbind(s1, s2, s3, s4)[1:8, ]
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
+\begin_inset Newline newline
+\end_inset
+
+Note that the counter jumps by two between s3 and s4.
+\end_layout
+
+\begin_layout Standard
+Here's why that might be useful information.
+ Consider this toy example that demonstrates a problem that I have encountered.
+ We expect random numbers to stay in sequence after we initialize the generator.
+ Sometimes, even though it appears we have not made any consequential changes,
+ we may have altered the state of the random generator and accidentally
+ altered values that we have tried to preserve.
+ We draw 3 collections of random numbers.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Schunk}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Sinput}
+\end_layout
+
+\begin_layout Plain Layout
+
+set.seed(12345)
+\end_layout
+
+\begin_layout Plain Layout
+
+x1 <- runif(10)
+\end_layout
+
+\begin_layout Plain Layout
+
+x2 <- rpois(10, lambda=7)
+\end_layout
+
+\begin_layout Plain Layout
+
+x3 <- runif(10)
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Sinput}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Schunk}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now suppose we decide to change the variable x2 to draw from a normal distributi
+on.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Schunk}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{Sinput}
+\end_layout
+
+\begin_layout Plain Layout
+
+set.seed(12345)
+\end_layout
+
+\begin_layout Plain Layout
+
+y1 <- runif(10)
+\end_layout
+
+\begin_layout Plain Layout
+
+y2 <- rnorm(10)
+\end_layout
+
+\begin_layout Plain Layout
+
+y3 <- runif(10)
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Sinput}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{Schunk}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In these two cases, we draw 30 random numbers.
+ I expect that x1 and y1 will be identical, and they are.
+ I know x2 and y2 will differ.
+ But I expected, falsely, that x3 and y3 would be the same.
+ But they are not.
+ 
+\end_layout
+
+\begin_layout Standard
+Why does changing the type of distribution for the second vector also alter
+ the third? To simulate one normal outcome, rnorm draws two variables from
+ the generator.
+ The 10 random values that would have been used to generate the uniform
+ variables in y3 were used by the last 5 draws from the normal.
+ 
+\end_layout
+
+\begin_layout Standard
+The internal counter variable of MT19937 made the 
+\begin_inset Quotes eld
+\end_inset
+
+normal draws two
+\begin_inset Quotes erd
+\end_inset
+
+ problem easy to spot.
+ With CMRG, this problem would be considerably more difficult to diagnose
+ because CMRG offers no counter variable.
  Since we know what to look for, however, we can force the generator to
  tell us what we want to know.
  First, force the generator back to the initial state.
@@ -1465,7 +2101,7 @@ u1 <- .Random.seed
 
 \begin_layout Plain Layout
 
-runif(1)
+invisible(runif(1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1475,7 +2111,7 @@ u2 <- .Random.seed
 
 \begin_layout Plain Layout
 
-runif(1)
+invisible(runif(1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1485,7 +2121,7 @@ u3 <- .Random.seed
 
 \begin_layout Plain Layout
 
-runif(1)
+invisible(runif(1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1495,7 +2131,7 @@ u4 <- .Random.seed
 
 \begin_layout Plain Layout
 
-runif(1)
+invisible(runif(1))
 \end_layout
 
 \begin_layout Plain Layout
@@ -1519,238 +2155,711 @@ cbind(u1, u2, u3, u4, u5)
 \end_layout
 
 \begin_layout Standard
-Note the state of the generator u5 is the same as t4 in the previous example,
- meaning that drawing 5 uniform random variables puts the generator into
- the same state that is reached by drawing 3 uniform values and 1 normal
- variable.
+Note the state of the generator u5 is the same as t4 in the previous section,
+ meaning that drawing 5 uniform random variables puts the CMRG into the
+ same state that is reached by drawing 3 uniform values and 1 normal variable.
  
 \end_layout
 
 \begin_layout Standard
-The CMRG is a very good random generator.
- It cannot generate quite so many values without repeating as MT19937, but
- it generates plenty.
- It is reasonably fast to use and has other good properties that are explained
- in L'Ecuyer (1999).
- The adaptation of CMRG to parallel computing was proposed in L'Ecuyer,
- et al (2002).
- That article demonstrated that CMRG can be used to create many separate
- substreams.
- L'Ecuyer, et al, provided an algorithm, and C code, that can calculate
- the stream's state variables at many widely separated positions.
- Those widely separated positions can thus be used to draw random numbers
- and treat them as if they were separate substreams.
+Lest we start to think that all distribution functions in R will draw a
+ predictable number of values from the generator stream, consider the gamma
+ distribution, which draws an unpredictable number of values from the generator.
+ It is easiest to see that if we change back to MT19937 and then track the
+ counter in the generator's state.
 \end_layout
 
 \begin_layout Standard
-This is advanced in a very famous, very brief essay by
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+RNGkind("Mersenne-Twister")
+\end_layout
+
+\begin_layout Plain Layout
+
+set.seed(12345)
+\end_layout
+
+\begin_layout Plain Layout
+
+invisible(rgamma(1, shape = 1)); v1 <- .Random.seed[1:4]
+\end_layout
+
+\begin_layout Plain Layout
+
+invisible(rgamma(1, shape = 1)); v2 <- .Random.seed[1:4]
+\end_layout
+
+\begin_layout Plain Layout
+
+invisible(rgamma(1, shape = 1)); v3 <- .Random.seed[1:4]
+\end_layout
+
+\begin_layout Plain Layout
+
+invisible(rgamma(1, shape = 1)); v4 <- .Random.seed[1:4]
+\end_layout
+
+\begin_layout Plain Layout
+
+invisible(rgamma(1, shape = 1)); v5 <- .Random.seed[1:4]
+\end_layout
+
+\begin_layout Plain Layout
+
+invisible(rgamma(1, shape = 1)); v6 <- .Random.seed[1:4]
+\end_layout
+
+\begin_layout Plain Layout
+
+cbind(v1, v2, v3, v4, v5, v6)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## L'Ecuyer, et al.
+Most of the time, drawing a single gamma value uses just 2 or 3 numbers
+ from the generator, but 10 percent of the time more draws will be taken
+ from the generator.
+ 
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+A routine generates 10,000 gamma values while tracking the number of values
+ drawn from the random generator for each is included with portableParallelSeeds
+ in the examples folder (gamma_draws.R).
+ 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## L’Ecuyer, Pierre, and R.
- Simard, E.J.Chen and W.D.Kelton.
- (2002) "An
+From experiments like this, we learn that the random number stream is altered
+ in ways that are not necessarily expected.
+ I've encountered similar problems while replicating simulations after slightly
+ altering the code.
+ One might forget, for example, that using a quicksort algorithm to order
+ a set of observations will draw random numbers from the generator, so succeedin
+g simulations of random variables will have unexpected consequences.
+ Many functions, even functions that do not, on the surface, involve randomness,
+ may draw numbers from the generator and alter the sequence that is observed
+ by other functions.
+ Many sorting algorithms, for example, will draw random values to separate
+ values.
+\end_layout
+
+\begin_layout Section
+Example Usage of portableParallelSeeds
 \end_layout
 
 \begin_layout Standard
-## Object-Oriented Random-Number Package With Many Long Streams and
+The following uses seedCreator to generate initializing states for 2000
+ simulation runs.
+ In each of them we allow for three streams.
+ The collection of random generator states is returned as an R object projSeeds,
+ but it is also written on disk in a file called 
+\begin_inset Quotes eld
+\end_inset
+
+fruits.rds
+\begin_inset Quotes erd
+\end_inset
+
+.
+ For no particular reason, I elected to explore the seeds saved for run
+ 787 in this example.
 \end_layout
 
 \begin_layout Standard
-## Substreams." Operations Research, 50, nr.
- 6, 2002.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+library(portableParallelSeeds)
+\end_layout
+
+\begin_layout Plain Layout
+
+projSeeds <- seedCreator(2000, 3, seed = 123456, file = "fruits.rds")
+\end_layout
+
+\begin_layout Plain Layout
+
+A1 <- projSeeds[[787]]
+\end_layout
+
+\begin_layout Plain Layout
+
+A1 ## shows states of 3 generators for run 787
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## It uses the generator and settings set forth here
+Now, scan the seed collection, projSeeds, and put the seeds from run 787
+ into the global environment.
+ We can verify that we have three streams worth of information, but we are
+ using the first 1 at the moment.
 \end_layout
 
 \begin_layout Standard
-## L'Ecuyer, Pierre.
- (1999) "Good Parameters and Implementations for
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+initPortableStreams(projSeeds, run = 787, verbose = TRUE)
+\end_layout
+
+\begin_layout Plain Layout
+
+.Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+getCurrentStream()
+\end_layout
+
+\begin_layout Plain Layout
+
+runif(4)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## Combined Multiple Recursive Random Number Generators." Operations
+Next, verify that if we read the file 
+\begin_inset Quotes eld
+\end_inset
+
+fruits.rds
+\begin_inset Quotes erd
+\end_inset
+
+, we can obtain the exact same set of initializing states.
+ We read from the file and take run 787's seed.
+ We also verify that the initPortableStreams function works to find run
+ 787 in the saved collection.
+ Note that the 4 random uniform values that are drawn exactly match the
+ 4 values drawn in the previous code section.
 \end_layout
 
 \begin_layout Standard
-## Research, 47, 159-164.
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+myFruitySeeds <- readRDS("fruits.rds")
+\end_layout
+
+\begin_layout Plain Layout
+
+B1 <- myFruitySeeds[[787]]
+\end_layout
+
+\begin_layout Plain Layout
+
+identical(A1, B1) # check
+\end_layout
+
+\begin_layout Plain Layout
+
+initPortableStreams("fruits.rds", run=787)
+\end_layout
+
+\begin_layout Plain Layout
+
+.Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+runif(4)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## Think of an infinite string (or practically infinite string) of
+The whole point of portableParallelSeeds is to produce simulations that
+ we can replicate.
+ The next step on the path toward that goal is to write the code to conduct
+ one single run of the simulation exercise.
+ This function draws N normal variables from stream 1, some poisson variates
+ from stream 2, then returns to stream 1 to draw another normal observation.
+ After some testing, we will want to be sure that the N+1 normal values
+ that are drawn in this exercise are the exact same normals that we would
+ draw if we took N+1 values consecutively.
 \end_layout
 
 \begin_layout Standard
-## random integers
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+runOneSimulation <- function(run, streamsource, N, m, sd){
+\end_layout
+
+\begin_layout Plain Layout
+
+initPortableStreams(streamsource, run = run, verbose= FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+datX <- rnorm(N, mean = m, sd = sd)
+\end_layout
+
+\begin_layout Plain Layout
+
+datXmean <- mean(datX)
+\end_layout
+
+\begin_layout Plain Layout
+
+useStream(2)
+\end_layout
+
+\begin_layout Plain Layout
+
+datY <- rpois(N, lambda = m)
+\end_layout
+
+\begin_layout Plain Layout
+
+datYmean <- mean(datY)
+\end_layout
+
+\begin_layout Plain Layout
+
+useStream(1)
+\end_layout
+
+\begin_layout Plain Layout
+
+datXplusOne <- rnorm(1, mean = m, sd = sd)
+\end_layout
+
+\begin_layout Plain Layout
+
+## Should be N+1'th element from first stream
+\end_layout
+
+\begin_layout Plain Layout
+
+c("datXmean" = datXmean, "datYmean" = datYmean, "datXplusOne" = datXplusOne)
+\end_layout
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## begin---------------------------------------------------------------end
- ##
+Now we test the framework in various ways, running 1000 simulations.
 \end_layout
 
 \begin_layout Standard
-## We know from the 1999 paper that such a sequence from CMRG has really
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+## Give seed collection object to each simulation, let each pick desired
+ seed
+\end_layout
+
+\begin_layout Plain Layout
+
+serial1 <- lapply(1:1000, runOneSimulation, projSeeds, N=800, m = 14, sd
+ = 10.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+## Re-load the seed object, then give to simulations
+\end_layout
+
+\begin_layout Plain Layout
+
+fruits2 <- readRDS("fruits.rds")
+\end_layout
+
+\begin_layout Plain Layout
+
+serial2 <- lapply(1:1000, runOneSimulation, fruits2, N=800, m = 14, sd =
+ 10.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+## Re-load file separately in each run (is slower)
+\end_layout
+
+\begin_layout Plain Layout
+
+serial3 <- lapply(1:1000, runOneSimulation, "fruits.rds", N = 800, m = 14,
+ sd=10.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+identical(serial1, serial2)
+\end_layout
+
+\begin_layout Plain Layout
+
+identical(serial1, serial3)
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## good properties.
- It is not predictable, is never correlated, never has patterns, etc.
+Now, lets check the N+1 random normal values.
+ We need to be sure that the 801'th random normal from stream 1 equal to
+ the 3'rd element in the returned vector.
+ Lets check run 912
 \end_layout
 
 \begin_layout Standard
-## That series is so super-long that it can be divided up into sections
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+<<>>=
+\end_layout
+
+\begin_layout Plain Layout
+
+initPortableStreams("fruits.rds", run = 912, verbose = FALSE)
+\end_layout
+
+\begin_layout Plain Layout
+
+.Random.seed
+\end_layout
+
+\begin_layout Plain Layout
+
+X801 <- rnorm(801, m=14, sd = 10.1)
+\end_layout
+
+\begin_layout Plain Layout
+
+X801[801]
+\end_layout
+
+\begin_layout Plain Layout
+
+## now check what we got from simulation 912
+\end_layout
+
+\begin_layout Plain Layout
+
+serial1[[912]]
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+unlink("fruits.rds") #delete file
+\end_layout
+
+\begin_layout Plain Layout
+
+@
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-## and because the sections are part of an unpredictable longer sequence,
+Bingo.
+ I'm right.
+ We can draw a understandably replicatable streams of random numbers, whether
+ we draw 800, switch to a different stream, and then change back to draw
+ another, and obtain the same result if we just draw 801 in one block.
+ 
 \end_layout
 
 \begin_layout Standard
-## the smaller sections are thus never imitating or "repeating" each other.
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+## I'd like to run this to demonstrate multi-core compatability, but
+\end_layout
+
+\begin_layout Plain Layout
+## problems with mclapply on Linux (where tclck is loaded) prevent
+\end_layout
+
+\begin_layout Plain Layout
+## me from expecting to to run on all systems.
+ So I'll comment it out
+\end_layout
+
+\begin_layout Plain Layout
+## for now.
+\end_layout
+
+\begin_layout Plain Layout
+## require(parallel)
+\end_layout
+
+\begin_layout Plain Layout
+## mc1 <- mclapply(1:1000, runOneSimulation, projSeeds, N = 800, m = 14,
+ sd=10.1, mc.cores=3)
+\end_layout
+
+\begin_layout Plain Layout
+## identical(mc1, serial1)
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 ## That is, we can divide it into separate substreams
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## begin----stream 1---end-begin----stream 2----end-begin--stream 3--end
  ##
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## But it goes on, practically for infinity, spawing these new subsequences.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## L'Ecuyer, et al (2002) showed a way to calculate the state of the MCRG
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## generator at each of the starting points.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## So, if we want, say, 10,000 separate sequences of random numbers, we
  can
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## ask for 10,000 starting points, and then re-initialize the generator
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## at any given point when we want.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## On a single computer, this gives us the comfort that we can position
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## the generator at any desired location.
  More importantly, it means
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## that within a given project, we might want several sources of
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## randomness to draw on.
  So if we allocate, say, 3 streams to a
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## particular simulation exercise, then all we need to do is tell
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## the generator "use stream 1 now" and "use stream 2 now" and so
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## forth.
  Thus we could use stream 1 to generate data about students
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## and stream 2 could generate data about teachers, and we could
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## add more students or more teachers at any time and there would be
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## no danger that drawing random numbers for students would somehow
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## distrub the stream about teachers.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## In a parallel setting, it has an even more stupendous implication.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## We can split up the work among N completely separate computers,
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## divide up the seeds among them, and we can thus generate completely
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## replicable simulations.
  If we run, say, 10,000 simulations, and
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## simulation number 8891 appears "peculiar," we can grab the seeds
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## that launched experiment 8891 and re-generate that simulation exactly.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## One key point is that we can generate that run.
  The other key point
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## is that we DO NOT have to regeneate runs 1-8890 before getting to
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 ## re-run 8891.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 This project develops one approach to create replicable simulations.
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Here's my proposal.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 1.
  Run a preliminary program to generate an array of seeds.
  A table representing these saved seeds is presented in Table 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 These are not 
 \begin_inset Quotes eld
 \end_inset
@@ -1762,24 +2871,24 @@ integer
  seeds that can be supplied to the random generator with an R command like
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 set.seed(12345).
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Rather, they are the internal states of the random number generator.
  These states can be reset at any time so that the random number stream
  can be replicated.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 This example provides 3 separate streams of random numbers within each run.
  Because we will use the L'Ecuyer "many separate streams" approach, we are
  confident that there is no correlation or overlap between any of the runs.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The projSeeds has to have one row per project, but it is not a huge file.
  I created seeds for 2000 runs of a project that requires 2 seeds per run.
  The saved size of the file 104443kb, which is very small.
@@ -1788,13 +2897,13 @@ The projSeeds has to have one row per project, but it is not a huge file.
  pretty small.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Because the seeds are saved in a file, we are sure each run can be replicated.
  We just have to teach each program how to use the seeds.
  That is step two.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 2.
  Inside each run, an initialization function runs that loads the seeds file
  and takes the row of seeds that it needs.
@@ -1804,7 +2913,7 @@ Because the seeds are saved in a file, we are sure each run can be replicated.
  "currentStream" with the function useStream().
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The function initSeedStreams creates several objects in the global environment.
  It sets the integer currentStream, as well as two list objects, startSeeds
  and currentSeeds.
@@ -1815,82 +2924,118 @@ The function initSeedStreams creates several objects in the global environment.
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Now, for the proof of concept.
  A working example.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Step 1.
  Create the Seeds.
  Review the R program
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 seedCreator.R
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 That creates the file "projSeeds.rda".
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Step 2.
  Use one row of seeds per run.
  
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Please review "controlledSeeds.R" to see an example usage that I've tested
  on a cluster.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 "controlledSeeds.R" can also be run on a single workstation for testing purposes.
  There is a variable "runningInMPI" which determines whether the code is
  supposed to run on the RMPI cluster or just in a single workstation.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The code for each run of the model begins by loading the required libraries
  and loading the seed file, if it exists, or generating a new "projSeed"
  object if it is not found.
  
 \end_layout
 
-\begin_layout Standard
-library(parallel) RNGkind("L'Ecuyer-CMRG") set.seed(234234) if (file.exists("projS
-eeds.rda")) { load("projSeeds.rda") } else { source("seedCreator.R") }
+\begin_layout Plain Layout
+library(parallel) 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
+RNGkind("L'Ecuyer-CMRG") 
+\end_layout
+
+\begin_layout Plain Layout
+set.seed(234234)
+\end_layout
+
+\begin_layout Plain Layout
+if (file.exists("projSeeds.rda")) { 
+\end_layout
+
+\begin_layout Plain Layout
+load("projSeeds.rda") 
+\end_layout
+
+\begin_layout Plain Layout
+} else { 
+\end_layout
+
+\begin_layout Plain Layout
+source("seedCreator.R") 
+\end_layout
+
+\begin_layout Plain Layout
+}
+\end_layout
+
+\begin_layout Plain Layout
 ## Suppose the "run" number is: run <- 232 initSeedStreams(run) 
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 After that, R's random generator functions will draw values from the first
  random random stream that was initialized in projSeeds.
  When each repetition (run) occurs, R looks up the right seed for that run,
  and uses it.
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 If the user wants to begin drawing observations from the second random stream,
  this command is used:
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 useStream(2)
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 If the user has drawn values from stream 1 already, but wishes to begin
  again at the initial point in that stream, use this command
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 useStream(1, origin = TRUE)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Frequently Asked Questions
 \end_layout
 
 \begin_layout Standard
@@ -1942,97 +3087,24 @@ Nevertheless, it is a method that is widely used and recommended by some
 \end_layout
 
 \begin_layout Standard
-Citations
+
+\end_layout
+
+\begin_layout Section
+Conclusion
 \end_layout
 
 \begin_layout Standard
-Hana Sevcikova and A.
- J.
- Rossini (2010).
- snowFT: Fault Tolerant Simple Network of Workstations.
- R package version 1.2-0.
- http://CRAN.R-project.org/package=snowFT
+This paper describes an R package called portableParallelSeeds.
+ The package provides functions that can generate a seed collection which
+ can be put to use in a series of simulation runs.
+ The approach described here is based on the re-initialization of individual
+ runs, and thus it will work whether the simulations are conducted on a
+ single computer or in a cluster computer.
 \end_layout
 
 \begin_layout Standard
-John M Chambers (2008).
- SoDA: Functions and Exampels for "Software for Data Analysis".
- R package version 1.0-3.
-\end_layout
-
-\begin_layout Standard
-John M Chambers (2008) Software for Data Analysis.
- Springer.
-\end_layout
-
-\begin_layout Standard
-R novices sometimes use Google to search for R advice and they find it,
- good or bad.
- They may find their way to the r-help email list, where advice is generally
- good, or to the StackOverflow pages for R, which may be better.
- A lot of advice is offered by people like me, who may have good intentions,
- but are simply not qualified to offer advice.
- 
-\end_layout
-
-\begin_layout Standard
-One of the few bits of advice that seems to grab widespread support is that
- 
-\begin_inset Quotes eld
-\end_inset
-
-for loops are bad.
-\begin_inset Quotes erd
-\end_inset
-
- One can write an lapply statement in one line, while a for loop can take
- 3 lines.
- The code is shorter, but it won't necessarily run more quickly.
- I recall being jarred by this revelation in John Chambers's book, 
-\emph on
-Software for Data Analysis
-\emph default
-.
- The members of the apply family (apply, lapply, sapply, etc) can make for
- more readable code, but they aren't always faster.
- 
-\begin_inset Quotes eld
-\end_inset
-
-However, none of the apply mechanisms changes the number of times the supplied
- function is called, so serious improvements will be limited to iterating
- simple calculations many times.
- Otherwise, the n evaluations of the function can be expected to be the
- dominant fraction of the computation
-\begin_inset Quotes erd
-\end_inset
-
-
-\begin_inset CommandInset citation
-LatexCommand citep
-after "213"
-key "chambers_software_2008"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-Todo: insert discussion of stackListItems-001.
-\end_layout
-
-\begin_layout Standard
-Insert alternative methods of measuring executation time and measuring performan
-ce
-\end_layout
-
-\begin_layout Standard
-Balance time spent optimizing code versus time spent running program.
-\end_layout
-
-\begin_layout Standard
-It is a solution for two separate problems.
+The tools provided are intended to help with situations like the following.
 \end_layout
 
 \begin_layout Standard
@@ -2041,17 +3113,33 @@ Problem 1.
  streams for each one.
  Each simulation runs separately, but I need to be confident their streams
  are not correlated or overlapping.
- For replication, I need to be able to select any run, say 667, and restart
- it exactly as it was.
+ I need to feel confident that the results will be the same, whether or
+ not I run these in a cluster with 4 computers, or 4000 computers.
 \end_layout
 
 \begin_layout Standard
 Problem 2.
- I've written a Parallel MPI (Message Passing Interface) routine that launches
- 1000 runs and I need to assure each has a unique, replicatable, random
- stream.
- I need to be able to select any run, say 667, and restart it exactly as
- it was.
+ For replication, I need to be able to select any run, and restart it exactly
+ as it was.
+ That means I need pretty good record keeping along with a simple approach
+ for bringing simulations back to life.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+theendnotes{}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
