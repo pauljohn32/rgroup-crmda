@@ -1,4 +1,6 @@
+export(useStream)
 export(getCurrentStream)
 export(initPortableStreams)
 export(seedCreator)
-export(useStream)
+export(update.portableSeeds)
+S3method(update, portableSeeds)

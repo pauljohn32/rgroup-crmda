@@ -17,8 +17,6 @@ random numbers.
 \tabular{ll}{
 Package: \tab portableParallelSeeds\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
-Date: \tab 2012-10-24\cr
 License: \tab GPL (v >= 2)\cr
 }
 This demonstrates one way to create and use a collection of initializing
