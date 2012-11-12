@@ -36,6 +36,7 @@
 ##'    not population mean and covariance matrix.
 ##' @param EISPACK logical. Set to true to reproduce results from MASS
 ##'    versions prior to 3.1-21.
+##' @imports MASS
 ##' @export mvrnorm
 ##' @return If \code{n = 1} a vector of the same length as \code{mu}, otherwise an
 ##'  \code{n} by \code{length(mu)} matrix with one sample in each row.
