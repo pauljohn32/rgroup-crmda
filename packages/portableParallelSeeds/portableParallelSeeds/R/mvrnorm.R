@@ -26,7 +26,7 @@
 ##' confusion among researchers, some of whom exect the rows should be
 ##' the same up to a point, while others expect that each column
 ##' should be completely replaced each time.
-##' @param n the number of samples ("rows" of data) required.}
+##' @param n the number of samples ("rows" of data) required.
 ##' @param mu a vector giving the means of the variables.
 ##' @param Sigma positive-definite symmetric matrix specifying the
 ##'    covariance matrix of the variables.
