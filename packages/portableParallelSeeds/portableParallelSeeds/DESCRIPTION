@@ -20,8 +20,13 @@ Description: Creates, saves, reloads, and selects among streams of
     saved seeds are properly put to user when a particular run is to be
     executed. This framework allows each "run" to draw from several
     separate streams of random numbers.
-Version: 0.5.2
+Version: 0.5.4
 Repository: CRAN
 Date: 2012-11-1
-Depends: parallel
-Collate: 'initPortableStreams.R' 'seedCreator.R' 'zzz.R'
+Depends:
+    parallel
+Collate:
+    'initPortableStreams.R'
+    'seedCreator.R'
+    'zzz.R'
+    'mvrnorm.R'

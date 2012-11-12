@@ -1,3 +1,16 @@
+2012-11-12  pauljohn  <pauljohn@pjlap-124.ku.edu>
+
+	* ../R/mvrnorm.R: new function to address sample size impact on
+	output from MASS mvrnorm.
+
+	* ../../buildPackage.sh (VERSION): revising from svn export to use
+	the git idiom: 
+	mkdir $PACKAGE.gitex
+	cd $PACKAGE
+	git archive master | tar -x -C ../$PACKAGE.gitex
+	..
+	This is a bit frustrating, see 	http://stackoverflow.com/questions/160608/how-to-do-a-git-export-like-svn-export
+
 2012-10-30  pauljohn  <pauljohn@pjlap-124.ku.edu>
 
 	* ../R/seedCreator.R (update.portableSeeds): update.portableSeeds

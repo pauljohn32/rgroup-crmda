@@ -8,10 +8,13 @@ PACKAGE="portableParallelSeeds"
 
 VERSION=$(awk -F": +" '/^Version/ { print $2 }' ${PACKAGE}/DESCRIPTION)
 
-rm -rf ${PACKAGE}.svnex
+rm -rf ${PACKAGE}.gitex
 
-svn export ${PACKAGE} ${PACKAGE}.svnex
-cd ${PACKAGE}.svnex/vignettes
+mkdir ${PACKAGE}.gitex
+cd ${PACKAGE}
+git archive master | tar -x -C "../${PACKAGE}.gitex"
+cd ..
+cd ${PACKAGE}.gitex/vignettes
 
 lyx -e pdf2 pps.lyx
 lyx -e sweave pps.lyx
@@ -21,11 +24,12 @@ cd ../..
 
 R --vanilla <<EOR
 library(roxygen2)
-roxygenize("${PACKAGE}.svnex")
+roxygenize("${PACKAGE}.gitex")
 
 EOR
 
-R CMD build ${PACKAGE}.svnex
+R CMD build ${PACKAGE}.gitex
+
 
 read -p "Run check: OK? (y or n)" result
 
