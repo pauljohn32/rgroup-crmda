@@ -4,3 +4,5 @@ export(mvrnorm)
 export(seedCreator)
 export(useStream)
 S3method(update,portableSeeds)
+import(MASS)
+
