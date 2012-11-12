@@ -25,6 +25,8 @@ Repository: CRAN
 Date: 2012-11-12
 Depends:
     parallel
+Imports:
+    MASS
 Collate:
     'initPortableStreams.R'
     'seedCreator.R'
