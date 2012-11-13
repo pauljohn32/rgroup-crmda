@@ -41,3 +41,15 @@ read -p "Install: OK? (y or n)" result
 if [ $result = "y" ]; then
 R CMD INSTALL ${PACKAGE}_${VERSION}.tar.gz
 fi
+
+
+read -p "Erase git temporary: OK? (y or n)" result
+if [ $result = "y" ]; then
+rm -rf ${PACKAGE}.gitex
+fi
+
+
+read -p "Erase Rcheck temporary: OK? (y or n)" result
+if [ $result = "y" ]; then
+rm -rf ${PACKAGE}.Rcheck
+fi
