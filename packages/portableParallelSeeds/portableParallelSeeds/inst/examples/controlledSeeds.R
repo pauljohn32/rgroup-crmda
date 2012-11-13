@@ -5,8 +5,8 @@
 
 library(parallel)
 library(portableParallelSeeds)
-##RNGkind("L'Ecuyer-CMRG")
-##set.seed(234234)
+##that causes environment to be set like: RNGkind("L'Ecuyer-CMRG")
+
 
 runOneSimulation <- function(run, projSeeds, parm){
   initPortableStreams(projSeeds, run = run)
@@ -25,13 +25,7 @@ parms <- list("N" = 999, STDEE = 12)
 
 projSeeds <- seedCreator(nReps, streamsPerRep, seed = 123456, file = "seeds.rds")
 
-
-
-
-
 serial1 <- lapply(1:nReps, runOneSimulation, projSeeds, parm = parms)
-
-
 
 
 cl <- makeCluster(4, "MPI")
@@ -79,7 +73,7 @@ head(model.matrix(parallel1.2005[[7]]$m1))
 
 head(model.matrix(serial1[[7]]$m1)
 
-          
+
 library(snow)
 stopCluster(cl)
 mpi.quit()
