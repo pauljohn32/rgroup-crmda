@@ -28,6 +28,9 @@ roxygenize("${PACKAGE}.gitex")
 
 EOR
 
+
+rsync -ra ${PACKAGE}.gitex/man ${PACKAGE}
+
 R CMD build ${PACKAGE}.gitex
 
 

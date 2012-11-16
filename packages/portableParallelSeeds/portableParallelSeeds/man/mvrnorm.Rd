@@ -7,7 +7,7 @@
 }
 \arguments{
   \item{n}{the number of samples ("rows" of data)
-  required.}}
+  required.}
 
   \item{mu}{a vector giving the means of the variables.}
 
